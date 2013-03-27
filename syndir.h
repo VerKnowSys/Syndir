@@ -1,5 +1,5 @@
 /**
- *  @author dmilith, tallica
+ *  @author dmilith
  *
  *   © 2013 - VerKnowSys
  *
@@ -12,7 +12,7 @@
 #include <QtCore>
 #include <libssh2.h>
 
-#include "file_watcher.h"
+#include "file_watchers_manager.h"
 #include "ssh_wrapper/Connection.h"
 #include "ssh_wrapper/Exception.h"
 #include "ssh_wrapper/UserInfo.h"
@@ -21,7 +21,13 @@
 using namespace SSH2Wrapper;
 
 
+#define APP_VERSION "0.1.0"
+#define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
+#define DEFAULT_STRING_CODEC "UTF8"
+
+
 void usage();
+const QStack<QString> *scanDir(QDir dir);
 
 
 #endif

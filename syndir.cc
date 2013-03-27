@@ -8,29 +8,6 @@
 #include "syndir.h"
 
 
-using namespace std;
-
-
-#define APP_VERSION "0.1.0"
-#define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
-#define DEFAULT_STRING_CODEC "UTF8"
-
-
-/* by tallica */
-const QStack<QString> *scanDir(QDir dir) {
-    QStack<QString> *files = new QStack<QString>();
-    dir.setFilter(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
-    QDirIterator it(dir, QDirIterator::Subdirectories);
-
-    files->push(dir.absolutePath());
-
-    while (it.hasNext())
-        files->push(it.next());
-
-    return files;
-}
-
-
 void usage() {
     qDebug() << "Usage:" << endl
              << "Syndir /source/directory/name user@destination_server:/destination_path";
@@ -48,8 +25,7 @@ bool sshConnectionTest(const QString& remoteSSHPath) {
         Connection connection(hostName.toStdString(), 22, true);
         connection.setKeyPath(string("/Users/") + userName.toStdString() + string("/.ssh"));
 
-        UserInfo ui = connection.getUserInfo();
-
+        // UserInfo ui = connection.getUserInfo();
         // cout    << "User infos:\n"
         //         << "   login: " << ui.getUserName() << endl
         //         << "    home: " << ui.getHomeDir() << endl
@@ -60,13 +36,12 @@ bool sshConnectionTest(const QString& remoteSSHPath) {
         if (connection.isSessionValid())
             qDebug() << "Connection OK";
 
-        connection  >> "whoami"
-                    >> "id"
-                    >> "echo 'test' > msg"
-                    >> "cat msg";
-
-        QString received_out = connection.getLastOutput().c_str();
-        qDebug() << "Received output:\n" << received_out;
+        // connection  >> "whoami"
+        //             >> "id"
+        //             >> "echo 'test' > msg"
+        //             >> "cat msg";
+        // QString received_out = connection.getLastOutput().c_str();
+        // qDebug() << "Received output:\n" << received_out;
 
         return true;
 
@@ -95,16 +70,10 @@ int main(int argc, char *argv[]) {
         qDebug() << "SSH Connection test failed! Check your public key configuration or look for typo in cmdline";
         exit(1);
     }
-    QList<FileWatcher *> fileWatchers;
-    const QStack<QString> *files = scanDir(QDir(sourceDir));
     qDebug() << "Watching:" << sourceDir << "with sync to:" << fullDestinationSSHPath;
-    qDebug() << "Total files:" << files->size();
-
     qDebug() << "Creating file watches recursively…";
-    for (int i = 0; i < files->size(); ++i) {
-        auto entry = files->at(i);
-        fileWatchers << new FileWatcher(entry, fullDestinationSSHPath);
-    }
+    new FileWatchersManager(sourceDir, fullDestinationSSHPath);
+
 
     return app.exec();
 }
