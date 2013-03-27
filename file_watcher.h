@@ -5,8 +5,9 @@
  *
  */
 
-#ifndef __SYNDIR_H__
-#define __SYNDIR_H__
+#ifndef __FILE_WATCHER_H__
+#define __FILE_WATCHER_H__
+
 
 #include <QtCore>
 #include <QObject>
@@ -19,29 +20,19 @@ class FileWatcher: public QFileSystemWatcher {
     Q_OBJECT
 
     public:
-        FileWatcher(const QString& name);
-        // ~SvdServiceWatcher();
+        FileWatcher(const QString& name, const QString& remoteSSHPath);
 
     private:
         QString dataDir;
-
-        // void cleanupTriggerHookFiles();
+        QString remotePath;
+        QString userName;
+        QString hostName;
 
     signals:
-        // void installService();
-        // void configureService();
-        // void validateService();
-        // void startService();
-        // void afterStartService();
-        // void stopService();
-        // void afterStopService();
-        // void restartService();
-        // void reloadService();
 
     public slots:
         // void shutdownSlot();
         void dirChangedSlot(const QString& dir);
-        // void fileChangedSlot(const QString& file);
 
 };
 
