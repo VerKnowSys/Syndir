@@ -5,10 +5,8 @@
  *
  */
 
-#include <QtCore>
-#include <libssh2.h>
+#include "syndir.h"
 
-#include "file_watcher.h"
 
 using namespace std;
 
@@ -39,6 +37,46 @@ void usage() {
 }
 
 
+bool sshConnectionTest(const QString& remoteSSHPath) {
+    QStringList sshDirPartial = remoteSSHPath.split(":");
+    QStringList sshUserServerPartial = sshDirPartial.value(0).split("@"); /* first part is user@host */
+    QString remotePath = sshDirPartial.value(1); /* last one is a remote path */
+    QString userName = sshUserServerPartial.value(0);
+    QString hostName = sshUserServerPartial.value(1);
+
+    try {
+        Connection connection(hostName.toStdString(), 22, true);
+        connection.setKeyPath(string("/Users/") + userName.toStdString() + string("/.ssh"));
+
+        UserInfo ui = connection.getUserInfo();
+
+        // cout    << "User infos:\n"
+        //         << "   login: " << ui.getUserName() << endl
+        //         << "    home: " << ui.getHomeDir() << endl
+        //         << "   shell: " << ui.getUserShell() << endl;
+
+        connection.mkConnection();
+
+        if (connection.isSessionValid())
+            qDebug() << "Connection OK";
+
+        connection  >> "whoami"
+                    >> "id"
+                    >> "echo 'test' > msg"
+                    >> "cat msg";
+
+        QString received_out = connection.getLastOutput().c_str();
+        qDebug() << "Received output:\n" << received_out;
+
+        return true;
+
+    } catch (Exception & e) {
+        qDebug() << "Exception caught: " << e.what();
+    }
+    return false;
+}
+
+
 int main(int argc, char *argv[]) {
 
     QCoreApplication app(argc, argv);
@@ -51,40 +89,21 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     QString sourceDir = args.at(1);
-    QString destinationDir = args.at(2);
+    QString fullDestinationSSHPath = args.at(2);
 
-    QStringList sshDirPartial = destinationDir.split(":");
-    QStringList sshUserServerPartial = sshDirPartial.value(0).split("@"); /* first part is user@host */
-    QString remotePath = sshDirPartial.value(1); /* last one is a remote path */
-    QString userName = sshUserServerPartial.value(0);
-    QString hostName = sshUserServerPartial.value(1);
-
-    qDebug() << "Remote setup inspection:\nRemote user:" << userName << "\nRemote host:" << hostName << "\nRemote path:" << remotePath;
-
-    if (userName.isEmpty()) {
-        qDebug() << "No user name specified, trying to get it from ENV.";
-        userName = getenv("USER");
-    }
-
-    if (hostName.isEmpty() or userName.isEmpty()) {
-        qDebug() << "Invalid (empty) host or user name.";
-        usage();
+    if (!sshConnectionTest(fullDestinationSSHPath)) {
+        qDebug() << "SSH Connection test failed! Check your public key configuration or look for typo in cmdline";
         exit(1);
     }
-    qDebug() << "Watching:" << sourceDir << "with sync to:" << destinationDir;
-
     QList<FileWatcher *> fileWatchers;
-
     const QStack<QString> *files = scanDir(QDir(sourceDir));
+    qDebug() << "Watching:" << sourceDir << "with sync to:" << fullDestinationSSHPath;
     qDebug() << "Total files:" << files->size();
 
     qDebug() << "Creating file watches recursively…";
     for (int i = 0; i < files->size(); ++i) {
         auto entry = files->at(i);
-        auto watcher = new FileWatcher(entry, remotePath);
-        watcher->addPath(entry);
-        // qDebug() << "Adding:" << entry;
-        fileWatchers << watcher;
+        fileWatchers << new FileWatcher(entry, fullDestinationSSHPath);
     }
 
     return app.exec();
