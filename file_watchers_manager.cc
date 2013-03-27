@@ -51,10 +51,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
+    removePaths(files);
     disconnect(SIGNAL(fileChanged(QString)));
     disconnect(SIGNAL(directoryChanged(QString)));
 
-    removePaths(files);
     files.clear();
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
     QDirIterator it(dir, QDirIterator::Subdirectories);
@@ -63,11 +63,10 @@ void FileWatchersManager::scanDir(QDir dir) {
     while (it.hasNext())
         files << it.next();
 
-    addPaths(files);
-
     /* connect hooks to invokers */
     connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
     connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
+    addPaths(files);
 }
 
 
