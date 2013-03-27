@@ -30,6 +30,11 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#ifdef __FreeBSD__
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+#endif
+
 #include "Exception.h"
 #include "UserInfo.h"
 

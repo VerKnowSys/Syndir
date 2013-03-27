@@ -10,7 +10,6 @@
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
-    scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
 
     /* user might be implicit: */
     QStringList sshDirPartial = fullDestinationSSHPath.split(":");
@@ -38,23 +37,23 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
+    scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
     qDebug() << "Total files:" << files.size();
     qDebug() << "Traversing paths";
 
-    for (int i = 0; i < files.size(); ++i) {
-        auto entry = files.at(i);
-        qDebug() << "Entry:" << entry;
+    // for (int i = 0; i < files.size(); ++i) {
+    //     auto entry = files.at(i);
+    //     qDebug() << "Entry:" << entry;
         // new FileWatcher(entry, this);
-    }
-
-    /* connect hooks to invokers */
-    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
-    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
+    // }
 }
 
 
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
+    disconnect(SIGNAL(fileChanged(QString)));
+    disconnect(SIGNAL(directoryChanged(QString)));
+
     removePaths(files);
     files.clear();
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
@@ -65,6 +64,10 @@ void FileWatchersManager::scanDir(QDir dir) {
         files << it.next();
 
     addPaths(files);
+
+    /* connect hooks to invokers */
+    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
 }
 
 
