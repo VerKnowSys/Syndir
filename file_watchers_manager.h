@@ -31,20 +31,9 @@ class FileWatchersManager: public QFileSystemWatcher {
         QString userName;
         QString hostName;
 
-    //     QString dataDir;
-    //     QString remotePath;
-    //     QString userName;
-    //     QString hostName;
-
-
-    // signals:
 
     public slots:
         void fileChangedSlot(const QString& file);
-
-    // public slots:
-        // void fileChangedSlot(const QString& file);
-        // void dirChangedSlot(const QString& dir);
 
 };
 

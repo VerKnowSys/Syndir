@@ -16,10 +16,22 @@ void usage() {
 
 bool sshConnectionTest(const QString& remoteSSHPath) {
     QStringList sshDirPartial = remoteSSHPath.split(":");
-    QStringList sshUserServerPartial = sshDirPartial.value(0).split("@"); /* first part is user@host */
+
+    /* user might be implicit: */
+    QString userWithHost = sshDirPartial.value(0);
+    QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
+    QRegExp emailSign("@");
+    QString userName, hostName;
+    if (!userWithHost.contains(emailSign)) {
+        userName = getenv("USER"); /* set username if not given explicitly */
+        hostName = sshUserServerPartial.value(0);
+        qDebug() << "Implicit" << userName << hostName;
+    } else { /* or explicit */
+        qDebug() << "Explicit";
+        userName = sshUserServerPartial.value(0);
+        hostName = sshUserServerPartial.value(1);
+    }
     QString remotePath = sshDirPartial.value(1); /* last one is a remote path */
-    QString userName = sshUserServerPartial.value(0);
-    QString hostName = sshUserServerPartial.value(1);
 
     try {
         Connection connection(hostName.toStdString(), 22, true);

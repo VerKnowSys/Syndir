@@ -10,17 +10,27 @@
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
-    this->fullDestinationSSHPath = fullDestinationSSHPath;
+    this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
     this->files = scanDir(QDir(sourceDir));
+
+    /* user might be implicit: */
     QStringList sshDirPartial = fullDestinationSSHPath.split(":");
-    QStringList sshUserServerPartial = sshDirPartial.value(0).split("@"); /* first part is user@host */
+    QString userWithHost = sshDirPartial.value(0);
+    QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
+    QRegExp emailSign("@");
+    if (!userWithHost.contains(emailSign)) {
+        this->userName = getenv("USER"); /* set username if not given explicitly */
+        this->hostName = sshUserServerPartial.value(0);
+        qDebug() << "Implicit" << userName << hostName;
+    } else { /* or explicit */
+        qDebug() << "Explicit";
+        this->userName = sshUserServerPartial.value(0);
+        this->hostName = sshUserServerPartial.value(1);
+    }
     this->remotePath = sshDirPartial.value(1); /* last one is a remote path */
-    this->userName = sshUserServerPartial.value(0);
-    this->hostName = sshUserServerPartial.value(1);
 
     if (this->userName.isEmpty()) {
         qDebug() << "No user name specified, trying to get it from ENV.";
-        this->userName = getenv("USER");
     }
 
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
