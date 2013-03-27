@@ -78,5 +78,4 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
     qDebug() << "Dir changed:" << dir;
 }
 
-
 }
