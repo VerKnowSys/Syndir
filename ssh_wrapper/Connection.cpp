@@ -128,7 +128,7 @@ void Connection::mkConnection() throw (Exception)
 	s.sin_family = he->h_addrtype;
 	s.sin_port = htons (this->port);
 	hSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (hSocket < 0)
+	if ((long)hSocket < 0)
 		throw Exception ("Failed to create socket.");
 
 	if (connect(hSocket, (struct sockaddr*) &s, sizeof (struct sockaddr_in)) < 0)
