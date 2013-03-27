@@ -37,9 +37,9 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
+    qDebug() << "Traversing paths";
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
     qDebug() << "Total files:" << files.size();
-    qDebug() << "Traversing paths";
 
     // for (int i = 0; i < files.size(); ++i) {
     //     auto entry = files.at(i);
@@ -51,9 +51,9 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
-    removePaths(files);
     disconnect(SIGNAL(fileChanged(QString)));
     disconnect(SIGNAL(directoryChanged(QString)));
+    removePaths(files);
 
     files.clear();
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
