@@ -1,5 +1,5 @@
 /**
- *  @author dmilith, tallica
+ *  @author dmilith
  *
  *   © 2013 - VerKnowSys
  *
@@ -11,28 +11,21 @@
 
 #include <QtCore>
 #include <QObject>
-#include <QFile>
-#include <QEventLoop>
 #include <QFileSystemWatcher>
+
+#include "file_watchers_manager.h"
+#include "syndir.h"
 
 
 class FileWatcher: public QFileSystemWatcher {
     Q_OBJECT
 
     public:
-        FileWatcher(const QString& name, const QString& remoteSSHPath);
+        FileWatcher(const QString& name, FileWatchersManager* manager);
+
 
     private:
         QString dataDir;
-        QString remotePath;
-        QString userName;
-        QString hostName;
-
-    signals:
-
-    public slots:
-        // void shutdownSlot();
-        void dirChangedSlot(const QString& dir);
 
 };
 
