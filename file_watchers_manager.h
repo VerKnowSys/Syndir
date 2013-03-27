@@ -12,7 +12,6 @@
 #include <QtCore>
 
 #include "syndir.h"
-// #include "file_watcher.h"
 #include "file_watchers_manager.h"
 
 
@@ -21,11 +20,11 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     public:
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
-        const QStack<QString>* scanDir(QDir dir);
+        void scanDir(QDir dir);
 
 
     private:
-        const QStack<QString> *files;
+        QStringList files;
         QString fullDestinationSSHPath;
         QString remotePath;
         QString userName;

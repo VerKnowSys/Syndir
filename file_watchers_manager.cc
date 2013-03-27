@@ -6,12 +6,11 @@
  */
 
 #include "syndir.h"
-#include "file_watcher.h"
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
-    this->files = scanDir(QDir(sourceDir));
+    scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
 
     /* user might be implicit: */
     QStringList sshDirPartial = fullDestinationSSHPath.split(":");
@@ -39,13 +38,13 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    qDebug() << "Total files:" << files->size();
+    qDebug() << "Total files:" << files.size();
     qDebug() << "Traversing paths";
 
-    for (int i = 0; i < files->size(); ++i) {
-        auto entry = files->at(i);
+    for (int i = 0; i < files.size(); ++i) {
+        auto entry = files.at(i);
         qDebug() << "Entry:" << entry;
-        new FileWatcher(entry, this);
+        // new FileWatcher(entry, this);
     }
 
     /* connect hooks to invokers */
@@ -54,29 +53,33 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 }
 
 
-/* by tallica */
-const QStack<QString>* FileWatchersManager::scanDir(QDir dir) {
-    auto files = new QStack<QString>();
+/* by tallica & dmilith */
+void FileWatchersManager::scanDir(QDir dir) {
+    removePaths(files);
+    files.clear();
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
-    // dir.setFilter(QRegExp("c|cc|cpp|h|scala|rb"));
     QDirIterator it(dir, QDirIterator::Subdirectories);
-    files->push(dir.absolutePath());
+    files << dir.absolutePath();
 
     while (it.hasNext())
-        files->push(it.next());
+        files << it.next();
 
-    return files;
+    addPaths(files);
 }
 
 
 void FileWatchersManager::fileChangedSlot(const QString& file) {
     qDebug() << "File changed:" << file;
+
 }
 
 
 void FileWatchersManager::dirChangedSlot(const QString& dir) {
     qDebug() << "Dir changed:" << dir;
+    scanDir(QDir(dir));
 }
 
 
+void commit() {
+    qDebug() << "Commiting:";
 }

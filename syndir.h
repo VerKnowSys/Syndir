@@ -21,7 +21,7 @@
 using namespace SSH2Wrapper;
 
 
-#define APP_VERSION "0.1.0"
+#define APP_VERSION "0.2.0"
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
 
