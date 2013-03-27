@@ -47,15 +47,16 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         qDebug() << "Entry:" << entry;
         new FileWatcher(entry, this);
     }
+    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
 }
 
 
 /* by tallica */
 const QStack<QString>* FileWatchersManager::scanDir(QDir dir) {
-    QStack<QString> *files = new QStack<QString>();
+    auto files = new QStack<QString>();
     dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
+    // dir.setFilter(QRegExp("c|cc|cpp|h|scala|rb"));
     QDirIterator it(dir, QDirIterator::Subdirectories);
-
     files->push(dir.absolutePath());
 
     while (it.hasNext())

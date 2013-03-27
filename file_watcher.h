@@ -23,10 +23,6 @@ class FileWatcher: public QFileSystemWatcher {
     public:
         FileWatcher(const QString& name, FileWatchersManager* manager);
 
-
-    private:
-        QString dataDir;
-
 };
 
 
