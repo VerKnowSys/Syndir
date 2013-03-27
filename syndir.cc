@@ -48,22 +48,42 @@ int main(int argc, char *argv[]) {
     /* handle bad arguments */
     if (args.size() < 3) {
         usage();
-        exit(0);
+        exit(1);
     }
     QString sourceDir = args.at(1);
     QString destinationDir = args.at(2);
+
+    QStringList sshDirPartial = destinationDir.split(":");
+    QStringList sshUserServerPartial = sshDirPartial.value(0).split("@"); /* first part is user@host */
+    QString remotePath = sshDirPartial.value(1); /* last one is a remote path */
+    QString userName = sshUserServerPartial.value(0);
+    QString hostName = sshUserServerPartial.value(1);
+
+    qDebug() << "Remote setup inspection:\nRemote user:" << userName << "\nRemote host:" << hostName << "\nRemote path:" << remotePath;
+
+    if (userName.isEmpty()) {
+        qDebug() << "No user name specified, trying to get it from ENV.";
+        userName = getenv("USER");
+    }
+
+    if (hostName.isEmpty() or userName.isEmpty()) {
+        qDebug() << "Invalid (empty) host or user name.";
+        usage();
+        exit(1);
+    }
     qDebug() << "Watching:" << sourceDir << "with sync to:" << destinationDir;
 
     QList<FileWatcher *> fileWatchers;
 
     const QStack<QString> *files = scanDir(QDir(sourceDir));
     qDebug() << "Total files:" << files->size();
-    qDebug() << "Creating file watch for each file…";
+
+    qDebug() << "Creating file watches recursively…";
     for (int i = 0; i < files->size(); ++i) {
         auto entry = files->at(i);
-        auto watcher = new FileWatcher(entry);
+        auto watcher = new FileWatcher(entry, remotePath);
         watcher->addPath(entry);
-        qDebug() << "Adding:" << entry;
+        // qDebug() << "Adding:" << entry;
         fileWatchers << watcher;
     }
 
