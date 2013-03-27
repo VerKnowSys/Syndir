@@ -34,6 +34,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     public slots:
         void fileChangedSlot(const QString& file);
+        void dirChangedSlot(const QString& dir);
 
 };
 

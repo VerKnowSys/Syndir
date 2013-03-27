@@ -47,7 +47,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         qDebug() << "Entry:" << entry;
         new FileWatcher(entry, this);
     }
+
+    /* connect hooks to invokers */
     connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
 }
 
 
@@ -68,5 +71,12 @@ const QStack<QString>* FileWatchersManager::scanDir(QDir dir) {
 
 void FileWatchersManager::fileChangedSlot(const QString& file) {
     qDebug() << "File changed:" << file;
+}
+
+
+void FileWatchersManager::dirChangedSlot(const QString& dir) {
+    qDebug() << "Dir changed:" << dir;
+}
+
 
 }
