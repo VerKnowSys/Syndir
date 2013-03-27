@@ -14,10 +14,15 @@ if [ ! -d "/Software/Qt/include" ]; then
     fi
 fi
 
-if [ ! -d "/Software/Bsdmake" ]; then
-    if [ ! -d "${HOME}/Apps/Bsdmake" ]; then
-        sofin install bsdmake
+MAKE="bsdmake"
+if [ "$(uname)" != "FreeBSD" ]; then
+    if [ ! -d "/Software/Bsdmake" ]; then
+        if [ ! -d "${HOME}/Apps/Bsdmake" ]; then
+            sofin install bsdmake
+        fi
     fi
+else
+    MAKE="make" # the only system with bsd make on board
 fi
 
 # please note that this dependency is by default on user side:
@@ -27,4 +32,4 @@ fi
 
 
 qmake -spec darwin-g++ "${PROJECT_NAME}"
-bsdmake CC=clang CXX=clang++
+${MAKE} CC=clang CXX=clang++
