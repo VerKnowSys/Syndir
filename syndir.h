@@ -11,6 +11,7 @@
 
 #include <QtCore>
 #include <libssh2.h>
+#include <libssh2_sftp.h>
 
 #include "file_watchers_manager.h"
 #include "ssh_wrapper/Connection.h"
