@@ -9,10 +9,18 @@
 #define __FILE_WATCHERS_MANAGER_H__
 
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iostream>
+
 #include <QtCore>
 
 #include "syndir.h"
 #include "file_watchers_manager.h"
+
+
+using namespace std;
 
 
 class FileWatchersManager: public QFileSystemWatcher {
@@ -21,6 +29,7 @@ class FileWatchersManager: public QFileSystemWatcher {
     public:
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
         void scanDir(QDir dir);
+        void copyFileToRemoteHost(const QString& file);
 
 
     private:
