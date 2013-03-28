@@ -33,6 +33,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
 
     private:
+        QString baseCWD;
         QStringList files;
         QString fullDestinationSSHPath;
         QString remotePath;

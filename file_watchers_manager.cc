@@ -9,6 +9,7 @@
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
+    this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
 
     /* user might be implicit: */
@@ -100,9 +101,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         }
         qDebug() << "SFTP session initialized";
 
+        qDebug() << "FILE:" << file;
         QString fileDirName = QFileInfo(file).absolutePath();
-        QString chopFileName = file.split("/").value(file.split("/").size() - 1);
-        QString fullDestPath = remotePath + "/" + chopFileName;
+        qDebug() << "BASE CWD:" << baseCWD;
+        QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
+        qDebug() << "PREPATH:" << prePath;
+        QString chopFileName = prePath.toUtf8();
+        QString fullDestPath = remotePath + chopFileName;
         libssh2_sftp_mkdir(sftp_session, remotePath.toUtf8(), 0775);
         // if (rc)
         //     qDebug() << "Failed creating dir:" << remotePath << rc;
