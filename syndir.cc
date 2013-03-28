@@ -40,23 +40,16 @@ bool sshConnectionTest(const QString& remoteSSHPath) {
         Connection connection(hostName.toStdString(), 22, true);
         connection.setKeyPath(keysLocation.toStdString());
 
-        // UserInfo ui = connection.getUserInfo();
-        // cout    << "User infos:\n"
-        //         << "   login: " << ui.getUserName() << endl
-        //         << "    home: " << ui.getHomeDir() << endl
-        //         << "   shell: " << ui.getUserShell() << endl;
+        UserInfo ui = connection.getUserInfo();
+        cout    << "User infos:\n"
+                << "   login: " << ui.getUserName() << endl
+                << "    home: " << ui.getHomeDir() << endl
+                << "   shell: " << ui.getUserShell() << endl;
 
         connection.mkConnection();
 
         if (connection.isSessionValid())
             qDebug() << "Connection OK";
-
-        // connection  >> "whoami"
-        //             >> "id"
-        //             >> "echo 'test' > msg"
-        //             >> "cat msg";
-        // QString received_out = connection.getLastOutput().c_str();
-        // qDebug() << "Received output:\n" << received_out;
 
         return true;
 
