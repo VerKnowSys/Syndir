@@ -17,17 +17,7 @@ if [ "$(uname)" != "Darwin" ]; then
     fi
 fi
 
-MAKE="bsdmake"
-if [ "$(uname)" != "FreeBSD" ]; then
-    if [ ! -d "/Software/Bsdmake" ]; then
-        if [ ! -d "${HOME}/Apps/Bsdmake" ]; then
-            sofin install bsdmake
-        fi
-    fi
-else
-    MAKE="make" # the only system with bsd make on board
-fi
-
+MAKE="make"
 SPEC_TYPE=""
 LIBTYPE="a"
 if [ "$(uname)" = "Darwin" ]; then
