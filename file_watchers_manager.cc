@@ -78,14 +78,11 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
 void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
 
     try {
-
-        Connection connection(hostName.toStdString(), 22, true);
+        Connection connection(hostName.toStdString(), SSH_PORT, true);
         QString keysLocation = QString(getenv("HOME")) + "/.ssh";
         connection.setKeyPath(keysLocation.toStdString());
         connection.mkConnection();
 
-        // int rc, sock, i;
-        // const char *fingerprint;
         LIBSSH2_SFTP *sftp_session = NULL;
         LIBSSH2_SFTP_HANDLE *sftp_handle = NULL, *sftp_handle_dest = NULL;
 
@@ -106,12 +103,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         QString fileDirName = QFileInfo(file).absolutePath();
         QString chopFileName = file.split("/").value(file.split("/").size() - 1);
         QString fullDestPath = remotePath + "/" + chopFileName;
-        qDebug() << "FileDirName:" << fileDirName + ", chop:" << chopFileName;
-        qDebug() << "Destination file:" << fullDestPath;
-        int rc = libssh2_sftp_mkdir(sftp_session, remotePath.toUtf8(), 0775);
-        if (rc)
-            qDebug() << "libssh2_sftp_mkdir failed:" << rc;
-        qDebug() << "File changed:" << file << "Uploading it to" << hostName + ":" + fullDestPath;;
+        libssh2_sftp_mkdir(sftp_session, remotePath.toUtf8(), 0775);
+        // if (rc)
+        //     qDebug() << "Failed creating dir:" << remotePath << rc;
+        qDebug() << "Source file changed:" << file << "Destination path:" << "ssh://" + userName + "@" + hostName + ":" + fullDestPath;
 
         /* Request a file via SFTP */
         sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
@@ -123,34 +118,20 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         ifstream fin(file.toUtf8(), ios::binary);
         if (fin) {
             fin.seekg(0, ios::end);
-            ios::pos_type bufsize = fin.tellg(); // get file size in bytes
-            fin.seekg(0); // rewind to beginning of file
+            ios::pos_type bufsize = fin.tellg(); /* get file size in bytes */
+            fin.seekg(0); /* rewind to beginning of file */
 
             char* buf = new char[bufsize];
-            fin.read(buf, bufsize); // read file contents into buffer
-            libssh2_sftp_write(sftp_handle_dest, buf, bufsize); // write to remote file
+            fin.read(buf, bufsize); /* read file contents into buffer */
+            libssh2_sftp_write(sftp_handle_dest, buf, bufsize); /* write to remote file */
             fin.close();
         }
 
-        libssh2_sftp_close(sftp_handle);
         libssh2_sftp_close(sftp_handle_dest);
+        libssh2_sftp_close(sftp_handle);
         libssh2_sftp_shutdown(sftp_session);
-        qDebug() << "Finished SFTP transfer";
-
-
-
-        // UserInfo ui = connection.getUserInfo();
-        // qDebug() << "User infos:\n" << "   login: "
-        //         << ui.getUserName().c_str()
-        //         << "    home: " << ui.getHomeDir().c_str()
-        //         << "   shell: " << ui.getUserShell().c_str();
-
-        // connection.mkConnection();
-
-        // if (connection.isSessionValid())
-        //     qDebug() << "Connection OK";
-
-        // return true;
+        qDebug() << "SFTP Transfer Successful.";
+        connection.resetBuffer();
     } catch (Exception & e) {
         qDebug() << "Exception caught: " << e.what();
     }

@@ -37,7 +37,7 @@ bool sshConnectionTest(const QString& remoteSSHPath) {
         QString keysLocation = QString(getenv("HOME")) + "/.ssh";
         qDebug() << "Trying to login to" << hostName << "as user" << userName;
         qDebug() << "Looking for SSH keys in:" << keysLocation;
-        Connection connection(hostName.toStdString(), 22, true);
+        Connection connection(hostName.toStdString(), SSH_PORT, true);
         connection.setKeyPath(keysLocation.toStdString());
 
         UserInfo ui = connection.getUserInfo();
