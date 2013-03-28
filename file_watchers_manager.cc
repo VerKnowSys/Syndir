@@ -126,14 +126,16 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
 
     /* creating dir recursively for a single destination file */
     auto finalPath = remotePath.toUtf8();
-    libssh2_sftp_mkdir(sftp_session, finalPath, 0775);
+
+    /* Read permissions of a source file */
+    libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
     if (!preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
         for (int i = 0; i < elems.length(); i++) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
             if (!elem.isEmpty()) {
-                libssh2_sftp_mkdir(sftp_session, finalPath, 0775);
+                libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
             }
         }
     }
@@ -141,9 +143,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
     qDebug() << "Source file changed:" << file;
     qDebug() << "Destination path   :" << fullDestPath;
 
+    /* Read permissions of a source file */
+    struct stat results;
+    stat(file.toUtf8(), &results);
+
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
-    sftp_handle_dest = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, 0644);
+    sftp_handle_dest = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
     if (!sftp_handle) {
         qDebug() << "Failed SFTP handle!";
         return;
