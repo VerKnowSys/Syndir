@@ -52,6 +52,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         connection->mkConnection();
         if (connection->isSessionValid())
             qDebug() << "Connection OK";
+        else {
+            qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
+            exit(1);
+        }
 
         /* create a session */
         sftp_session = libssh2_sftp_init(connection->session);
