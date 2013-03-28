@@ -26,11 +26,24 @@ else
     MAKE="make" # the only system with bsd make on board
 fi
 
+SPEC_TYPE=""
+LIBTYPE="a"
+if [ "$(uname)" = "Darwin" ]; then
+    SPEC_TYPE="-spec darwin-g++"
+    LIBTYPE="dylib"
+fi
+
 # please note that this dependency is by default on user side:
-if [ ! -d "${HOME}/Apps/Libssh2" ]; then
-    sofin install libssh2
+if [ "$(id -u)" = "0" ]; then
+    printf "Cannot be build by root for now.\n"
+    exit 1
+else
+    if [ ! -d "${HOME}/Apps/Libssh2" ]; then
+        sofin install libssh2
+    fi
 fi
 
 
-qmake -spec darwin-g++ "${PROJECT_NAME}"
-${MAKE} CC=clang CXX=clang++
+qmake ${SPEC_TYPE} "${PROJECT_NAME}"
+${MAKE} LIBTYPE=${LIBTYPE} CC=clang CXX=clang++ #  CFLAGS=""
+exit 0
