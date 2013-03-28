@@ -17,7 +17,6 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 
 ## TODO:
-* Fix remote mkdir issues. (for example it will currently fail for multiple/non/existant/path given).
 * Idiot proof code.
 
 
