@@ -45,5 +45,5 @@ fi
 
 
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
-${MAKE} LIBTYPE=${LIBTYPE} CC=clang CXX=clang++ #  CFLAGS=""
+${MAKE} LIBTYPE=${LIBTYPE} CC=clang CXX=clang++
 exit 0

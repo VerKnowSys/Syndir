@@ -27,7 +27,6 @@ using namespace SSH2Wrapper;
 
 
 void usage();
-const QStack<QString> *scanDir(QDir dir);
 
 
 #endif
