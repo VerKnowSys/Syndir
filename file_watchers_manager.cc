@@ -145,5 +145,5 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
 
 
 void commit() {
-    qDebug() << "Commiting:";
+    qDebug() << "Committing:";
 }
