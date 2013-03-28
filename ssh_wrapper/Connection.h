@@ -74,12 +74,12 @@ public:
     void setKeyPath (const string & path);
     void resetBuffer ();
 
-private:
-	string				lastError;
-	string				lastExecutedCmd;
-	string				lastOutput;
-
 	LIBSSH2_SESSION * 	session;
+
+private:
+    string              lastError;
+    string              lastExecutedCmd;
+    string              lastOutput;
 
 	string				hostName;
 	uint				port;
