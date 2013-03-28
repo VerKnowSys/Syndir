@@ -36,6 +36,10 @@ class FileWatchersManager: public QFileSystemWatcher {
         void copyFileToRemoteHost(const QString& file);
 
 
+    protected:
+        const QString keysLocation = QString(getenv("HOME")) + "/.ssh";
+
+
     private:
         QString baseCWD;
         QStringList files;

@@ -46,13 +46,13 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
     }
 
     this->connection = new Connection(hostName.toStdString(), SSH_PORT, true);
-    QString keysLocation = QString(getenv("HOME")) + "/.ssh";
     try {
         connection->setKeyPath(keysLocation.toStdString());
         connection->mkConnection();
-        if (connection->isSessionValid())
+        if (connection->isSessionValid()) {
             qDebug() << "Connection OK";
-        else {
+            qDebug() << "Connected as" << userName + "@" + hostName;
+        } else {
             qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
             exit(1);
         }
@@ -103,13 +103,9 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
 
 void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
 
-    // qDebug() << "FILE:" << file;
     QString fileDirName = QFileInfo(file).absolutePath();
-    // qDebug() << "BASE CWD:" << baseCWD;
     QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
     QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
-    // qDebug() << "PREPATH:" << prePath;
-    // qDebug() << "PREDIRS:" << preDirs;
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
 
@@ -122,16 +118,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
             if (!elem.isEmpty()) {
-                auto aPath = finalPath;
-                // qDebug() << "CREATING DIR:" << aPath;
-                libssh2_sftp_mkdir(sftp_session, aPath, 0775);
+                libssh2_sftp_mkdir(sftp_session, finalPath, 0775);
             }
         }
     }
 
     qDebug() << "Source file changed:" << file;
     qDebug() << "Destination path   :" << fullDestPath;
-    qDebug() << "Connected as" << userName + "@" + hostName;
 
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
