@@ -21,7 +21,7 @@
 
 using namespace SSH2Wrapper;
 
-#define APP_VERSION "0.3.0"
+#define APP_VERSION "0.3.1"
 #define SSH_PORT 22
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
