@@ -34,8 +34,11 @@ bool sshConnectionTest(const QString& remoteSSHPath) {
     QString remotePath = sshDirPartial.value(1); /* last one is a remote path */
 
     try {
+        QString keysLocation = QString(getenv("HOME")) + "/.ssh";
+        qDebug() << "Trying to login to" << hostName << "as user" << userName;
+        qDebug() << "Looking for SSH keys in:" << keysLocation;
         Connection connection(hostName.toStdString(), 22, true);
-        connection.setKeyPath(string("/Users/") + userName.toStdString() + string("/.ssh"));
+        connection.setKeyPath(keysLocation.toStdString());
 
         // UserInfo ui = connection.getUserInfo();
         // cout    << "User infos:\n"
