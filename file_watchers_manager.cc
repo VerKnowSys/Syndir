@@ -101,13 +101,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         }
         qDebug() << "SFTP session initialized";
 
-        qDebug() << "FILE:" << file;
+        // qDebug() << "FILE:" << file;
         QString fileDirName = QFileInfo(file).absolutePath();
-        qDebug() << "BASE CWD:" << baseCWD;
+        // qDebug() << "BASE CWD:" << baseCWD;
         QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
         QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
-        qDebug() << "PREPATH:" << prePath;
-        qDebug() << "PREDIRS:" << preDirs;
+        // qDebug() << "PREPATH:" << prePath;
+        // qDebug() << "PREDIRS:" << preDirs;
         QString chopFileName = prePath.toUtf8();
         QString fullDestPath = remotePath + chopFileName;
 
@@ -121,14 +121,15 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
                 finalPath += "/" + elem;
                 if (!elem.isEmpty()) {
                     auto aPath = finalPath;
-                    qDebug() << "CREATING DIR:" << aPath;
+                    // qDebug() << "CREATING DIR:" << aPath;
                     libssh2_sftp_mkdir(sftp_session, aPath, 0775);
                 }
             }
         }
 
-
-        qDebug() << "Source file changed:" << file << "Destination path:" << "ssh://" + userName + "@" + hostName + ":" + fullDestPath;
+        qDebug() << "Source file changed:" << file;
+        qDebug() << "Destination path   :" << fullDestPath;
+        qDebug() << "Connected as" << userName + "@" + hostName;
 
         /* Request a file via SFTP */
         sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
