@@ -13,10 +13,11 @@
 ```sh
 syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/dir
 ```
-Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir to "dir". It will
+Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir to "dir".
 
 
 ## TODO:
+* Fix problem where file /Volumes/Projects/MyProjectDir/my/additional/dir/precious.file is copied to /existing/destination/dir/precious.file
 * Fix remote mkdir issues. (for example it will currently fail for multiple/non/existant/path given)
 * Idiot proof code.
 
