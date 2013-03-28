@@ -9,9 +9,11 @@ if [ ! -x "/usr/bin/sofin" ]; then
 fi
 
 sofin update
-if [ ! -d "/Software/Qt/include" ]; then
-    if [ ! -d "${HOME}/Apps/Qt" ]; then
-        sofin install qt
+if [ "$(uname)" != "Darwin" ]; then
+    if [ ! -d "/Software/Qt/include" ]; then
+        if [ ! -d "${HOME}/Apps/Qt" ]; then
+            sofin install qt
+        fi
     fi
 fi
 
