@@ -145,7 +145,7 @@ void Connection::mkConnection() throw (Exception)
 		string internal_user;
 
 		if (userName.compare("") == 0)
-			internal_user = string(userInfo.getUserName());
+			internal_user = string(getenv("USER")); // userInfo.getUserName()
 		else
 			internal_user = string(userName);
 
