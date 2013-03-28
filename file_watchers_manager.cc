@@ -71,7 +71,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
     qDebug() << "Traversing paths";
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
-    qDebug() << "Total files:" << files.size();
+    qDebug() << "Files list loaded.\nTotal files and dirs on watch:" << files.size();
 }
 
 
@@ -82,12 +82,23 @@ void FileWatchersManager::scanDir(QDir dir) {
     removePaths(files);
 
     files.clear();
-    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
+    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
     QDirIterator it(dir, QDirIterator::Subdirectories);
-    files << dir.absolutePath();
+    files << dir.absolutePath(); /* required for dir watches */
 
-    while (it.hasNext())
-        files << it.next();
+    while (it.hasNext()) {
+        QString nextOne = it.next();
+        if (QDir(nextOne).exists()) {
+            // qDebug() << "DIRECTORY:" << nextOne;
+            files << nextOne;
+        } else {
+            QRegExp matcher(ALLOWED_FILE_TYPES);
+            if (nextOne.contains(matcher)) {
+                // qDebug() << "Found match:" << nextOne;
+                files << nextOne;
+            }
+        }
+    }
 
     /* connect hooks to invokers */
     addPaths(files);
@@ -102,7 +113,11 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
 
 
 void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
-
+    if (not QFile::exists(file)) {
+        qDebug() << "Deletion detected:" << file;
+        removePath(file);
+        return;
+    }
     QString fileDirName = QFileInfo(file).absolutePath();
     QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
     QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
@@ -154,5 +169,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
 
 void FileWatchersManager::dirChangedSlot(const QString& dir) {
     qDebug() << "Dir changed:" << dir;
-    scanDir(QDir(dir));
+    if (not QDir(dir).exists()) {
+        qDebug() << "Dir has gone. Assuming directory deletion of:" << dir;
+        removePath(dir);
+        scanDir(QDir(dir + "/.."));
+    } else
+        scanDir(QDir(dir)); /* don't scan non existent directories */
 }
