@@ -158,11 +158,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
     if (fin) {
         fin.seekg(0, ios::end);
         ios::pos_type bufsize = fin.tellg(); /* get file size in bytes */
+        qDebug() << "File size:" << bufsize;
         fin.seekg(0); /* rewind to beginning of file */
-
         char* buf = new char[bufsize];
+        // qDebug() << "Reading file:" << file;
         fin.read(buf, bufsize); /* read file contents into buffer */
+        // qDebug() << "Writing file:" << fullDestPath;
         libssh2_sftp_write(sftp_handle_dest, buf, bufsize); /* write to remote file */
+        qDebug() << "Data written";
         buf = NULL;
     }
     fin.close();
