@@ -14,8 +14,6 @@
 #include <string>
 #include <iostream>
 
-#include <QtCore>
-
 #include "syndir.h"
 #include "file_watchers_manager.h"
 
