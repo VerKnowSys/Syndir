@@ -14,10 +14,15 @@
 #include <string>
 #include <iostream>
 
+#include "ssh_wrapper/Connection.h"
+#include "ssh_wrapper/Exception.h"
+#include "ssh_wrapper/UserInfo.h"
+
 #include "syndir.h"
 #include "file_watchers_manager.h"
 
 
+using namespace SSH2Wrapper;
 using namespace std;
 
 
@@ -26,6 +31,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     public:
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
+        ~FileWatchersManager();
         void scanDir(QDir dir);
         void copyFileToRemoteHost(const QString& file);
 
@@ -37,6 +43,11 @@ class FileWatchersManager: public QFileSystemWatcher {
         QString remotePath;
         QString userName;
         QString hostName;
+
+        Connection* connection = NULL;
+        LIBSSH2_SFTP *sftp_session = NULL;
+        LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
+        LIBSSH2_SFTP_HANDLE *sftp_handle_dest = NULL;
 
 
     public slots:

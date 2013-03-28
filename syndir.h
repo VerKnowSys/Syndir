@@ -14,14 +14,8 @@
 #include <libssh2_sftp.h>
 
 #include "file_watchers_manager.h"
-#include "ssh_wrapper/Connection.h"
-#include "ssh_wrapper/Exception.h"
-#include "ssh_wrapper/UserInfo.h"
 
-
-using namespace SSH2Wrapper;
-
-#define APP_VERSION "0.3.2"
+#define APP_VERSION "0.4.0"
 #define SSH_PORT 22
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
