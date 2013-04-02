@@ -179,9 +179,11 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
                     break;
             }
             chunk += 1;
-            int percent = (chunk * BUFF) * 100 / bufsize;
-            cout << "(" << percent << "%) " << (chunk * BUFF)/1024 << '/' << bufsize/1024 << " KiB" << '\r';
-            fflush(stdout);
+            if (bufsize > 0) {
+                int percent = (chunk * BUFF) * 100 / bufsize;
+                cout << "(" << percent << "%) " << (chunk * BUFF)/1024 << '/' << bufsize/1024 << " KiB" << '\r';
+                fflush(stdout);
+            }
         }
         delete[] buf;
         qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
