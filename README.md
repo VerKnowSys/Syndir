@@ -15,6 +15,7 @@
 * Any amount of remote hosts supported. Just give them as additional params.
 * Automatic creation of remote non existent remote directories.
 * Full support for File & Directory creation/ deletion.
+* Asynchronous, parallel transfers for multiple hosts at once.
 * Uses almost no memory (< 5MiB RSS for 64bit app, even when syncing huge files)
 
 
