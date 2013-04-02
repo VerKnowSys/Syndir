@@ -27,8 +27,7 @@ int main(int argc, char *argv[]) {
     }
     QString sourceDir = args.at(1);
     QString fullDestinationSSHPath = args.at(2);
-
-    qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
+    cout << "Sofin v" << APP_VERSION << " - © 2o13 - VerKnowSys" << endl << COPYRIGHT << endl << endl;
     new FileWatchersManager(sourceDir, fullDestinationSSHPath);
 
     return app.exec();

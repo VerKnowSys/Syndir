@@ -16,6 +16,7 @@ FileWatchersManager::~FileWatchersManager() {
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
+    qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
 
@@ -50,8 +51,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         connection->setKeyPath(keysLocation.toStdString());
         connection->mkConnection();
         if (connection->isSessionValid()) {
-            qDebug() << "Connection OK";
-            qDebug() << "Connected as" << userName + "@" + hostName;
+            qDebug() << "Connected as:" << userName + "@" + hostName;
         } else {
             qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
             exit(1);
@@ -69,9 +69,9 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    qDebug() << "Traversing paths";
+    qDebug() << "Traversing paths in:" << sourceDir;
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
-    qDebug() << "Files list loaded.\nTotal files and dirs on watch:" << files.size();
+    qDebug() << "Total files and dirs on watch:" << files.size();
 }
 
 
@@ -142,8 +142,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         }
     }
 
-    qDebug() << "Source file changed:" << file;
-    qDebug() << "Destination path   :" << fullDestPath;
+    qDebug() << endl << "Detected modification of:" << file;
 
     /* Read permissions of a source file */
     struct stat results;
@@ -151,10 +150,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
 
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
-    // if (!sftp_handle or !sftp_handle_dest) {
-    //     qDebug() << "Failed SFTP handle!";
-    //     return;
-    // }
+    if (sftp_handle == NULL) {
+        qDebug() << "Failed to open SFTP connection to remote server!!";
+        return;
+    }
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
         fin.seekg(0, ios::end);
@@ -165,9 +164,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
             BUFF = MAXBUF;
 
         libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
-        qDebug() << "File size:" << bufsize << ", Memory buffer size:" << BUFF << "bytes";
+        qDebug() << "File size:" << bufsize/1024 << "KiB. Memory buffer size:" << BUFF << "bytes";
         fin.seekg(0); /* rewind to beginning of file */
-        qDebug() << "Reading file:" << file;
+        qDebug() << "Streaming:" << file;
 
         char* buf = new char[BUFF];
         uint chunk = 0; /* used only to count % progress */
@@ -181,16 +180,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
             }
             chunk += 1;
             int percent = (chunk * BUFF) * 100 / bufsize;
-            cout << "(" << percent << "%) " << (chunk * BUFF) << '/' << bufsize << '\r';
+            cout << "(" << percent << "%) " << (chunk * BUFF)/1024 << '/' << bufsize/1024 << " KiB" << '\r';
             fflush(stdout);
         }
         delete[] buf;
-        qDebug() << "\r(100%)" << bufsize << "bytes written";
+        qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
     }
     fin.close();
-
     libssh2_sftp_close(sftp_handle);
-    qDebug() << "SFTP Transfer Successful.";
 }
 
 
