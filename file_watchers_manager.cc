@@ -157,16 +157,31 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
         fin.seekg(0, ios::end);
-        ios::pos_type bufsize = fin.tellg(); /* get file size in bytes */
-        qDebug() << "File size:" << bufsize;
+        long bufsize = fin.tellg(); /* get file size in bytes */
+
+        long BUFF = bufsize;
+        if (bufsize > MAXBUF) /* set buffer to 12 KiB if file size exceeds limit */
+            BUFF = MAXBUF;
+
+        libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
+        qDebug() << "File size:" << bufsize << ", Memory buffer size:" << BUFF << "bytes";
         fin.seekg(0); /* rewind to beginning of file */
-        char* buf = new char[bufsize];
-        // qDebug() << "Reading file:" << file;
-        fin.read(buf, bufsize); /* read file contents into buffer */
-        // qDebug() << "Writing file:" << fullDestPath;
-        libssh2_sftp_write(sftp_handle_dest, buf, bufsize); /* write to remote file */
-        qDebug() << "Data written";
-        buf = NULL;
+        qDebug() << "Reading file:" << file;
+
+        char* buf = new char[BUFF];
+        while (fin.read(buf, BUFF)) { /* read file contents into buffer */
+            int result = libssh2_sftp_write(sftp_handle_dest, buf, BUFF); /* write to remote file */
+            switch (result) {
+                case LIBSSH2_ERROR_ALLOC:
+                    qDebug() << "Error allocating buffer with size:" << bufsize;
+                    break;
+
+                case 0:
+                    qDebug() << "Data written";
+            }
+        }
+        fin.close();
+        delete[] buf;
     }
     fin.close();
 

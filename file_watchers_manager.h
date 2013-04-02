@@ -11,15 +11,12 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <iostream>
 
 #include "ssh_wrapper/Connection.h"
 #include "ssh_wrapper/Exception.h"
 #include "ssh_wrapper/UserInfo.h"
 
 #include "syndir.h"
-#include "file_watchers_manager.h"
 
 
 using namespace SSH2Wrapper;
