@@ -170,7 +170,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         qDebug() << "Reading file:" << file;
 
         char* buf = new char[BUFF];
-        uint chunk = 1; /* used only to count % progress */
+        uint chunk = 0; /* used only to count % progress */
         while (fin.read(buf, BUFF)) { /* read file contents into buffer */
             int result = libssh2_sftp_write(sftp_handle, buf, BUFF); /* write to remote file */
             switch (result) {
@@ -178,10 +178,21 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
                     qDebug() << "Error allocating buffer with size:" << bufsize;
                     break;
             }
-            // cout << (chunk * BUFF) << '/' << bufsize << endl;
             chunk += 1;
+            // cout << (chunk * BUFF) << '/' << bufsize << endl;
         }
         delete[] buf;
+
+        /* don't forget remains of file smaller than buffer: */
+        int leftBytes = bufsize % BUFF;
+        if (leftBytes > 0) {
+            qDebug() << "Bytes left in buffer:" << leftBytes;
+            buf = new char[leftBytes];
+            fin.read(buf, leftBytes),
+            libssh2_sftp_write(sftp_handle, buf, leftBytes);
+            // cout << (chunk * BUFF + leftBytes) << '/' << bufsize << endl;
+            delete[] buf;
+        }
     }
     qDebug() << "Data written";
     fin.close();
