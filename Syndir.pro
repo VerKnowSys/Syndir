@@ -24,12 +24,12 @@ SOURCES           += syndir.cc \
 TARGET            = syndir
 
 INCLUDEPATH       += ${HOME}/Apps/Libssh2/include
-LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto
+LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
 
 contains(SYSTEM_NAME, Linux): {
-  QMAKE_CXXFLAGS  += -Wl,-rpath=${HOME}/Apps/Libssh2/lib,--enable-new-dtags -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
+  QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
 } else {
-  QMAKE_CXXFLAGS  += -std=c++11 -Wl,-rpath=${HOME}/Apps/Libssh2/lib,--enable-new-dtags -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE
+  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE
   # -DDEBUG=true
 }
-QMAKE_LDFLAGS     += -Wl,-rpath=${HOME}/Apps/Libssh2/lib,--enable-new-dtags
+# QMAKE_LDFLAGS     +=

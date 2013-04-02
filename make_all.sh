@@ -22,7 +22,7 @@ SPEC_TYPE=""
 LIBTYPE="a"
 if [ "$(uname)" = "Darwin" ]; then
     SPEC_TYPE="-spec darwin-g++"
-    LIBTYPE="dylib"
+    # LIBTYPE="dylib"
 fi
 
 # please note that this dependency is by default on user side:
