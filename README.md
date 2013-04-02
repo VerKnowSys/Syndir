@@ -13,8 +13,9 @@
 * Synchronize your files with 0 setup. Works with SFTP. Requires public key authentication.
 * Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.
 * Any amount of remote hosts supported. Just give them as additional params.
-* Automatic creation of remote non existant directories.
-* Uses almost no memory (< 5MiB RSS for 64bit app)
+* Automatic creation of remote non existent remote directories.
+* Full support for File & Directory creation/ deletion.
+* Uses almost no memory (< 5MiB RSS for 64bit app, even when syncing huge files)
 
 
 ## Requirements:
@@ -33,7 +34,7 @@ or
 ```sh
 syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/MyProjectDir more.hosts:/somewhere and.even.more:/copies/myproject (...)
 ```
-Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir to destination MyProjectDir. It works recursively thoughout directory structure.
+Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir(s) to destination MyProjectDir. It works recursively thoughout directory structure for each given remote location.
 
 
 ## TODO:
