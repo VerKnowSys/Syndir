@@ -113,16 +113,18 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
 
 
 void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
-    if (not QFile::exists(file)) {
-        qDebug() << "Deletion detected:" << file;
-        removePath(file);
-        return;
-    }
     QString fileDirName = QFileInfo(file).absolutePath();
     QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
     QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
+    if (not QFile::exists(file)) {
+        qDebug() << "Deletion detected:" << file;
+        qDebug() << "Synced deletion of remote file:" << fullDestPath;
+        libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
+        removePath(file);
+        return;
+    }
 
     /* creating dir recursively for a single destination file */
     auto finalPath = remotePath.toUtf8();
@@ -175,14 +177,11 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
                 case LIBSSH2_ERROR_ALLOC:
                     qDebug() << "Error allocating buffer with size:" << bufsize;
                     break;
-
-                case 0:
-                    qDebug() << "Data written";
             }
         }
-        fin.close();
         delete[] buf;
     }
+    qDebug() << "Data written";
     fin.close();
 
     libssh2_sftp_close(sftp_handle_dest);
