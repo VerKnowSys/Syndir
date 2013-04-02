@@ -21,6 +21,8 @@
 
 ## Requirements:
 * [Qt4 4.8.x](http://qt-project.org/downloads)
+* [LibSSH2 1.4.x](http://www.libssh2.org)
+* [Sofin 0.46.x](https://github.com/VerKnowSys/sofin)
 
 
 ## Examples:
