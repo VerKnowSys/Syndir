@@ -180,11 +180,11 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
                     break;
             }
             chunk += 1;
-            // cout << (chunk * BUFF) << '/' << bufsize << endl;
+            cout << (chunk * BUFF) << '/' << bufsize << '\r';
         }
         delete[] buf;
+        qDebug() << '\r' << bufsize << "bytes written";
     }
-    qDebug() << "Data written";
     fin.close();
 
     libssh2_sftp_close(sftp_handle);
