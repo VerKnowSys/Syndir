@@ -7,7 +7,7 @@
 SYSTEM_NAME        = $$system(uname)
 
 QT                -= gui
-QT                += network
+# QT                += network
 
 HEADERS           += syndir.h \
                      file_watchers_manager.h \
