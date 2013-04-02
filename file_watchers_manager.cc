@@ -152,10 +152,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
     sftp_handle_dest = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
-    if (!sftp_handle) {
-        qDebug() << "Failed SFTP handle!";
-        return;
-    }
+    // if (!sftp_handle or !sftp_handle_dest) {
+    //     qDebug() << "Failed SFTP handle!";
+    //     return;
+    // }
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
         fin.seekg(0, ios::end);
