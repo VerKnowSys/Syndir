@@ -9,6 +9,17 @@
 * Michał (tallica) Lipski
 
 
+## Features:
+* Synchronize your files with 0 setup. Works with SFTP. Requires public key authentication.
+* Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.
+* Automatic creation of remote non existant directories.
+* Uses almost no memory (< 5MiB RSS for 64bit app)
+
+
+## Requirements:
+* [Qt4 4.8.x](http://qt-project.org/downloads)
+
+
 ## Examples:
 ```sh
 syndir /Volumes/Projects/MyProjectDir myhost.com:/existing/destination/MyProjectDir
