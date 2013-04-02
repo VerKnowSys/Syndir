@@ -142,7 +142,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         }
     }
 
-    qDebug() << endl << "Detected modification of:" << file;
+    qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
 
     /* Read permissions of a source file */
     struct stat results;

@@ -10,7 +10,7 @@
 
 void usage() {
     qDebug() << "Usage:" << endl
-             << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir";
+             << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
 }
 
 
@@ -26,9 +26,16 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     QString sourceDir = args.at(1);
-    QString fullDestinationSSHPath = args.at(2);
+    QStringList remotes;
+    for (int i = 2; i < args.length(); i++) {
+        remotes << args.at(i);
+    }
     cout << "Sofin v" << APP_VERSION << " - © 2o13 - VerKnowSys" << endl << COPYRIGHT << endl << endl;
-    new FileWatchersManager(sourceDir, fullDestinationSSHPath);
+
+    for (int i = 0; i < remotes.length(); i++) {
+        qDebug() << "Loading remote:" << remotes.at(i);
+        new FileWatchersManager(sourceDir, remotes.at(i));
+    }
 
     return app.exec();
 }
