@@ -11,13 +11,17 @@
 
 ## Examples:
 ```sh
+syndir /Volumes/Projects/MyProjectDir myhost.com:/existing/destination/MyProjectDir
+```
+or
+```sh
 syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/MyProjectDir
 ```
-Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir to destination MyProjectDir. It works recursively thoughout source directory structure.
+Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir to destination MyProjectDir. It works recursively thoughout directory structure.
 
 
 ## TODO:
-* Idiot proof code.
+* Gracefully handle "too many open files" error on deep/big source directories.
 
 
 ## License:

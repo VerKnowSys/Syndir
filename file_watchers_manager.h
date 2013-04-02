@@ -48,7 +48,6 @@ class FileWatchersManager: public QFileSystemWatcher {
         Connection* connection = NULL;
         LIBSSH2_SFTP *sftp_session = NULL;
         LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-        LIBSSH2_SFTP_HANDLE *sftp_handle_dest = NULL;
 
 
     public slots:

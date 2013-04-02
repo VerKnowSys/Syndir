@@ -150,8 +150,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
     stat(file.toUtf8(), &results);
 
     /* Request a file via SFTP */
-    sftp_handle = libssh2_sftp_open(sftp_session, file.toUtf8(), LIBSSH2_FXF_READ, 0644);
-    sftp_handle_dest = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
+    sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
     // if (!sftp_handle or !sftp_handle_dest) {
     //     qDebug() << "Failed SFTP handle!";
     //     return;
@@ -171,20 +170,22 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         qDebug() << "Reading file:" << file;
 
         char* buf = new char[BUFF];
+        uint chunk = 1; /* used only to count % progress */
         while (fin.read(buf, BUFF)) { /* read file contents into buffer */
-            int result = libssh2_sftp_write(sftp_handle_dest, buf, BUFF); /* write to remote file */
+            int result = libssh2_sftp_write(sftp_handle, buf, BUFF); /* write to remote file */
             switch (result) {
                 case LIBSSH2_ERROR_ALLOC:
                     qDebug() << "Error allocating buffer with size:" << bufsize;
                     break;
             }
+            // cout << (chunk * BUFF) << '/' << bufsize << endl;
+            chunk += 1;
         }
         delete[] buf;
     }
     qDebug() << "Data written";
     fin.close();
 
-    libssh2_sftp_close(sftp_handle_dest);
     libssh2_sftp_close(sftp_handle);
     qDebug() << "SFTP Transfer Successful.";
 }

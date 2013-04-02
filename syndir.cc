@@ -10,7 +10,7 @@
 
 void usage() {
     qDebug() << "Usage:" << endl
-             << "Syndir /source/directory/name user@destination_server:/destination_path";
+             << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir";
 }
 
 
@@ -28,8 +28,7 @@ int main(int argc, char *argv[]) {
     QString sourceDir = args.at(1);
     QString fullDestinationSSHPath = args.at(2);
 
-    qDebug() << "Watching:" << sourceDir << "with sync to:" << fullDestinationSSHPath;
-    qDebug() << "Creating file watches recursively…";
+    qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
     new FileWatchersManager(sourceDir, fullDestinationSSHPath);
 
     return app.exec();
