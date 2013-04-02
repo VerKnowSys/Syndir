@@ -11,11 +11,13 @@ QT                -= gui
 
 HEADERS           += syndir.h \
                      file_watchers_manager.h \
+                     worker_thread.h \
                      ssh_wrapper/Connection.h \
                      ssh_wrapper/Exception.h \
                      ssh_wrapper/UserInfo.h
 
 SOURCES           += syndir.cc \
+                     worker_thread.cc \
                      ssh_wrapper/Connection.cpp \
                      ssh_wrapper/Exception.cpp \
                      ssh_wrapper/UserInfo.cpp \
