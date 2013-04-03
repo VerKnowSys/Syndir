@@ -115,6 +115,7 @@ void FileWatchersManager::scanDir(QDir dir) {
 
 
 void FileWatchersManager::fileChangedSlot(const QString& file) {
+    /* compare file name and modification date. Ignore doubles */
     if ((last != file) || (QFileInfo(file).lastModified() != this->lastModified)) {
         this->lastModified = QFileInfo(file).lastModified();
         this->last = file;
@@ -123,8 +124,8 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
             copyFileToRemoteHost(file, true);
         else
             copyFileToRemoteHost(file);
-    } else
-        qDebug() << "Already uploaded this file with this modification date.";
+    } //else
+        // qDebug() << "Sync not necessary for:" << file;
 }
 
 
@@ -222,12 +223,12 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
 
         /* rename remote file to hash name */
-        #ifdef GUI_ENABLED
-            if (hashFile) {
+        if (hashFile) {
+            #ifdef GUI_ENABLED
                 qDebug() << "Remote rename from" << fullDestPath << "to" << remotePath + "/" + result + "." + extension;
                 libssh2_sftp_rename(sftp_session, fullDestPath.toUtf8(), (remotePath + "/" + result + "." + extension).toUtf8());
-            }
-        #endif
+            #endif
+        }
     }
     fin.close();
     libssh2_sftp_close(sftp_handle);
@@ -243,16 +244,14 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
     } else {
         scanDir(QDir(dir)); /* don't scan non existent directories */
 
+        /* scan for new files by file list diff */
         Q_FOREACH(QString nextOne, files) {
             if (QFile(nextOne).exists()) {
-                if (oldFiles.contains(nextOne)) {
-                    qDebug() << "old files contains:" << nextOne;
-                } else {
-                    qDebug() << "OLD files doesn't contains:" << nextOne;
+                if (not oldFiles.contains(nextOne)) {
+                    qDebug() << "New file found in monitored dir:" << nextOne;
                     fileChangedSlot(nextOne);
                 }
             }
-
         }
     }
 }
