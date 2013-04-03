@@ -17,6 +17,7 @@
 * Full support for File & Directory creation/ deletion.
 * Asynchronous, parallel transfers for multiple hosts at once.
 * Uses almost no memory (< 5MiB RSS for 64bit app, even when syncing huge files)
+* Provided auto screenshot upload tool called Synshot. It's built automatically on OSX.
 
 
 ## Requirements:
