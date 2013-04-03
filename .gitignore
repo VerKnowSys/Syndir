@@ -2,3 +2,4 @@
 Makefile
 moc_*.cpp
 syndir
+/synshot
