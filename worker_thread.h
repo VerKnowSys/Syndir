@@ -17,7 +17,7 @@ class WorkerThread: public QThread {
     Q_OBJECT
 
     public:
-        WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath);
+        WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
         void run();
 
 
@@ -25,6 +25,7 @@ class WorkerThread: public QThread {
         FileWatchersManager* watcher = NULL;
         QString source;
         QString destination;
+        bool screenshotSyncApp;
 
 };
 

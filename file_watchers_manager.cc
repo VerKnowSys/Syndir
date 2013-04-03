@@ -7,6 +7,10 @@
 
 #include "syndir.h"
 
+#ifdef GUI_ENABLED
+    #include "screenshot_sync_app/synshot.h"
+#endif
+
 
 FileWatchersManager::~FileWatchersManager() {
     qDebug() << "Shutting down";
@@ -15,8 +19,9 @@ FileWatchersManager::~FileWatchersManager() {
 }
 
 
-FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
+FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha) {
     qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
+    this->performNameConvertionToShaAndCopyToClipboard = convertToSha; /* used only for preprocessing of files sent to remote - f.e. sending screenshots */
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
 
@@ -77,8 +82,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
+    qDebug() << "Scanning:" << dir.absolutePath();
     disconnect(SIGNAL(fileChanged(QString)));
     disconnect(SIGNAL(directoryChanged(QString)));
+    this->oldFiles = this->files;
     removePaths(files);
 
     files.clear();
@@ -108,22 +115,48 @@ void FileWatchersManager::scanDir(QDir dir) {
 
 
 void FileWatchersManager::fileChangedSlot(const QString& file) {
-    copyFileToRemoteHost(file);
+    /* use case for auto uploading screenshots to remote site with auto hash generation and copy to clipboard */
+    if (this->performNameConvertionToShaAndCopyToClipboard)
+        copyFileToRemoteHost(file, true);
+    else
+        copyFileToRemoteHost(file);
 }
 
 
-void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
+void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool hashFile) {
+    QString file = sourceFile;
+    #ifdef GUI_ENABLED
+        auto fileInfo = QFileInfo(file);
+        auto dir = fileInfo.absolutePath();
+        auto extension = fileInfo.suffix();
+
+        auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
+        hash->addData(file.toUtf8(), file.length() + 1);
+        auto result = hash->result().toHex();
+        delete hash;
+
+        auto renamedFile = dir + "/" + result + "." + extension;
+        auto clipboard = QApplication::clipboard();
+        clipboard->setText(QString(REMOTE_PATH) + result + "." + extension);
+
+        // if (hashFile)
+        //     file = renamedFile;
+
+    #endif
+
     QString fileDirName = QFileInfo(file).absolutePath();
     QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
     QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
-    if (not QFile::exists(file)) {
-        qDebug() << "Deletion detected:" << file;
-        qDebug() << "Synced deletion of remote file:" << fullDestPath;
-        libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
-        removePath(file);
-        return;
+    if (!hashFile) { /* check file existance when not doing hash from file */
+        if (not QFile::exists(file)) {
+            qDebug() << "Deletion detected:" << file;
+            qDebug() << "Synced deletion of remote file:" << fullDestPath;
+            libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
+            removePath(file);
+            return;
+        }
     }
 
     /* creating dir recursively for a single destination file */
@@ -187,6 +220,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& file) {
         }
         delete[] buf;
         qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
+
+        /* rename remote file to hash name */
+        #ifdef GUI_ENABLED
+            if (hashFile) {
+                qDebug() << "Remote rename from" << fullDestPath << "to" << remotePath + "/" + result + "." + extension;
+                libssh2_sftp_rename(sftp_session, fullDestPath.toUtf8(), (remotePath + "/" + result + "." + extension).toUtf8());
+            }
+        #endif
     }
     fin.close();
     libssh2_sftp_close(sftp_handle);
@@ -199,6 +240,30 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
         qDebug() << "Dir has gone. Assuming directory deletion of:" << dir;
         removePath(dir);
         scanDir(QDir(dir + "/.."));
-    } else
+    } else {
         scanDir(QDir(dir)); /* don't scan non existent directories */
+
+        /* invoke file changed slot on new files automatically */
+        // QDir dirObj = QDir(dir);
+        // dirObj.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+        // QDirIterator it(dirObj, QDirIterator::Subdirectories);
+        // while (it.hasNext()) {
+
+        Q_FOREACH(QString nextOne, files) {
+            if (QFile(nextOne).exists()) {
+                if (oldFiles.contains(nextOne)) {
+                    qDebug() << "old files contains:" << nextOne;
+                } else {
+                    qDebug() << "OLD files doesn't contains:" << nextOne;
+                    fileChangedSlot(nextOne);
+                }
+            }
+
+        }
+            //     qDebug() << "List doesn't contains file:" << nextOne;
+            //     qDebug() << "New files detected" << nextOne;
+            //     fileChangedSlot(nextOne);
+            // }
+        // }
+    }
 }

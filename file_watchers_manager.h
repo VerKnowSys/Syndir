@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <QCryptographicHash>
+
 #include "ssh_wrapper/Connection.h"
 #include "ssh_wrapper/Exception.h"
 #include "ssh_wrapper/UserInfo.h"
@@ -27,19 +29,20 @@ class FileWatchersManager: public QFileSystemWatcher {
     Q_OBJECT
 
     public:
-        FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
+        FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha = false);
         ~FileWatchersManager();
         void scanDir(QDir dir);
-        void copyFileToRemoteHost(const QString& file);
+        void copyFileToRemoteHost(const QString& file, bool hashFile = false);
 
 
     protected:
         const QString keysLocation = QString(getenv("HOME")) + "/.ssh";
+        bool performNameConvertionToShaAndCopyToClipboard = false;
 
 
     private:
         QString baseCWD;
-        QStringList files;
+        QStringList files, oldFiles;
         QString fullDestinationSSHPath;
         QString remotePath;
         QString userName;
