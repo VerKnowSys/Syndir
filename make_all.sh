@@ -37,5 +37,18 @@ fi
 
 
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
-${MAKE} LIBTYPE=${LIBTYPE} CC=clang CXX=clang++
+${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
+
+if [ "$(uname)" = "Darwin" ]; then
+    printf "Building synshot\n"
+    cd screenshot_sync_app
+    # make distclean
+    qmake ${SPEC_TYPE} "Synshot.pro"
+    ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
+    cd ..
+fi
+
 exit 0
+
+
+
