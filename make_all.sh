@@ -4,8 +4,8 @@
 readonly PROJECT_NAME="Syndir.pro"
 
 if [ ! -x "/usr/bin/sofin" ]; then
-    printf "VerKnowSys Sofin is required to build this software.\n"
-    exit 1
+    printf "Using Sofin for software installation is a preffered method for installing dependencies of Syndir. I don't support that case. Use on your own risk.\n"
+    # exit 1
 fi
 
 sofin update

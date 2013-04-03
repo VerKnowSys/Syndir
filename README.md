@@ -20,9 +20,18 @@
 
 
 ## Requirements:
-* [Qt4 4.8.x](http://qt-project.org/downloads)
+* [Qt4 4.8.x](http://qt-project.org/downloads) (only QtCore part of framework)
 * [LibSSH2 1.4.x](http://www.libssh2.org)
-* [Sofin 0.46.x](http://verknowsys.github.com/sofin/)
+
+
+## Preffered/Optional requirements.:
+* [Sofin 0.46.x](http://verknowsys.github.com/sofin/) - Because it has predefined "qt" (with minimal build of Qt4 for servers) and "libssh2" definitions. Sofin is used by default in Syndir's installation script: [make_all.sh](https://github.com/VerKnowSys/Syndir/blob/master/make_all.sh).
+
+
+## Building:
+```sh
+./make_all.sh # it will by default use sofin to install all dependencies and build Syndir project
+```
 
 
 ## Examples:
