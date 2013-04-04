@@ -27,6 +27,7 @@
 
 ## Preffered/Optional requirements.:
 * [Sofin 0.46.x](http://verknowsys.github.com/sofin/) - Because it has predefined "qt" (with minimal build of Qt4 for servers) and "libssh2" definitions. Sofin is used by default in Syndir's installation script: [make_all.sh](https://github.com/VerKnowSys/Syndir/blob/master/make_all.sh).
+* Qt4 GUI libraries to build Synshot (screenshot sync utility)
 
 
 ## Building:
