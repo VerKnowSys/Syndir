@@ -185,8 +185,16 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
     if (sftp_handle == NULL) {
-        qDebug() << "Failed to open SFTP connection with write privileges on remote server! Transfer aborted.";
-        return;
+        qDebug() << "Failed to open SFTP connection with write privileges on remote server! Will retry.";
+        connection->mkConnection();
+
+        /* recreate a session */
+        sftp_session = libssh2_sftp_init(connection->session);
+        if (!sftp_session) {
+            qDebug() << "SFTP session failed!";
+            return;
+        }
+        return copyFileToRemoteHost(sourceFile, hashFile);
     }
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
