@@ -8,7 +8,6 @@ if [ ! -x "/usr/bin/sofin" ]; then
     # exit 1
 fi
 
-sofin update
 if [ "$(uname)" != "Darwin" ]; then
     if [ ! -d "/Software/Qt/include" ]; then
         if [ ! -d "${HOME}/Apps/Qt" ]; then
