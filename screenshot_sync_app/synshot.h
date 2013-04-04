@@ -16,7 +16,7 @@
 #include "../worker_thread.h"
 
 #define DEFAULT_SOUND_FILE "/System/Library/Sounds/Hero.aiff"
-#define DEFAULT_SOURCE_DIR "/Users/dmilith/Pictures/ScreenShots"
+#define DEFAULT_SOURCE_DIR "~/Pictures/ScreenShots"
 #define DEFAULT_DESTINATION_DIR "v:/home/dmilith/Web/Public/Sshots"
 #define REMOTE_PATH "http://s.verknowsys.com/"
 
