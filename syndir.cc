@@ -15,9 +15,24 @@ void usage() {
 }
 
 
+static void loadDefaultSettings() {
+    QSettings settings;
+
+    if (settings.value("ssh_port").isNull())
+        settings.setValue("ssh_port", SSH_PORT);
+
+    if (settings.value("allowed_file_types").isNull())
+        settings.setValue("allowed_file_types", ALLOWED_FILE_TYPES);
+}
+
+
 int main(int argc, char *argv[]) {
 
     QCoreApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("VerKnowSys");
+    QCoreApplication::setOrganizationDomain("verknowsys.com");
+    QCoreApplication::setApplicationName("Syndir");
+    loadDefaultSettings();
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
     QStringList args = app.arguments();
 

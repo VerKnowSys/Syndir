@@ -14,9 +14,37 @@ void usage() {
 }
 
 
+static void loadDefaultSettings() {
+    QSettings settings;
+
+    if (settings.value("source_dir").isNull())
+        settings.setValue("source_dir", DEFAULT_SOURCE_DIR);
+
+    if (settings.value("destination_dir").isNull())
+        settings.setValue("destination_dir", DEFAULT_DESTINATION_DIR);
+
+    if (settings.value("remote_path").isNull())
+        settings.setValue("remote_path", REMOTE_PATH);
+
+    if (settings.value("sound_file").isNull())
+        settings.setValue("sound_file", DEFAULT_SOUND_FILE);
+
+    if (settings.value("ssh_port").isNull())
+        settings.setValue("ssh_port", SSH_PORT);
+
+    if (settings.value("allowed_file_types").isNull())
+        settings.setValue("allowed_file_types", ALLOWED_FILE_TYPES);
+}
+
+
 int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("VerKnowSys");
+    QCoreApplication::setOrganizationDomain("verknowsys.com");
+    QCoreApplication::setApplicationName("Synshot");
+    loadDefaultSettings();
+    QSettings settings;
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
     QStringList args = app.arguments();
 
@@ -27,8 +55,8 @@ int main(int argc, char *argv[]) {
     QString sourceDir;
     if (args.size() < 3) { /* standalone default mode */
         qDebug() << "Standalone app spawned with default arguments";
-        sourceDir = DEFAULT_SOURCE_DIR;
-        remotes << DEFAULT_DESTINATION_DIR;
+        sourceDir = settings.value("source_dir", DEFAULT_SOURCE_DIR).toString();
+        remotes << settings.value("destination_dir", DEFAULT_DESTINATION_DIR).toString();
     } else {
         sourceDir = args.at(1);
 

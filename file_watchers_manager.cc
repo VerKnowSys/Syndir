@@ -51,7 +51,8 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    this->connection = new Connection(hostName.toStdString(), SSH_PORT, true);
+    QSettings settings;
+    this->connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
     try {
         connection->setKeyPath(keysLocation.toStdString());
         connection->mkConnection();
@@ -92,6 +93,7 @@ void FileWatchersManager::scanDir(QDir dir) {
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
     QDirIterator it(dir, QDirIterator::Subdirectories);
     files << dir.absolutePath(); /* required for dir watches */
+    QSettings settings;
 
     while (it.hasNext()) {
         QString nextOne = it.next();
@@ -99,7 +101,7 @@ void FileWatchersManager::scanDir(QDir dir) {
             // qDebug() << "DIRECTORY:" << nextOne;
             files << nextOne;
         } else {
-            QRegExp matcher(ALLOWED_FILE_TYPES);
+            QRegExp matcher(settings.value("allowed_file_types", ALLOWED_FILE_TYPES).toString());
             if (nextOne.contains(matcher)) {
                 // qDebug() << "Found match:" << nextOne;
                 files << nextOne;
@@ -143,7 +145,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
         auto renamedFile = dir + "/" + result + "." + extension;
         auto clipboard = QApplication::clipboard();
-        clipboard->setText(QString(REMOTE_PATH) + result + "." + extension);
+        QSettings settings;
+        clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + result + "." + extension);
 
     #endif
 
@@ -241,7 +244,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     fin.close();
     libssh2_sftp_close(sftp_handle);
     #ifdef GUI_ENABLED
-        QSound::play(DEFAULT_SOUND_FILE);
+        QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
     #endif
 }
 
