@@ -116,8 +116,8 @@ void FileWatchersManager::scanDir(QDir dir) {
 
 void FileWatchersManager::fileChangedSlot(const QString& file) {
     /* compare file name and modification date. Ignore doubles */
-    if ((last != file) || (QFileInfo(file).lastModified() != this->lastModified)) {
-        this->lastModified = QFileInfo(file).lastModified();
+    if ((last != file) || (QFileInfo(file).created() != this->lastModified)) {
+        this->lastModified = QFileInfo(file).created();
         this->last = file;
         /* use case for auto uploading screenshots to remote site with auto hash generation and copy to clipboard */
         if (this->performNameConvertionToShaAndCopyToClipboard)
