@@ -8,7 +8,6 @@ CONFIG             += app_bundle
 TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
 QMAKE_CXX          = clang++
-QMAKE_INFO_PLIST   = Synshot.plist
 QT                += gui
 
 HEADERS           += ../syndir.h \
@@ -36,6 +35,10 @@ contains(SYSTEM_NAME, Linux): {
 } else {
   QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w
   # -DDEBUG=true
+}
+
+mac {
+  QMAKE_INFO_PLIST   = Synshot.plist
 }
 
 QMAKE_LDFLAGS     += -DGUI_ENABLED
