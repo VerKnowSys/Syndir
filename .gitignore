@@ -3,3 +3,4 @@ Makefile
 moc_*.cpp
 syndir
 /synshot
+/screenshot_sync_app/Synshot.app/
