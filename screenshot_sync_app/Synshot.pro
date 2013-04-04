@@ -4,11 +4,12 @@
 #   Daniel (dmilith) Dettlaff
 #
 
-CONFIG             += app_bundle
+CONFIG            += app_bundle link_pkgconfig
 TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
 QMAKE_CXX          = clang++
 QT                += gui
+PKGCONFIG          = libssh2
 
 HEADERS           += ../syndir.h \
                      synshot.h \
@@ -27,8 +28,7 @@ SOURCES           += ../file_watchers_manager.cc \
 
 # TARGET            = ../synshot
 
-INCLUDEPATH       += ${HOME}/Apps/Libssh2/include
-LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
+LIBS              += -lcrypto -lz
 
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
