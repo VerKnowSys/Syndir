@@ -4,9 +4,11 @@
 #   Daniel (dmilith) Dettlaff
 #
 
+CONFIG             += app_bundle
 TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
-
+QMAKE_CXX          = clang++
+QMAKE_INFO_PLIST   = Synshot.plist
 QT                += gui
 
 HEADERS           += ../syndir.h \
@@ -24,7 +26,7 @@ SOURCES           += ../file_watchers_manager.cc \
                      ../ssh_wrapper/Exception.cpp \
                      ../ssh_wrapper/UserInfo.cpp
 
-TARGET            = ../synshot
+# TARGET            = ../synshot
 
 INCLUDEPATH       += ${HOME}/Apps/Libssh2/include
 LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
@@ -32,7 +34,7 @@ LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
 } else {
-  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED
+  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w
   # -DDEBUG=true
 }
 

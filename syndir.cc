@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     for (int i = 2; i < args.length(); i++) {
         remotes << args.at(i);
     }
-    cout << "Sofin v" << APP_VERSION << " - © 2o13 - VerKnowSys" << endl << COPYRIGHT << endl << endl;
+    cout << "Sofin v" << APP_VERSION << "-" << COPYRIGHT << endl << endl;
 
     for (int i = 0; i < remotes.length(); i++) {
         qDebug() << "Creating thread for remote:" << remotes.at(i);

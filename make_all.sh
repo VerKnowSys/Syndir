@@ -43,7 +43,7 @@ if [ "$(uname)" = "Darwin" ]; then
     printf "Building synshot\n"
     cd screenshot_sync_app
     # make distclean
-    qmake ${SPEC_TYPE} "Synshot.pro"
+    qmake -spec macx-llvm "Synshot.pro"
     ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
     cd ..
 fi
