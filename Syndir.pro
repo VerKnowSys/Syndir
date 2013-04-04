@@ -5,6 +5,9 @@
 #
 
 SYSTEM_NAME        = $$system(uname)
+CONFIG            += link_pkgconfig
+PKGCONFIG          = libssh2 QtCore
+QMAKE_CXX          = clang++
 
 QT                -= gui
 # QT                += network
@@ -23,10 +26,9 @@ SOURCES           += syndir.cc \
                      ssh_wrapper/UserInfo.cpp \
                      file_watchers_manager.cc
 
-TARGET            = syndir
+TARGET             = syndir
 
-INCLUDEPATH       += ${HOME}/Apps/Libssh2/include
-LIBS              += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
+LIBS              += -lcrypto -lz
 
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
