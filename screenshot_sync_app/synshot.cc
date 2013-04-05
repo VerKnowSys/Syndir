@@ -10,7 +10,7 @@
 
 void usage() {
     qDebug() << "Usage:" << endl
-             << "synshot ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
+             << "synshot ~/Pictures/ScreenShots/ user@myhost.com:/remote/nginx/root/dir [ more@host:/some/copy/dir ]";
 }
 
 
