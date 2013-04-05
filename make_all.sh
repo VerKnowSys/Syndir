@@ -45,6 +45,7 @@ if [ "$(uname)" = "Darwin" ]; then
     qmake -spec macx-llvm "Synshot.pro"
     ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
     cd ..
+    macdeployqt Synshot.app -dmg
 fi
 
 exit 0
