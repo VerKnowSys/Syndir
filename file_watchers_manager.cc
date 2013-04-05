@@ -43,6 +43,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
     if (this->userName.isEmpty()) {
         qDebug() << "No user name specified, trying to get it from ENV.";
+        this->userName = getenv("USER");
     }
 
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
