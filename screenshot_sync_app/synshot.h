@@ -8,7 +8,7 @@
 #ifndef __SYNSHOT_H__
 #define __SYNSHOT_H__
 
-#include <QtGui>
+#include <QtGui/QtGui>
 
 #include "../syndir.h"
 #include "../worker_thread.h"
