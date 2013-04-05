@@ -33,6 +33,7 @@ class ConfigWindow: public QDialog {
         void updateScreenshotDir(const QString& text);
         void updateDestinationRemoteDir(const QString& text);
         void updateUrlPrefix(const QString& text);
+        void updateAllowedFileTypes();
 
 
     private:

@@ -51,6 +51,9 @@ void ConfigWindow::showConfigurePanel() {
     settingsWindow->urlPrefix->setText(settings.value("remote_path").toString());
     connect(settingsWindow->urlPrefix, SIGNAL(textChanged(QString)), this, SLOT(updateUrlPrefix(QString)));
 
+    settingsWindow->allowedFileTypes->setPlainText(settings.value("allowed_file_types").toString());
+    connect(settingsWindow->allowedFileTypes, SIGNAL(textChanged()), this, SLOT(updateAllowedFileTypes()));
+
     this->show();
 
 }
@@ -110,6 +113,17 @@ void ConfigWindow::updateUrlPrefix(const QString& text) {
     settingsWindow->urlPrefix->setStyleSheet("border: 2px solid green");
     settings.setValue("remote_path", text);
     qDebug() << "remote_path changed to:" << text;
+}
+
+
+void ConfigWindow::updateAllowedFileTypes() {
+    settingsWindow->allowedFileTypes->setStyleSheet("border: 2px solid green");
+    QString text = settingsWindow->allowedFileTypes->toPlainText();
+    if (text.length() == 0) {
+        text = ALLOWED_FILE_TYPES;
+    }
+    settings.setValue("allowed_file_types", text);
+    qDebug() << "allowed_file_types changed to:" << text;
 }
 
 
