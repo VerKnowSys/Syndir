@@ -27,6 +27,8 @@ ConfigWindow::ConfigWindow() {
 
     settingsWindow = new ConfigWidget();
     settingsWindow->setupUi(this);
+
+    trayIcon->setToolTip(QString("Synshot version v") + APP_VERSION);
 }
 
 
