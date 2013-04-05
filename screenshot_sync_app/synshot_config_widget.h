@@ -27,10 +27,17 @@ class ConfigWindow: public QDialog {
         void showConfigurePanel();
         void closeEvent(QCloseEvent *event);
 
+        void updateDefaultSSHPort(const QString& text);
+        void updateNotificationSound(const QString& text);
+        void updateScreenshotDir(const QString& text);
+        void updateDestinationRemoteDir(const QString& text);
+        void updateUrlPrefix(const QString& text);
+
 
     private:
         QAction *quitAction, *configureAction;
 
+        QSettings settings;
         ConfigWidget *settingsWindow;
 
         QGroupBox *iconGroupBox;

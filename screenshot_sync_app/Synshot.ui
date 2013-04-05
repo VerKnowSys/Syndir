@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
+    <width>510</width>
     <height>237</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>361</width>
+     <width>511</width>
      <height>230</height>
     </rect>
    </property>
@@ -88,7 +88,7 @@
        <string notr="true"/>
       </property>
       <property name="maxLength">
-       <number>6</number>
+       <number>512</number>
       </property>
      </widget>
     </item>
@@ -98,7 +98,7 @@
        <string notr="true"/>
       </property>
       <property name="maxLength">
-       <number>6</number>
+       <number>512</number>
       </property>
      </widget>
     </item>
@@ -115,7 +115,7 @@
        <string notr="true"/>
       </property>
       <property name="maxLength">
-       <number>6</number>
+       <number>512</number>
       </property>
      </widget>
     </item>
@@ -125,7 +125,7 @@
        <string notr="true"/>
       </property>
       <property name="maxLength">
-       <number>6</number>
+       <number>512</number>
       </property>
      </widget>
     </item>
