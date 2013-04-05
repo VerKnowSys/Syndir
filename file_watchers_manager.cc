@@ -239,7 +239,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
             }
         }
         delete[] buf;
-        qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
+        if (bufsize < 1024)
+            qDebug() << "\r(100%)" << bufsize << "Bytes sent.";
+        else
+            qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
 
         /* rename remote file to hash name */
         if (hashFile) {
