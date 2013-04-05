@@ -45,7 +45,10 @@ if [ "$(uname)" = "Darwin" ]; then
     qmake -spec macx-llvm "Synshot.pro"
     ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
     cd ..
-    macdeployqt Synshot.app -dmg
+    if [ "${PACKAGE}" = "YES" ]; then
+        macdeployqt Synshot.app -dmg
+        tar cjf ./Synshot.tar.gz ./Synshot.app
+    fi
 fi
 
 exit 0
