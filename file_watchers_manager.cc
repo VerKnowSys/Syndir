@@ -14,7 +14,7 @@
 
 FileWatchersManager::~FileWatchersManager() {
     qDebug() << "Shutting down";
-    libssh2_sftp_shutdown(sftp_session);
+    // libssh2_sftp_shutdown(sftp_session);
     delete connection;
 }
 
@@ -52,9 +52,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    qDebug() << "Traversing paths in:" << sourceDir;
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
-    qDebug() << "Total files and dirs on watch:" << files.size();
 }
 
 
@@ -62,32 +60,19 @@ void FileWatchersManager::connectToRemoteHost() {
     while ((connection == NULL) or (not connection->isSessionValid())) {
         try {
             QSettings settings;
-            delete connection;
+            if (connection != NULL)
+                delete connection;
             connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+            connection->setKeyPath(keysLocation.toStdString());
+            connection->setCredentials(userName.toStdString(), getenv("USER"));
+            connection->mkConnection();
+            qDebug() << "Connected as:" << userName + "@" + hostName;
 
-            if ((connection == NULL) || (not connection->isSessionValid())) {
-                connection->setKeyPath(keysLocation.toStdString());
-                connection->mkConnection();
-
-                if (connection->isSessionValid()) {
-                    qDebug() << "Connected as:" << userName + "@" + hostName;
-                }
-
-                /* create a session */
-                sftp_session = libssh2_sftp_init(connection->session);
-                if (not sftp_session) {
-                    qDebug() << "SFTP session failed!";
-                    return;
-                }
-            } else {
-
-            }
         } catch (Exception& e) {
             qDebug() << "Error connecting to remote host:" << e.what() << "\nWill retry!";
-            sleep(3);
+            sleep(1);
             return connectToRemoteHost();
         }
-
     }
 }
 
@@ -97,10 +82,13 @@ void FileWatchersManager::scanDir(QDir dir) {
     qDebug() << "Scanning:" << dir.absolutePath();
     disconnect(SIGNAL(fileChanged(QString)));
     disconnect(SIGNAL(directoryChanged(QString)));
-    this->oldFiles = this->files;
-    removePaths(files);
 
-    files.clear();
+    this->oldFiles = this->files;
+    for (int index = 0; index < files.size(); index++) {
+        removePath(files.at(index));
+        files.removeAt(index);
+    }
+
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     QDirIterator it(dir, QDirIterator::Subdirectories);
     files << dir.absolutePath(); /* required for dir watches */
@@ -118,11 +106,14 @@ void FileWatchersManager::scanDir(QDir dir) {
             }
         }
     }
+    files.removeDuplicates();
 
     /* connect hooks to invokers */
-    addPaths(files);
     connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
     connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
+    addPaths(files);
+    qDebug() << "Total files and dirs on watch:" << files.size();
+    qDebug() << "Ready.";
 }
 
 
@@ -163,6 +154,22 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
+
+    connectToRemoteHost();
+
+    /* create session here */
+    LIBSSH2_SFTP *sftp_session = NULL;
+    while (sftp_session == NULL) {
+        /* connect if not connected */
+        sftp_session = libssh2_sftp_init(connection->session);
+        cout << ".";
+        fflush(stdout);
+        usleep(100);
+    }
+
+    libssh2_session_set_timeout(connection->session, DEFAULT_SESSION_TIMEOUT);
+    libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
+
     if (not QFile::exists(file)) {
         qDebug() << "Deletion detected:" << file;
         qDebug() << "Synced deletion of remote file:" << fullDestPath;
@@ -193,21 +200,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     struct stat results;
     stat(file.toUtf8(), &results);
 
-    /* connect on demand if not connected */
-    connectToRemoteHost();
-
     /* Request a file via SFTP */
-    sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
-    if (sftp_handle == NULL) {
-        qDebug() << "Failed to open SFTP connection. Will retry.";
-
-        /* recreate a session */
-        sftp_session = libssh2_sftp_init(connection->session);
-        if (not sftp_session) {
-            qDebug() << "SFTP session failed!";
-            return;
-        }
-        return copyFileToRemoteHost(sourceFile, hashFile);
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
+    while (sftp_handle == NULL) { /* it's case when network connection is overloaded */
+        sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
+        cout << ".";
+        fflush(stdout);
+        usleep(100);
     }
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
@@ -218,7 +217,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         if (bufsize > MAXBUF) /* set buffer to 12 KiB if file size exceeds limit */
             BUFF = MAXBUF;
 
-        libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
         qDebug() << "File size:" << bufsize/1024 << "KiB. Memory buffer size:" << BUFF << "bytes";
         fin.seekg(0); /* rewind to beginning of file */
         qDebug() << "Streaming:" << file;
@@ -253,9 +251,11 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     }
     fin.close();
     libssh2_sftp_close(sftp_handle);
+    libssh2_sftp_shutdown(sftp_session);
     #ifdef GUI_ENABLED
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
     #endif
+    qDebug() << "Done.";
 }
 
 

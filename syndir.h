@@ -15,8 +15,9 @@
 
 #include "file_watchers_manager.h"
 
+#define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define SSH_PORT 22
-#define APP_VERSION "0.11.4"
+#define APP_VERSION "0.11.5"
 #define MAXBUF 12288
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
