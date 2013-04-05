@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
     QStringList remotes;
     QList<WorkerThread*> workers;
 
+    ConfigWindow* configWindow = new ConfigWindow();
+
     /* handle bad arguments */
     QString sourceDir;
     if (args.size() < 3) { /* standalone default mode */

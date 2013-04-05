@@ -8,12 +8,12 @@
 #ifndef __SYNSHOT_H__
 #define __SYNSHOT_H__
 
-#include <QtGui/QApplication>
-#include <QtGui/QClipboard>
-#include <QtGui/QSound>
+#include <QtGui>
 
 #include "../syndir.h"
 #include "../worker_thread.h"
+#include "synshot_config_widget.h"
+
 
 #define DEFAULT_SOUND_FILE "/System/Library/Sounds/Hero.aiff"
 #define DEFAULT_SOURCE_DIR "~/Pictures/ScreenShots"
