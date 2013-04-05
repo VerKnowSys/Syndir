@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < remotes.length(); i++) {
         qDebug() << "Creating thread for remote:" << remotes.at(i);
+        sourceDir = sourceDir.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir */
         workers << new WorkerThread(sourceDir, remotes.at(i), true);
         workers.at(i)->start();
     }
