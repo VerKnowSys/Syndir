@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 readonly PROJECT_NAME="Syndir.pro"
 
 if [ ! -x "/usr/bin/sofin" ]; then
@@ -62,6 +61,7 @@ if [ "$(uname)" = "Darwin" ]; then
     fi
 fi
 
+printf "\n"
 exit 0
 
 

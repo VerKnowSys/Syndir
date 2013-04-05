@@ -58,22 +58,35 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 
 void FileWatchersManager::connectToRemoteHost() {
-    QSettings settings;
-    if ((connection == NULL) || (not connection->isSessionValid())) {
-        connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-        connection->setKeyPath(keysLocation.toStdString());
-        connection->mkConnection();
+    while ((connection == NULL) or (not connection->isSessionValid())) {
+        try {
+            QSettings settings;
+            delete connection;
+            connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
 
-        if (connection->isSessionValid()) {
-            qDebug() << "Connected as:" << userName + "@" + hostName;
+            if ((connection == NULL) || (not connection->isSessionValid())) {
+                connection->setKeyPath(keysLocation.toStdString());
+                connection->mkConnection();
+
+                if (connection->isSessionValid()) {
+                    qDebug() << "Connected as:" << userName + "@" + hostName;
+                }
+
+                /* create a session */
+                sftp_session = libssh2_sftp_init(connection->session);
+                if (not sftp_session) {
+                    qDebug() << "SFTP session failed!";
+                    return;
+                }
+            } else {
+
+            }
+        } catch (Exception& e) {
+            qDebug() << "Error connecting to remote host:" << e.what() << "\nWill retry!";
+            sleep(3);
+            return connectToRemoteHost();
         }
 
-        /* create a session */
-        sftp_session = libssh2_sftp_init(connection->session);
-        if (not sftp_session) {
-            qDebug() << "SFTP session failed!";
-            return;
-        }
     }
 }
 
