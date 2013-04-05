@@ -57,12 +57,12 @@ void ConfigWindow::showConfigurePanel() {
 
 
 void ConfigWindow::updateDefaultSSHPort(const QString& text) {
-    qDebug() << "ssh_port changed to:" << text;
     bool ok = false;
     uint pid = text.toInt(&ok, 10);
     if (ok and (pid < 65536)) {
         settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid green");
         settings.setValue("ssh_port", text);
+        qDebug() << "ssh_port changed to:" << text;
     } else {
         settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid red");
     }
@@ -70,26 +70,46 @@ void ConfigWindow::updateDefaultSSHPort(const QString& text) {
 
 
 void ConfigWindow::updateNotificationSound(const QString& text) {
-    qDebug() << "sound_file changed to:" << text;
-    settings.setValue("sound_file", text);
+    if (QFile::exists(text)) {
+        settingsWindow->notificationSound->setStyleSheet("border: 2px solid green");
+        settings.setValue("sound_file", text);
+        qDebug() << "sound_file changed to:" << text;
+    } else {
+        settingsWindow->notificationSound->setStyleSheet("border: 2px solid red");
+    }
 }
 
 
 void ConfigWindow::updateScreenshotDir(const QString& text) {
-    qDebug() << "source_dir changed to:" << text;
-    settings.setValue("source_dir", text);
+    QString destText = text;
+    destText = destText.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir */
+    if (QDir(destText).exists()) {
+        settingsWindow->screenshotDir->setStyleSheet("border: 2px solid green");
+        settings.setValue("source_dir", text);
+        qDebug() << "source_dir changed to:" << text;
+    } else {
+        settingsWindow->screenshotDir->setStyleSheet("border: 2px solid red");
+    }
 }
 
 
 void ConfigWindow::updateDestinationRemoteDir(const QString& text) {
-    qDebug() << "destination_dir changed to:" << text;
-    settings.setValue("destination_dir", text);
+    QString destText = text;
+    destText = destText.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir, NOTE: it wont use HOME dir of remote system but local system home dir. Use wisely. */
+    if (QDir(destText).exists()) {
+        settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid green");
+        settings.setValue("destination_dir", text);
+        qDebug() << "destination_dir changed to:" << text;
+    } else {
+        settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid red");
+    }
 }
 
 
 void ConfigWindow::updateUrlPrefix(const QString& text) {
-    qDebug() << "remote_path changed to:" << text;
+    settingsWindow->urlPrefix->setStyleSheet("border: 2px solid green");
     settings.setValue("remote_path", text);
+    qDebug() << "remote_path changed to:" << text;
 }
 
 
@@ -114,13 +134,11 @@ void ConfigWindow::createTrayIcon() {
 
     trayIconMenu = new QMenu(this);
     trayIconMenu->setIcon(icon);
-    // trayIconMenu->addAction(minimizeAction);
     trayIconMenu->addAction(configureAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-
     trayIcon->setIcon(icon);
 }
