@@ -56,7 +56,9 @@ if [ "$(uname)" = "Darwin" ]; then
         printf "Creating software bundle\n"
         macdeployqt Synshot.app -dmg
         printf "Creating archive\n"
-        tar cjf ./Synshot.tar.gz ./Synshot.app
+        rm -f ./Synshot-${VERSION}.tar.gz
+        VERSION="$(grep 'APP_VERSION' syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
+        tar cjf ./Synshot-${VERSION}.tar.gz ./Synshot.app
     fi
 fi
 
