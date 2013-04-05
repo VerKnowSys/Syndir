@@ -14,9 +14,10 @@ TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
 QMAKE_CXX          = clang++
 QT                += gui
-
+ICON               = images/Synshot.icns
 HEADERS           += ../syndir.h \
                      synshot.h \
+                     synshot_config_widget.h \
                      ../file_watchers_manager.h \
                      ../worker_thread.h \
                      ../ssh_wrapper/Connection.h \
@@ -25,12 +26,13 @@ HEADERS           += ../syndir.h \
 
 SOURCES           += ../file_watchers_manager.cc \
                      synshot.cc \
+                     synshot_config_widget.cc \
                      ../worker_thread.cc \
                      ../ssh_wrapper/Connection.cpp \
                      ../ssh_wrapper/Exception.cpp \
                      ../ssh_wrapper/UserInfo.cpp
 
-# TARGET            = ../synshot
+TARGET            = ../Synshot
 
 mac {
   INCLUDEPATH     += ${HOME}/Apps/Libssh2/include
@@ -50,4 +52,6 @@ mac {
   QMAKE_INFO_PLIST   = Synshot.plist
 }
 
+RESOURCES         = Synshot.qrc
+FORMS             = Synshot.ui
 QMAKE_LDFLAGS     += -DGUI_ENABLED
