@@ -64,7 +64,7 @@ void FileWatchersManager::connectToRemoteHost() {
                 delete connection;
             connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
             connection->setKeyPath(keysLocation.toStdString());
-            connection->setCredentials(userName.toStdString(), getenv("USER"));
+            connection->setCredentials(userName.toStdString(), "");
             connection->mkConnection();
             qDebug() << "Connected as:" << userName + "@" + hostName;
 
