@@ -83,6 +83,10 @@ void FileWatchersManager::scanDir(QDir dir) {
     disconnect(SIGNAL(fileChanged(QString)));
     disconnect(SIGNAL(directoryChanged(QString)));
 
+    /* connect hooks to invokers */
+    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
+
     this->oldFiles = this->files;
     for (int index = 0; index < files.size(); index++) {
         removePath(files.at(index));
@@ -108,9 +112,6 @@ void FileWatchersManager::scanDir(QDir dir) {
     }
     files.removeDuplicates();
 
-    /* connect hooks to invokers */
-    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
-    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
     addPaths(files);
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Ready.";
