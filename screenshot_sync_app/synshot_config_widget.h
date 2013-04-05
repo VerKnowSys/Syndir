@@ -26,6 +26,7 @@ class ConfigWindow: public QDialog {
     public slots:
         void showConfigurePanel();
         void closeEvent(QCloseEvent *event);
+        void keyPressEvent(QKeyEvent *event);
 
         void updateDefaultSSHPort(const QString& text);
         void updateNotificationSound(const QString& text);

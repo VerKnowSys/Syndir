@@ -93,6 +93,15 @@ void ConfigWindow::closeEvent(QCloseEvent *event) {
 }
 
 
+void ConfigWindow::keyPressEvent(QKeyEvent * event) {
+    qDebug() << "Got key event";
+    if (event->key() == Qt::Key_Escape) {
+        this->hide();
+        event->ignore();
+    }
+}
+
+
 void ConfigWindow::createTrayIcon() {
     QIcon icon = QIcon(":/images/find.tiff");
 
