@@ -58,7 +58,14 @@ void ConfigWindow::showConfigurePanel() {
 
 void ConfigWindow::updateDefaultSSHPort(const QString& text) {
     qDebug() << "ssh_port changed to:" << text;
-    settings.setValue("ssh_port", text);
+    bool ok = false;
+    uint pid = text.toInt(&ok, 10);
+    if (ok and (pid < 65536)) {
+        settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid green");
+        settings.setValue("ssh_port", text);
+    } else {
+        settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid red");
+    }
 }
 
 
@@ -93,7 +100,7 @@ void ConfigWindow::closeEvent(QCloseEvent *event) {
 }
 
 
-void ConfigWindow::keyPressEvent(QKeyEvent * event) {
+void ConfigWindow::keyPressEvent(QKeyEvent *event) {
     qDebug() << "Got key event";
     if (event->key() == Qt::Key_Escape) {
         this->hide();
