@@ -41,12 +41,21 @@ ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
 if [ "$(uname)" = "Darwin" ]; then
     printf "Building synshot\n"
     cd screenshot_sync_app
-    # make distclean
+    if [ "${PACKAGE}" = "YES" ]; then
+        printf "Preparing package. Performing clean build\n"
+        make distclean
+    fi
     qmake -spec macx-llvm "Synshot.pro"
     ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
+    if [ "$?" != "0" ]; then
+        cd ..
+        exit 1
+    fi
     cd ..
     if [ "${PACKAGE}" = "YES" ]; then
+        printf "Creating software bundle\n"
         macdeployqt Synshot.app -dmg
+        printf "Creating archive\n"
         tar cjf ./Synshot.tar.gz ./Synshot.app
     fi
 fi
