@@ -51,33 +51,30 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    // QSettings settings;
-    // this->connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-    // try {
-    //     connection->setKeyPath(keysLocation.toStdString());
-    //     connection->mkConnection();
-    //     if (connection->isSessionValid()) {
-    //         qDebug() << "Connected as:" << userName + "@" + hostName;
-    //     } else {
-    //         qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
-    //         exit(1);
-    //     }
-
-    //     /* create a session */
-    //     sftp_session = libssh2_sftp_init(connection->session);
-    //     if (!sftp_session) {
-    //         qDebug() << "SFTP session failed!";
-    //         return;
-    //     }
-
-    // } catch (Exception & e) {
-    //     qDebug() << "Exception caught: " << e.what();
-    //     exit(1);
-    // }
-
     qDebug() << "Traversing paths in:" << sourceDir;
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
     qDebug() << "Total files and dirs on watch:" << files.size();
+}
+
+
+void FileWatchersManager::connectToRemoteHost() {
+    QSettings settings;
+    if ((connection == NULL) || (!connection->isSessionValid())) {
+        connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+        connection->setKeyPath(keysLocation.toStdString());
+        connection->mkConnection();
+
+        if (connection->isSessionValid()) {
+            qDebug() << "Connected as:" << userName + "@" + hostName;
+        }
+
+        /* create a session */
+        sftp_session = libssh2_sftp_init(connection->session);
+        if (!sftp_session) {
+            qDebug() << "SFTP session failed!";
+            return;
+        }
+    }
 }
 
 
@@ -183,23 +180,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     struct stat results;
     stat(file.toUtf8(), &results);
 
-    if (connection == NULL) {
-        QSettings settings;
-        connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-        connection->setKeyPath(keysLocation.toStdString());
-        connection->mkConnection();
-
-        if (connection->isSessionValid()) {
-            qDebug() << "Connected as:" << userName + "@" + hostName;
-        }
-
-        /* create a session */
-        sftp_session = libssh2_sftp_init(connection->session);
-        if (!sftp_session) {
-            qDebug() << "SFTP session failed!";
-            return;
-        }
-    }
+    /* connect on demand if not connected */
+    connectToRemoteHost();
 
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
