@@ -51,29 +51,29 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
-    QSettings settings;
-    this->connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-    try {
-        connection->setKeyPath(keysLocation.toStdString());
-        connection->mkConnection();
-        if (connection->isSessionValid()) {
-            qDebug() << "Connected as:" << userName + "@" + hostName;
-        } else {
-            qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
-            exit(1);
-        }
+    // QSettings settings;
+    // this->connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+    // try {
+    //     connection->setKeyPath(keysLocation.toStdString());
+    //     connection->mkConnection();
+    //     if (connection->isSessionValid()) {
+    //         qDebug() << "Connected as:" << userName + "@" + hostName;
+    //     } else {
+    //         qDebug() << "SSH Connection failed! Check your public key configuration or look for typo in command line";
+    //         exit(1);
+    //     }
 
-        /* create a session */
-        sftp_session = libssh2_sftp_init(connection->session);
-        if (!sftp_session) {
-            qDebug() << "SFTP session failed!";
-            return;
-        }
+    //     /* create a session */
+    //     sftp_session = libssh2_sftp_init(connection->session);
+    //     if (!sftp_session) {
+    //         qDebug() << "SFTP session failed!";
+    //         return;
+    //     }
 
-    } catch (Exception & e) {
-        qDebug() << "Exception caught: " << e.what();
-        exit(1);
-    }
+    // } catch (Exception & e) {
+    //     qDebug() << "Exception caught: " << e.what();
+    //     exit(1);
+    // }
 
     qDebug() << "Traversing paths in:" << sourceDir;
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
@@ -93,7 +93,6 @@ void FileWatchersManager::scanDir(QDir dir) {
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
     QDirIterator it(dir, QDirIterator::Subdirectories);
     files << dir.absolutePath(); /* required for dir watches */
-    QSettings settings;
 
     while (it.hasNext()) {
         QString nextOne = it.next();
@@ -145,7 +144,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
         auto renamedFile = dir + "/" + result + "." + extension;
         auto clipboard = QApplication::clipboard();
-        QSettings settings;
         clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + result + "." + extension);
 
     #endif
@@ -185,10 +183,16 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     struct stat results;
     stat(file.toUtf8(), &results);
 
+    if (connection == NULL)
+        connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+
     /* Request a file via SFTP */
     sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
     if (sftp_handle == NULL) {
         qDebug() << "Failed to open SFTP connection with write privileges on remote server! Will retry.";
+        // if (connection == NULL)
+            // connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+        connection->setKeyPath(keysLocation.toStdString());
         connection->mkConnection();
 
         /* recreate a session */

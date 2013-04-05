@@ -16,7 +16,7 @@
 #include "file_watchers_manager.h"
 
 #define SSH_PORT 22
-#define APP_VERSION "0.11.1"
+#define APP_VERSION "0.11.2"
 #define MAXBUF 12288
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
