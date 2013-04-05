@@ -30,7 +30,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
     QString userWithHost = sshDirPartial.value(0);
     QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
     QRegExp emailSign("@");
-    if (!userWithHost.contains(emailSign)) {
+    if (not userWithHost.contains(emailSign)) {
         this->userName = getenv("USER"); /* set username if not given explicitly */
         this->hostName = sshUserServerPartial.value(0);
         // qDebug() << "Implicit" << userName << hostName;
@@ -59,7 +59,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 void FileWatchersManager::connectToRemoteHost() {
     QSettings settings;
-    if ((connection == NULL) || (!connection->isSessionValid())) {
+    if ((connection == NULL) || (not connection->isSessionValid())) {
         connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
         connection->setKeyPath(keysLocation.toStdString());
         connection->mkConnection();
@@ -70,7 +70,7 @@ void FileWatchersManager::connectToRemoteHost() {
 
         /* create a session */
         sftp_session = libssh2_sftp_init(connection->session);
-        if (!sftp_session) {
+        if (not sftp_session) {
             qDebug() << "SFTP session failed!";
             return;
         }
@@ -87,7 +87,7 @@ void FileWatchersManager::scanDir(QDir dir) {
     removePaths(files);
 
     files.clear();
-    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks); // QDir::Dirs | QDir::Hidden |
+    dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     QDirIterator it(dir, QDirIterator::Subdirectories);
     files << dir.absolutePath(); /* required for dir watches */
 
@@ -142,7 +142,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         auto renamedFile = dir + "/" + result + "." + extension;
         auto clipboard = QApplication::clipboard();
         clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + result + "." + extension);
-
     #endif
 
     QString fileDirName = QFileInfo(file).absolutePath();
@@ -163,12 +162,12 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     /* Read permissions of a source file */
     libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
-    if (!preDirs.isEmpty()) { /* sub dirs in path */
+    if (not preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
         for (int i = 0; i < elems.length(); i++) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
-            if (!elem.isEmpty()) {
+            if (not elem.isEmpty()) {
                 libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
             }
         }
@@ -190,7 +189,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
         /* recreate a session */
         sftp_session = libssh2_sftp_init(connection->session);
-        if (!sftp_session) {
+        if (not sftp_session) {
             qDebug() << "SFTP session failed!";
             return;
         }
