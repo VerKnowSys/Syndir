@@ -9,8 +9,9 @@
 #define __SYNSHOT_CONF_WIDGET_H__
 
 #include "synshot.h"
-#include "ui_Synshot.h"
 
+/* auto generated: */
+#include "ui_Synshot.h"
 
 using namespace Ui;
 
@@ -24,13 +25,14 @@ class ConfigWindow: public QDialog {
 
     public slots:
         void showConfigurePanel();
+        void closeEvent(QCloseEvent *event);
 
 
     private:
-        QAction *quitAction;
-        QAction *configureAction;
+        QAction *quitAction, *configureAction;
 
         ConfigWidget *settingsWindow;
+
         QGroupBox *iconGroupBox;
         QLabel *iconLabel;
         QMenu *trayIconMenu;

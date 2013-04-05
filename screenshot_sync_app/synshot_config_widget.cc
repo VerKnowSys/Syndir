@@ -46,6 +46,13 @@ void ConfigWindow::showConfigurePanel() {
 }
 
 
+void ConfigWindow::closeEvent(QCloseEvent *event) {
+    qDebug() << "Got close window event";
+    this->hide();
+    event->ignore();
+}
+
+
 void ConfigWindow::createTrayIcon() {
     QIcon icon = QIcon(":/images/find.tiff");
 
