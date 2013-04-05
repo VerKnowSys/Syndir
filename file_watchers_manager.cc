@@ -256,6 +256,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     libssh2_sftp_close(sftp_handle);
     libssh2_sftp_shutdown(sftp_session);
     #ifdef GUI_ENABLED
+        QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
     #endif
     qDebug() << "Done.";
