@@ -35,8 +35,9 @@ mac {
   CONFIG          += app_bundle
   INCLUDEPATH     += ${HOME}/Apps/Libssh2/include
   LIBS            += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
-  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w
+  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w -arch x86_64
   QMAKE_INFO_PLIST   = Synshot.plist
+  QMAKE_LDFLAGS     += -arch x86_64
 
 } else {
 
@@ -48,5 +49,3 @@ mac {
 
 RESOURCES         = Synshot.qrc
 FORMS             = Synshot.ui
-
-# QMAKE_LDFLAGS     += -DGUI_ENABLED
