@@ -278,10 +278,13 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
 
         /* scan for new files by file list diff */
         Q_FOREACH(QString nextOne, files) {
-            if (QFile(nextOne).exists()) {
-                if (not oldFiles.contains(nextOne)) {
-                    qDebug() << "New file found in monitored dir:" << nextOne;
-                    fileChangedSlot(nextOne);
+            if (QFile::exists(nextOne)) {
+                if (not QDir(nextOne).exists()) {
+                    // qDebug() << "Traversing next file:" << nextOne;
+                    if (not oldFiles.contains(nextOne)) {
+                        // qDebug() << "New file found in monitored dir:" << nextOne;
+                        emit fileChangedSlot(nextOne);
+                    }
                 }
             }
         }
