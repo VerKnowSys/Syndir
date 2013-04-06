@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Syndir by VerKnowSys</title>
+    <title>Syndir + Synshot by VerKnowSys</title>
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
@@ -17,8 +17,8 @@
   <body>
 
       <header>
-        <h1>Syndir</h1>
-        <p>Syndir - SCP/SFTP file synchronization utility.</p>
+        <h1>Syndir + Synshot</h1>
+        <p>SCP/SFTP file synchronization utility  +  Screenshot GUI utility for power users.</p>
       </header>
 
       <div id="banner">
@@ -47,23 +47,62 @@
 
 <ul>
 <li>Michał (tallica) Lipski</li>
-</ul><h2>Features:</h2>
+</ul><h2>Syndir features:</h2>
 
 <ul>
-<li>Synchronize your files with 0 setup. Works with SFTP. Requires public key authentication.</li>
+<li>Synchronize your files with 0 setup. Works with SFTP. Requires SSH public key authentication.</li>
 <li>Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.</li>
 <li>Any amount of remote hosts supported. Just give them as additional params.</li>
 <li>Automatic creation of remote non existent remote directories.</li>
 <li>Full support for File &amp; Directory creation/ deletion.</li>
 <li>Asynchronous, parallel transfers for multiple hosts at once.</li>
 <li>Uses almost no memory (&lt; 5MiB RSS for 64bit app, even when syncing huge files)</li>
-</ul><h2>Requirements:</h2>
+</ul><h2>Synshot features:</h2>
 
 <ul>
-<li><a href="http://qt-project.org/downloads">Qt4 4.8.x</a></li>
+<li>Uses Syndir core. Uses SSH public key authentication.</li>
+<li>Simple, small tray application for OSX and Linux.</li>
+<li>Blazing fast. It reuses and maintains single connection to SFTP host.</li>
+<li>Works under huge IO/Network loads.</li>
+<li>Security through obscurity. Each screenshot is uploaded first, then renamed to SHA1 of it's name.</li>
+<li>After each upload automatically copies destination link to system clipboard.</li>
+<li>Tested by a power user. Not kids from marketing toy store.</li>
+<li>Supports Growl notifications under OSX.</li>
+<li>Supports Sound notifications.</li>
+<li>Requires a simple Nginx config to bind remote address to your server. I use:</li>
+</ul><div class="highlight"><pre><span class="k">server</span> <span class="p">{</span>
+   <span class="kn">listen</span> <span class="s">s.verknowsys.com</span><span class="p">;</span>
+   <span class="kn">server_name</span> <span class="s">s.verknowsys.com</span><span class="p">;</span>
+   <span class="kn">root</span> <span class="s">/home/dmilith/Web/Public/Sshots/</span><span class="p">;</span>
+   <span class="kn">autoindex</span> <span class="no">off</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+<h2>Requirements:</h2>
+
+<ul>
+<li>
+<a href="http://qt-project.org/downloads">Qt4 4.8.x</a> (only QtCore part of framework for Syndir, QtGui for Synshot)</li>
 <li><a href="http://www.libssh2.org">LibSSH2 1.4.x</a></li>
-<li><a href="http://verknowsys.github.com/sofin/">Sofin 0.46.x</a></li>
-</ul><h2>Examples:</h2>
+</ul><h2>Preffered/Optional requirements.:</h2>
+
+<ul>
+<li>
+<a href="http://verknowsys.github.com/sofin/">Sofin 0.46.x</a> - Because it has predefined "qt" (with minimal build of Qt4 for servers) and "libssh2" definitions. Sofin is used by default in Syndir's installation script: <a href="https://github.com/VerKnowSys/Syndir/blob/master/make_all.sh">make_all.sh</a>.</li>
+<li>Qt4 GUI libraries to build Synshot (screenshot sync utility)</li>
+<li>
+<a href="http://growl.info">Growl</a> - When available, will be used for notifications in GUI app. If unavailable, you'll get only sound notifications.</li>
+</ul><h2>Building:</h2>
+
+<div class="highlight"><pre>./make_all.sh
+</pre></div>
+
+<p>or</p>
+
+<div class="highlight"><pre><span class="nv">PACKAGE</span><span class="o">=</span>YES ./make_all.sh <span class="c"># will also create standalone Synshot.app with all requirements bundled.</span>
+</pre></div>
+
+<h2>Examples:</h2>
 
 <div class="highlight"><pre>syndir /Volumes/Projects/MyProjectDir myhost.com:/existing/destination/MyProjectDir
 </pre></div>
