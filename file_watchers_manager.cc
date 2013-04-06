@@ -52,6 +52,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
+    /* connect hooks to invokers */
+    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
+
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
 }
 
@@ -80,12 +84,9 @@ void FileWatchersManager::connectToRemoteHost() {
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
     qDebug() << "Scanning:" << dir.absolutePath();
-    disconnect(SIGNAL(fileChanged(QString)));
-    disconnect(SIGNAL(directoryChanged(QString)));
+    // disconnect(SIGNAL(fileChanged(QString)));
+    // disconnect(SIGNAL(directoryChanged(QString)));
 
-    /* connect hooks to invokers */
-    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
-    connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
 
     this->oldFiles = this->files;
     for (int index = 0; index < files.size(); index++) {
