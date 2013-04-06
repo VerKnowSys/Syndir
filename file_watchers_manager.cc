@@ -52,6 +52,8 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1);
     }
 
+    signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
+
     /* connect hooks to invokers */
     connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
     connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
