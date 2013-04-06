@@ -55,9 +55,8 @@ server {
 
 ## Building:
 ```sh
-./make_all.sh
+./make_all.sh # standard build.
 ```
-or
 ```sh
 PACKAGE=YES ./make_all.sh # will also create standalone Synshot.app with all requirements bundled.
 ```
@@ -67,15 +66,17 @@ PACKAGE=YES ./make_all.sh # will also create standalone Synshot.app with all req
 ```sh
 syndir /Volumes/Projects/MyProjectDir myhost.com:/existing/destination/MyProjectDir
 ```
-or
 ```sh
 syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/MyProjectDir
 ```
-or
 ```sh
 syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/MyProjectDir more.hosts:/somewhere and.even.more:/copies/myproject (...)
 ```
 Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir(s) to destination MyProjectDir. It works recursively thoughout directory structure for each given remote location.
+
+
+## OSX binary builds download:
+* [Synshot 0.13.1](http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.13.1.tar.gz)
 
 
 ## TODO:
