@@ -4,17 +4,14 @@
 #   Daniel (dmilith) Dettlaff
 #
 
-mac {
-  CONFIG          += app_bundle
-} else {
-  CONFIG          += app_bundle link_pkgconfig
-  PKGCONFIG        = libssh2
-}
 TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
+QMAKE_CC           = clang
 QMAKE_CXX          = clang++
+
 QT                += gui
 ICON               = images/Synshot.icns
+
 HEADERS           += ../syndir.h \
                      synshot.h \
                      synshot_config_widget.h \
@@ -35,23 +32,21 @@ SOURCES           += ../file_watchers_manager.cc \
 TARGET            = ../Synshot
 
 mac {
+  CONFIG          += app_bundle
   INCLUDEPATH     += ${HOME}/Apps/Libssh2/include
   LIBS            += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
-} else {
-  LIBS            += -lcrypto -lz
-}
-
-contains(SYSTEM_NAME, Linux): {
-  QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -DDEBUG=true
-} else {
   QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w
-  # -DDEBUG=true
-}
-
-mac {
   QMAKE_INFO_PLIST   = Synshot.plist
+
+} else {
+
+  CONFIG          += app_bundle link_pkgconfig
+  PKGCONFIG        = libssh2
+  LIBS            += -lcrypto -lz
+  QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -DDEBUG=true
 }
 
 RESOURCES         = Synshot.qrc
 FORMS             = Synshot.ui
-QMAKE_LDFLAGS     += -DGUI_ENABLED
+
+# QMAKE_LDFLAGS     += -DGUI_ENABLED
