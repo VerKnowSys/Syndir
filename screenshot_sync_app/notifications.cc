@@ -15,11 +15,12 @@ void notify(const QString& notification) {
     QString notificationContent = tmpl.replace("NOTIFICATION_CONTENTS", notification);
     QStringList processArguments;
     processArguments << "-l" << "AppleScript";
-    QProcess process;
-    process.start(OSA_SCRIPT, processArguments);
-    process.write(notificationContent.toUtf8());
-    process.closeWriteChannel();
-    process.waitForFinished();
+    QProcess *process = new QProcess();
+    process->start(OSA_SCRIPT, processArguments);
+    process->write(notificationContent.toUtf8());
+    process->closeWriteChannel();
+    process->waitForFinished();
+    delete process;
     qDebug() << "Launched notification:" << notification;
 }
 
