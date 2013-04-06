@@ -10,9 +10,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>535</width>
-    <height>401</height>
+    <width>550</width>
+    <height>400</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>550</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>550</width>
+    <height>400</height>
+   </size>
   </property>
   <property name="focusPolicy">
    <enum>Qt::NoFocus</enum>
@@ -31,9 +43,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>531</width>
-     <height>401</height>
+     <width>550</width>
+     <height>400</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>550</width>
+     <height>400</height>
+    </size>
    </property>
    <property name="title">
     <string/>
@@ -75,6 +93,11 @@
     </item>
     <item row="0" column="1">
      <widget class="QLineEdit" name="defaultSSHPort">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
       <property name="mouseTracking">
        <bool>false</bool>
       </property>
@@ -148,6 +171,11 @@
     </item>
     <item row="3" column="1">
      <widget class="QLineEdit" name="screenshotDir">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
       <property name="inputMask">
        <string notr="true"/>
       </property>
@@ -158,6 +186,11 @@
     </item>
     <item row="2" column="1">
      <widget class="QLineEdit" name="notificationSound">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
       <property name="inputMask">
        <string notr="true"/>
       </property>
@@ -187,6 +220,14 @@
     </item>
     <item row="5" column="1">
      <widget class="QLineEdit" name="urlPrefix">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="inputMask">
        <string notr="true"/>
       </property>
@@ -197,6 +238,11 @@
     </item>
     <item row="4" column="1">
      <widget class="QLineEdit" name="destinationRemoteDir">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
       <property name="inputMask">
        <string notr="true"/>
       </property>
@@ -210,6 +256,9 @@
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
        <string>File patterns</string>
       </property>
@@ -217,7 +266,7 @@
        <bool>false</bool>
       </property>
       <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
       </property>
       <property name="margin">
        <number>2</number>
@@ -226,12 +275,29 @@
     </item>
     <item row="6" column="1">
      <widget class="QPlainTextEdit" name="allowedFileTypes">
+      <property name="font">
+       <font>
+        <family>Menlo</family>
+       </font>
+      </property>
       <property name="cursor" stdset="0">
        <cursorShape>IBeamCursor</cursorShape>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="tabChangesFocus">
+       <bool>true</bool>
       </property>
       <property name="plainText">
        <string>
 </string>
+      </property>
+      <property name="backgroundVisible">
+       <bool>false</bool>
       </property>
      </widget>
     </item>
