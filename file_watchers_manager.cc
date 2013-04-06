@@ -262,6 +262,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
     #endif
+    qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done.";
 }
 
