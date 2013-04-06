@@ -61,8 +61,8 @@ void ConfigWindow::showConfigurePanel() {
 
 void ConfigWindow::updateDefaultSSHPort(const QString& text) {
     bool ok = false;
-    uint pid = text.toInt(&ok, 10);
-    if (ok and (pid < 65536)) {
+    uint port = text.toInt(&ok, 10);
+    if (ok and (port <= MAX_PORT_VALUE)) {
         settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid green");
         settings.setValue("ssh_port", text);
         qDebug() << "ssh_port changed to:" << text;
