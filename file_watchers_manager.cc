@@ -9,6 +9,7 @@
 
 #ifdef GUI_ENABLED
     #include "screenshot_sync_app/synshot.h"
+    #include "notifications.h"
 #endif
 
 
@@ -263,6 +264,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     #ifdef GUI_ENABLED
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+        notify("Shot uploaded. Link copied to clipboard");
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done.";

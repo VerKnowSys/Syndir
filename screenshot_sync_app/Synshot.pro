@@ -14,6 +14,7 @@ ICON               = images/Synshot.icns
 
 HEADERS           += ../syndir.h \
                      synshot.h \
+                     notifications.h \
                      synshot_config_widget.h \
                      ../file_watchers_manager.h \
                      ../worker_thread.h \
@@ -23,6 +24,7 @@ HEADERS           += ../syndir.h \
 
 SOURCES           += ../file_watchers_manager.cc \
                      synshot.cc \
+                     notifications.cc \
                      synshot_config_widget.cc \
                      ../worker_thread.cc \
                      ../ssh_wrapper/Connection.cpp \

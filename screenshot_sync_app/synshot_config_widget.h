@@ -12,6 +12,7 @@
 
 /* auto generated: */
 #include "ui_Synshot.h"
+#include "notifications.h"
 
 using namespace Ui;
 

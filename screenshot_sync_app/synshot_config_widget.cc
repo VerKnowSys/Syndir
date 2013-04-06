@@ -8,20 +8,6 @@
 #include "synshot_config_widget.h"
 
 
-void notify(const QString& notification) {
-    QString tmpl = GROWL_APPLESCRIPT;
-    QString notificationContent = tmpl.replace("NOTIFICATION_CONTENTS", notification);
-    QStringList processArguments;
-    processArguments << "-l" << "AppleScript";
-    QProcess process;
-    process.start(OSA_SCRIPT, processArguments);
-    process.write(notificationContent.toUtf8());
-    process.closeWriteChannel();
-    process.waitForFinished();
-    qDebug() << "Launched notification:" << notification;
-}
-
-
 ConfigWindow::ConfigWindow() {
     iconGroupBox = new QGroupBox(tr("Tray Icon"));
     iconLabel = new QLabel("Icon:");
