@@ -15,11 +15,11 @@
 
 #include "file_watchers_manager.h"
 
-#define APP_VERSION "0.13.0"
+#define APP_VERSION "0.13.1"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define SSH_PORT 22
 #define MAX_PORT_VALUE 65535
-#define MAXBUF 12288
+#define MAXBUF 16384
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
 #define ALLOWED_FILE_TYPES "\\.pro$|\\.hpp$|\\.h$|\\.c$|\\.cc$|\\.cpp$|\\.scala$|\\.java$|\\.rb$|Rakefile$|\\.properties$|\\.xml$|\\.html$|\\.js$|\\.coffee$|\\.sh$|\\.def$|\\.md$|\\.haml$|\\.slim$|\\.css$|\\.sass$|\\.scss$|\\.less$|\\.erb$|\\.yml|\\.yaml$$|\\.conf$|\\.json$|\\.jpg$|\\.jpeg$|\\.png$|\\.svg$|\\.gif$|\\.jar$|\\.ini$|\\.patch$|\\.jp2$"
