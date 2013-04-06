@@ -31,6 +31,7 @@
 * Supports Growl notifications under OSX.
 * Supports Sound notifications.
 * Requires a simple Nginx config to bind remote address to your server. I use:
+
 ```nginx
 server {
    listen s.verknowsys.com;
