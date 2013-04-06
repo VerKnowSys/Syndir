@@ -73,10 +73,18 @@ void FileWatchersManager::connectToRemoteHost() {
             connection->setKeyPath(keysLocation.toStdString());
             connection->setCredentials(userName.toStdString(), "");
             connection->mkConnection();
-            qDebug() << "Connected as:" << userName + "@" + hostName;
+            QString notf = "Connected as:" + userName + "@" + hostName;
+            qDebug() << notf;
+            #ifdef GUI_ENABLED
+                notify(notf);
+            #endif
 
         } catch (Exception& e) {
-            qDebug() << "Error connecting to remote host:" << e.what() << "\nWill retry!";
+            QString notf = "Error connecting to remote host: " + QString(e.what()) + ". Will retry!";
+            qDebug() << notf;
+            #ifdef GUI_ENABLED
+                notify(notf);
+            #endif
             sleep(1);
             return connectToRemoteHost();
         }
@@ -87,9 +95,6 @@ void FileWatchersManager::connectToRemoteHost() {
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
     qDebug() << "Scanning:" << dir.absolutePath();
-    // disconnect(SIGNAL(fileChanged(QString)));
-    // disconnect(SIGNAL(directoryChanged(QString)));
-
 
     this->oldFiles = this->files;
     for (int index = 0; index < files.size(); index++) {
@@ -264,7 +269,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     #ifdef GUI_ENABLED
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
-        notify("Shot uploaded. Link copied to clipboard");
+        notify("Screenshot uploaded. Link copied to clipboard");
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done.";
