@@ -177,6 +177,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         qDebug() << "Synced deletion of remote file:" << fullDestPath;
         libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
         removePath(file);
+        libssh2_sftp_shutdown(sftp_session);
         return;
     }
 
