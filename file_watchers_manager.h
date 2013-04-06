@@ -42,14 +42,10 @@ class FileWatchersManager: public QFileSystemWatcher {
 
 
     private:
-        QString baseCWD;
-        QStringList files, oldFiles;
-        QString fullDestinationSSHPath;
-        QString remotePath;
-        QString userName;
-        QString hostName;
+        QStringList files = QStringList(), oldFiles = QStringList();
+        QString baseCWD, fullDestinationSSHPath, remotePath, userName, hostName;
 
-        QString last;
+        QString last = "NOFILE";
         QDateTime lastModified;
 
         QSettings settings;
