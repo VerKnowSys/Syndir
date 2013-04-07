@@ -46,7 +46,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
     signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
 
     /* connect hooks to invokers */
-    connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    #ifndef GUI_ENABLED /* file changed emmiter isn't necessary in Synshot */
+        /// consider moving file /dir watchers to qApp
+        connect(this, SIGNAL(fileChanged(QString)), this, SLOT(fileChangedSlot(QString)));
+    #endif
     connect(this, SIGNAL(directoryChanged(QString)), this, SLOT(dirChangedSlot(QString)));
 
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
