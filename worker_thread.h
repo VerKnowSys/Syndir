@@ -22,9 +22,9 @@ class WorkerThread: public QThread {
 
     public:
         #ifdef GUI_ENABLED
-            WorkerThread(ConfigWindow *config, const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
+            WorkerThread(ConfigWindow *config, const QString& sourceDir, const QString& fullDestinationSSHPath);
         #else
-            WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
+            WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath);
         #endif
         void run();
 
@@ -37,7 +37,6 @@ class WorkerThread: public QThread {
 
         QString source;
         QString destination;
-        bool screenshotSyncApp;
 
 };
 
