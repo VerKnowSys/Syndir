@@ -39,12 +39,16 @@ class ConfigWindow: public QDialog {
         void updateUrlPrefix(const QString& text);
         void updateAllowedFileTypes();
 
-        void doingWork(bool yesOrNo); /* will invoke icon set */
+        void doingWork(int state); /* will invoke icon set */
+        void backToIdleState(); /* will set icon back to idle state */
 
 
     private:
-        const QIcon iconDefault = QIcon(":/images/find.tiff");
-        const QIcon iconSending = QIcon(":/images/filesearch.tiff");
+        const QIcon iconDefault = QIcon(":/images/default.tiff");
+        const QIcon iconWorking = QIcon(":/images/working.tiff");
+        const QIcon iconOk      = QIcon(":/images/ok.tiff");
+        const QIcon iconError   = QIcon(":/images/error.tiff");
+        const QIcon iconDelete  = QIcon(":/images/delete.tiff");
 
         QSettings settings;
         QAction *quitAction = NULL, *configureAction = NULL;

@@ -44,11 +44,37 @@ ConfigWindow::ConfigWindow() {
 }
 
 
-void ConfigWindow::doingWork(bool yesOrNo) {
-    if (yesOrNo)
-        trayIcon->setIcon(iconSending); /* working icon */
-    else
-        trayIcon->setIcon(iconDefault); /* idle icon */
+void ConfigWindow::backToIdleState() {
+    qDebug() << "Back to idle.";
+    trayIcon->setIcon(iconDefault);
+}
+
+
+void ConfigWindow::doingWork(int state) {
+    qDebug() << "Got state:" << state;
+    switch (state) {
+        case IDLE: {
+            trayIcon->setIcon(iconDefault);
+        } break;
+
+        case WORKING: {
+            trayIcon->setIcon(iconWorking);
+        } break;
+
+        case OK: {
+            trayIcon->setIcon(iconOk);
+        } break;
+
+        case ERROR: {
+            trayIcon->setIcon(iconError);
+        } break;
+
+        case DELETE: {
+            trayIcon->setIcon(iconDelete);
+        } break;
+    }
+
+    QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(backToIdleState()));
 }
 
 
