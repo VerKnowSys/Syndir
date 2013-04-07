@@ -13,9 +13,8 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
-#include "file_watchers_manager.h"
 
-#define APP_VERSION "0.13.1"
+#define APP_VERSION "0.14.0"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define SSH_PORT 22
 #define MAX_PORT_VALUE 65535
@@ -23,6 +22,12 @@
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
 #define ALLOWED_FILE_TYPES "\\.pro$|\\.hpp$|\\.h$|\\.c$|\\.cc$|\\.cpp$|\\.scala$|\\.java$|\\.rb$|Rakefile$|\\.properties$|\\.xml$|\\.html$|\\.js$|\\.coffee$|\\.sh$|\\.def$|\\.md$|\\.haml$|\\.slim$|\\.css$|\\.sass$|\\.scss$|\\.less$|\\.erb$|\\.yml|\\.yaml$$|\\.conf$|\\.json$|\\.jpg$|\\.jpeg$|\\.png$|\\.svg$|\\.gif$|\\.jar$|\\.ini$|\\.patch$|\\.jp2$"
+
+#define DEFAULT_SOUND_FILE "/System/Library/Sounds/Hero.aiff"
+#define DEFAULT_SOURCE_DIR "~/Pictures/ScreenShots"
+#define DEFAULT_DESTINATION_DIR "v:/home/dmilith/Web/Public/Sshots"
+#define REMOTE_PATH "http://s.verknowsys.com/"
+
 
 void usage();
 
