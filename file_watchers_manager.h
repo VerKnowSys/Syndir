@@ -37,6 +37,8 @@ class FileWatchersManager: public QFileSystemWatcher {
         void scanDir(QDir dir);
         void copyFileToRemoteHost(const QString& file, bool hashFile = false);
         void connectToRemoteHost();
+        QStringList removeFromList(QStringList& list, const QStringList& toDelete);
+
 
         #ifdef GUI_ENABLED
             void setConfigWindow(ConfigWindow *config);

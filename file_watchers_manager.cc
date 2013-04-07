@@ -145,7 +145,14 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
         #else
             copyFileToRemoteHost(file);
         #endif
+
+
+QStringList FileWatchersManager::removeFromList(QStringList& list, const QStringList& toDelete) {
+    QStringListIterator i(toDelete);
+    while (i.hasNext()) {
+        list.removeAll(i.next());
     }
+    return list;
 }
 
 
@@ -195,7 +202,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         qDebug() << "Synced deletion of remote file:" << fullDestPath;
         libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
         removePath(file);
+        files = removeFromList(files, QStringList(file));
         libssh2_sftp_shutdown(sftp_session);
+        qDebug() << "Total files and dirs on watch:" << files.size();
         return;
     }
 
