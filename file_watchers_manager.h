@@ -30,10 +30,18 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     public:
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha = false);
-        ~FileWatchersManager();
         void scanDir(QDir dir);
         void copyFileToRemoteHost(const QString& file, bool hashFile = false);
         void connectToRemoteHost();
+
+        #ifdef GUI_ENABLED
+            void setConfigWindow(ConfigWindow *config);
+        #endif
+
+
+    signals:
+        /* slot to trigger icon type in tray */
+        void setWork(bool yesOrNo);
 
 
     protected:
@@ -50,6 +58,9 @@ class FileWatchersManager: public QFileSystemWatcher {
 
         QSettings settings;
         Connection* connection = NULL;
+        #ifdef GUI_ENABLED
+            ConfigWindow *configWindow = NULL;
+        #endif
 
 
     public slots:

@@ -17,12 +17,20 @@ class WorkerThread: public QThread {
     Q_OBJECT
 
     public:
-        WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
+        #ifdef GUI_ENABLED
+            WorkerThread(ConfigWindow *config, const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
+        #else
+            WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath, bool screenshotter = false);
+        #endif
         void run();
 
 
     private:
         FileWatchersManager* watcher = NULL;
+        #ifdef GUI_ENABLED
+            ConfigWindow *configWindow = NULL;
+        #endif
+
         QString source;
         QString destination;
         bool screenshotSyncApp;

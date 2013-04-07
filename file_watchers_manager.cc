@@ -49,8 +49,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
         qDebug() << "Invalid (empty) host or user name.";
-        usage();
-        exit(1);
+        #ifndef GUI_ENABLED
+            usage();
+        #endif
+        exit(1); // XXX: FIXME: shouldn't just silent fail, but retry
     }
 
     signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
@@ -61,6 +63,20 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
     scanDir(QDir(sourceDir)); /* will fill up manager 'files' field */
 }
+
+
+#ifdef GUI_ENABLED
+    void FileWatchersManager::setConfigWindow(ConfigWindow *config) {
+        if (config == NULL)
+            this->configWindow = new ConfigWindow();
+        else
+            this->configWindow = config;
+
+        /* tray icon change trigger */
+        connect(this, SIGNAL(setWork(bool)), this->configWindow, SLOT(doingWork(bool)));
+
+    }
+#endif
 
 
 void FileWatchersManager::connectToRemoteHost() {
@@ -165,6 +181,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
 
+    #ifdef GUI_ENABLED
+        emit setWork(true); /* will set icon to "busy" */
+    #endif
     connectToRemoteHost();
 
     /* create session here */
@@ -186,6 +205,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
         removePath(file);
         libssh2_sftp_shutdown(sftp_session);
+        #ifdef GUI_ENABLED
+            emit setWork(false);
+        #endif
         return;
     }
 
@@ -269,6 +291,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     #ifdef GUI_ENABLED
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+        emit setWork(false);
         notify("Screenshot uploaded. Link copied to clipboard");
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();

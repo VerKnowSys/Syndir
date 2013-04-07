@@ -44,12 +44,13 @@ class ConfigWindow: public QDialog {
         const QIcon iconSending = QIcon(":/images/filesearch.tiff");
 
         QSettings settings;
-        ConfigWidget *settingsWindow;
-
-        QGroupBox *iconGroupBox;
-        QLabel *iconLabel;
-        QMenu *trayIconMenu;
-        QSystemTrayIcon *trayIcon;
+        QAction *quitAction = NULL, *configureAction = NULL;
+        ConfigWidget *settingsWindow = NULL;
+        QGroupBox *iconGroupBox = NULL;
+        QLabel *iconLabel = NULL;
+        QMenu *trayIconMenu = NULL;
+        QSystemTrayIcon *trayIcon = NULL;
 };
+
 
 #endif
