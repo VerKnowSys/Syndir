@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/">
     <file>images/find.tiff</file>
+    <file>images/filesearch.tiff</file>
   </qresource>
 </RCC>
