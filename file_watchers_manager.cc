@@ -104,7 +104,7 @@ void FileWatchersManager::scanDir(QDir dir) {
 
     this->oldFiles = this->files;
     for (int index = 0; index < files.size(); index++) {
-        removePath(files.at(index));
+    //     removePath(files.at(index));
         files.removeAt(index);
     }
 
@@ -122,6 +122,8 @@ void FileWatchersManager::scanDir(QDir dir) {
             if (nextOne.contains(matcher)) {
                 // qDebug() << "Found match:" << nextOne;
                 files << nextOne;
+            } else {
+                removePath(nextOne);
             }
         }
     }
@@ -287,12 +289,12 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
 
 void FileWatchersManager::dirChangedSlot(const QString& dir) {
-    qDebug() << "Dir changed:" << dir;
     if (not QDir(dir).exists()) {
         qDebug() << "Dir has gone. Assuming directory deletion of:" << dir;
         removePath(dir);
         scanDir(QDir(dir + "/.."));
     } else {
+        qDebug() << "Dir changed:" << dir;
         scanDir(QDir(dir)); /* don't scan non existent directories */
 
         /* scan for new files by file list diff */
@@ -315,7 +317,7 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
                     emit setWork(DELETE);
                     copyFileToRemoteHost(nextOne, true);
                 #else
-                    emit fileChangedSlot(nextOne);
+                    copyFileToRemoteHost(nextOne);
                 #endif
             }
         }
