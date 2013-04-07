@@ -324,7 +324,7 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
                     emit setWork(DELETE);
                     copyFileToRemoteHost(nextOne, true);
                 #else
-                    copyFileToRemoteHost(nextOne);
+                    emit fileChangedSlot(nextOne);
                 #endif
             }
         }
