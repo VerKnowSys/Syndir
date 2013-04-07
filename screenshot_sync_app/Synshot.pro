@@ -13,11 +13,11 @@ QT                += gui
 ICON               = images/Synshot.icns
 
 HEADERS           += ../syndir.h \
+                     ../worker_thread.h \
                      synshot.h \
                      notifications.h \
                      synshot_config_widget.h \
                      ../file_watchers_manager.h \
-                     ../worker_thread.h \
                      ../ssh_wrapper/Connection.h \
                      ../ssh_wrapper/Exception.h \
                      ../ssh_wrapper/UserInfo.h
@@ -25,8 +25,8 @@ HEADERS           += ../syndir.h \
 SOURCES           += ../file_watchers_manager.cc \
                      synshot.cc \
                      notifications.cc \
-                     synshot_config_widget.cc \
                      ../worker_thread.cc \
+                     synshot_config_widget.cc \
                      ../ssh_wrapper/Connection.cpp \
                      ../ssh_wrapper/Exception.cpp \
                      ../ssh_wrapper/UserInfo.cpp
@@ -39,7 +39,7 @@ mac {
   LIBS            += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
   QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w -arch x86_64
   QMAKE_INFO_PLIST   = Synshot.plist
-  QMAKE_LDFLAGS     += -arch x86_64
+  QMAKE_LDFLAGS     += -arch x86_64 -DGUI_ENABLED
 
 } else {
 
