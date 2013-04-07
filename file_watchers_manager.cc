@@ -5,19 +5,7 @@
  *
  */
 
-#include "syndir.h"
-
-#ifdef GUI_ENABLED
-    #include "screenshot_sync_app/synshot.h"
-    #include "notifications.h"
-#endif
-
-
-FileWatchersManager::~FileWatchersManager() {
-    qDebug() << "Shutting down";
-    // libssh2_sftp_shutdown(sftp_session);
-    delete connection;
-}
+#include "file_watchers_manager.h"
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha) {

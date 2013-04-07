@@ -8,11 +8,14 @@
 #ifndef __SYNSHOT_CONF_WIDGET_H__
 #define __SYNSHOT_CONF_WIDGET_H__
 
-#include "synshot.h"
+#include <QtGui/QtGui>
 
 /* auto generated: */
 #include "ui_Synshot.h"
+
+#include "../syndir.h"
 #include "notifications.h"
+
 
 using namespace Ui;
 

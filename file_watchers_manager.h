@@ -20,6 +20,10 @@
 
 #include "syndir.h"
 
+#ifdef GUI_ENABLED
+    #include "screenshot_sync_app/synshot_config_widget.h"
+#endif
+
 
 using namespace SSH2Wrapper;
 using namespace std;
