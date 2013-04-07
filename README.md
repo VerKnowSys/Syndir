@@ -78,10 +78,12 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 ## OSX binary builds download:
 * [Synshot 0.13.1](http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.13.1.tar.gz)
 * [Synshot 0.14.1](http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.14.1.tar.gz)
+* [Synshot 0.15.1](http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.15.1.tar.gz)
 
 
-## TODO:
-* Gracefully handle "too many open files" error on deep/big source directories.
+## KNOWN BUGS:
+* Rare bug in endless loop in case of very long, old network sessions. (machine sleep for night). Current workaround is to restart an app.
+* Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
 
 
 ## License:

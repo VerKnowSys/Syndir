@@ -148,6 +148,9 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
 
 
 void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool hashFile) {
+    QTime *myTimer = new QTime();
+    myTimer->start();
+
     QString file = sourceFile;
     #ifdef GUI_ENABLED
         auto fileInfo = QFileInfo(file);
@@ -278,7 +281,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         notify("Screenshot uploaded. Link copied to clipboard");
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();
-    qDebug() << "Done.";
+    delete myTimer;
+    qDebug() << "Done. Time elapsed:" << myTimer->elapsed() << "miliseconds";
 }
 
 
