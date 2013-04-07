@@ -50,32 +50,18 @@
         QStringList args = app.arguments();
 
         QStringList remotes;
-        QList<WorkerThread*> workers;
 
         /* init instance of config window for GUI */
         ConfigWindow *configWindow = new ConfigWindow();
 
-        /* handle bad arguments */
-        QString sourceDir;
-        if (args.size() < 3) { /* standalone default mode */
-            qDebug() << "Standalone app spawned with default arguments";
-            sourceDir = settings.value("source_dir", DEFAULT_SOURCE_DIR).toString();
-            remotes << settings.value("destination_dir", DEFAULT_DESTINATION_DIR).toString();
-        } else {
-            sourceDir = args.at(1);
+        /* read config values */
+        QString sourceDir = settings.value("source_dir").toString().trimmed().replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir */
+        QString destination = settings.value("destination_dir").toString().trimmed();
 
-            for (int i = 2; i < args.length(); i++) {
-                remotes << args.at(i);
-            }
-            cout << "Sofin v" << APP_VERSION << endl << COPYRIGHT << endl << endl;
-        }
+        auto worker = new WorkerThread(configWindow, sourceDir, destination);
+        worker->start();
 
-        for (int i = 0; i < remotes.length(); i++) {
-            qDebug() << "Creating thread for remote:" << remotes.at(i);
-            sourceDir = sourceDir.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir */
-            workers << new WorkerThread(configWindow, sourceDir, remotes.at(i), true);
-            workers.at(i)->start();
-        }
+        qDebug() << "Synshot initialized.";
 
         return app.exec();
     }
