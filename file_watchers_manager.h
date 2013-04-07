@@ -33,7 +33,7 @@ class FileWatchersManager: public QFileSystemWatcher {
     Q_OBJECT
 
     public:
-        FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha = false);
+        FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
         void scanDir(QDir dir);
         void copyFileToRemoteHost(const QString& file, bool hashFile = false);
         void connectToRemoteHost();
@@ -45,7 +45,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     signals:
         /* slot to trigger icon type in tray */
-        void setWork(bool yesOrNo);
+        void setWork(int state);
 
 
     protected:

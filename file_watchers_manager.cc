@@ -8,9 +8,8 @@
 #include "file_watchers_manager.h"
 
 
-FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath, bool convertToSha) {
+FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
     qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
-    this->performNameConvertionToShaAndCopyToClipboard = convertToSha; /* used only for preprocessing of files sent to remote - f.e. sending screenshots */
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
 
@@ -64,7 +63,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
             this->configWindow = config;
 
         /* tray icon change trigger */
-        connect(this, SIGNAL(setWork(bool)), this->configWindow, SLOT(doingWork(bool)));
+        connect(this, SIGNAL(setWork(int)), this->configWindow, SLOT(doingWork(int)));
 
     }
 #endif
@@ -139,13 +138,12 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
     if ((last != file) || (QFileInfo(file).created() != this->lastModified)) {
         this->lastModified = QFileInfo(file).created();
         this->last = file;
-        /* use case for auto uploading screenshots to remote site with auto hash generation and copy to clipboard */
-        if (this->performNameConvertionToShaAndCopyToClipboard)
+        #ifdef GUI_ENABLED
             copyFileToRemoteHost(file, true);
-        else
+        #else
             copyFileToRemoteHost(file);
-    } //else
-        // qDebug() << "Sync not necessary for:" << file;
+        #endif
+    }
 }
 
 
@@ -172,9 +170,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
 
-    #ifdef GUI_ENABLED
-        emit setWork(true); /* will set icon to "busy" */
-    #endif
     connectToRemoteHost();
 
     /* create session here */
@@ -196,9 +191,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
         removePath(file);
         libssh2_sftp_shutdown(sftp_session);
-        #ifdef GUI_ENABLED
-            emit setWork(false);
-        #endif
         return;
     }
 
@@ -228,7 +220,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     while (sftp_handle == NULL) { /* it's case when network connection is overloaded */
         sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
-        cout << ".";
+        cout << "'";
         fflush(stdout);
         usleep(100);
     }
@@ -282,7 +274,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     #ifdef GUI_ENABLED
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
-        emit setWork(false);
+        emit setWork(OK);
         notify("Screenshot uploaded. Link copied to clipboard");
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();
@@ -306,9 +298,21 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
                     // qDebug() << "Traversing next file:" << nextOne;
                     if (not oldFiles.contains(nextOne)) {
                         // qDebug() << "New file found in monitored dir:" << nextOne;
-                        emit fileChangedSlot(nextOne);
+                        #ifdef GUI_ENABLED
+                            emit setWork(WORKING);
+                            copyFileToRemoteHost(nextOne, true);
+                        #else
+                            emit fileChangedSlot(nextOne);
+                        #endif
                     }
                 }
+            } else {
+                #ifdef GUI_ENABLED
+                    emit setWork(DELETE);
+                    copyFileToRemoteHost(nextOne, true);
+                #else
+                    emit fileChangedSlot(nextOne);
+                #endif
             }
         }
     }
