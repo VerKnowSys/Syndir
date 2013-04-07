@@ -11,7 +11,7 @@
   <key>CFBundleGetInfoString</key>
   <string>Created by dmilith</string>
   <key>CFBundleSignature</key>
-  <string>0.9.0</string>
+  <string>Synshot</string>
   <key>CFBundleExecutable</key>
   <string>Synshot</string>
   <key>CFBundleIdentifier</key>
