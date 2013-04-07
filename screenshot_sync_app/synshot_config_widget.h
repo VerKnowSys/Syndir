@@ -36,9 +36,12 @@ class ConfigWindow: public QDialog {
         void updateUrlPrefix(const QString& text);
         void updateAllowedFileTypes();
 
+        void doingWork(bool yesOrNo); /* will invoke icon set */
+
 
     private:
-        QAction *quitAction, *configureAction;
+        const QIcon iconDefault = QIcon(":/images/find.tiff");
+        const QIcon iconSending = QIcon(":/images/filesearch.tiff");
 
         QSettings settings;
         ConfigWidget *settingsWindow;

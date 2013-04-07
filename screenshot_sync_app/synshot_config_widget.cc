@@ -9,7 +9,9 @@
 
 
 ConfigWindow::ConfigWindow() {
-    iconGroupBox = new QGroupBox(tr("Tray Icon"));
+    qDebug() << "Initiating configuration window";
+
+    iconGroupBox = new QGroupBox("Tray Icon");
     iconLabel = new QLabel("Icon:");
     iconLabel->setMinimumWidth(32);
 
@@ -33,6 +35,14 @@ ConfigWindow::ConfigWindow() {
         QString notification = QString("Launched Synshot version v") + APP_VERSION;
         notify(notification);
     #endif
+}
+
+
+void ConfigWindow::doingWork(bool yesOrNo) {
+    if (yesOrNo)
+        trayIcon->setIcon(iconSending); /* working icon */
+    else
+        trayIcon->setIcon(iconDefault); /* idle icon */
 }
 
 
@@ -148,15 +158,13 @@ void ConfigWindow::keyPressEvent(QKeyEvent *event) {
 
 
 void ConfigWindow::createTrayIcon() {
-    QIcon icon = QIcon(":/images/find.tiff");
-
     trayIconMenu = new QMenu(this);
-    trayIconMenu->setIcon(icon);
+    // trayIconMenu->setIcon(icon);
     trayIconMenu->addAction(configureAction);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(quitAction);
 
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-    trayIcon->setIcon(icon);
+    trayIcon->setIcon(iconDefault);
 }
