@@ -35,6 +35,12 @@ ConfigWindow::ConfigWindow() {
         QString notification = QString("Launched Synshot version v") + APP_VERSION;
         notify(notification);
     #endif
+
+    /* setting default widget position to middle top center */
+    QDesktopWidget *desk = new QDesktopWidget();
+    int x = desk->width() / 2 - this->width() / 2;
+    this->move(x, 0);
+    delete desk;
 }
 
 
