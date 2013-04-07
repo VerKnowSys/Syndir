@@ -140,11 +140,10 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
     if ((last != file) || (QFileInfo(file).created() != this->lastModified)) {
         this->lastModified = QFileInfo(file).created();
         this->last = file;
-        #ifdef GUI_ENABLED
-            copyFileToRemoteHost(file, true);
-        #else
-            copyFileToRemoteHost(file);
-        #endif
+        qDebug() << "Invoked copy to remote host for file:" << file;
+        copyFileToRemoteHost(file);
+    }
+}
 
 
 QStringList FileWatchersManager::removeFromList(QStringList& list, const QStringList& toDelete) {
