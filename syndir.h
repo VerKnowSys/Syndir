@@ -14,7 +14,7 @@
 #include <libssh2_sftp.h>
 
 
-#define APP_VERSION "0.14.0"
+#define APP_VERSION "0.14.1"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define SSH_PORT 22
 #define MAX_PORT_VALUE 65535
