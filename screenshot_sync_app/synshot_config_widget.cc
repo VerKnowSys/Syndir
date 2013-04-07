@@ -74,7 +74,8 @@ void ConfigWindow::doingWork(int state) {
         } break;
     }
 
-    QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(backToIdleState()));
+    if (state != IDLE)
+        QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(backToIdleState()));
 }
 
 
