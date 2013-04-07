@@ -14,8 +14,9 @@
 #include <libssh2_sftp.h>
 
 
-#define APP_VERSION "0.14.1"
+#define APP_VERSION "0.15.0"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
+#define ICON_BACK_TO_IDLE_TIMEOUT 3500
 #define SSH_PORT 22
 #define MAX_PORT_VALUE 65535
 #define MAXBUF 16384
@@ -27,6 +28,14 @@
 #define DEFAULT_SOURCE_DIR "~/Pictures/ScreenShots"
 #define DEFAULT_DESTINATION_DIR "v:/home/dmilith/Web/Public/Sshots"
 #define REMOTE_PATH "http://s.verknowsys.com/"
+
+
+/* State */
+#define IDLE 0
+#define WORKING 1
+#define OK 2
+#define ERROR 3
+#define DELETE 4
 
 
 void usage();
