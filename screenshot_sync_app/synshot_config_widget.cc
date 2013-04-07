@@ -130,20 +130,25 @@ void ConfigWindow::updateDestinationRemoteDir(const QString& text) {
 
 
 void ConfigWindow::updateUrlPrefix(const QString& text) {
-    settingsWindow->urlPrefix->setStyleSheet("border: 2px solid green");
-    settings.setValue("remote_path", text);
-    qDebug() << "remote_path changed to:" << text;
+    /* don't store same value */
+    if (text != settings.value("remote_path").toString()) {
+        settingsWindow->urlPrefix->setStyleSheet("border: 2px solid green");
+        settings.setValue("remote_path", text);
+        qDebug() << "remote_path changed to:" << text;
+    }
 }
 
 
 void ConfigWindow::updateAllowedFileTypes() {
-    settingsWindow->allowedFileTypes->setStyleSheet("border: 2px solid green");
-    QString text = settingsWindow->allowedFileTypes->toPlainText();
-    if (text.length() == 0) {
-        text = ALLOWED_FILE_TYPES;
+    if (settingsWindow->allowedFileTypes->toPlainText() != settings.value("allowed_file_types").toString()) {
+        QString text = settingsWindow->allowedFileTypes->toPlainText();
+        settingsWindow->allowedFileTypes->setStyleSheet("border: 2px solid green");
+        if (text.length() == 0) {
+            text = ALLOWED_FILE_TYPES;
+        }
+        settings.setValue("allowed_file_types", text);
+        qDebug() << "allowed_file_types changed to:" << text;
     }
-    settings.setValue("allowed_file_types", text);
-    qDebug() << "allowed_file_types changed to:" << text;
 }
 
 
