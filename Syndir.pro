@@ -7,35 +7,24 @@
 SYSTEM_NAME        = $$system(uname)
 ! mac {
   CONFIG          += link_pkgconfig
-  PKGCONFIG        = libssh2 QtCore
+  PKGCONFIG        = QtCore
 }
 QMAKE_CXX          = clang++
-
+DEFINES           += WITH_SFTP HAVE_POLL HAVE_SELECT HAVE_LIBCRYPTO HAVE_PTHREAD WITH_ZLIB HAVE_GETADDRINFO
 QT                -= gui
-# QT                += network
 
-HEADERS           += syndir.h \
-                     file_watchers_manager.h \
+HEADERS           += file_watchers_manager.h \
                      worker_thread.h \
-                     ssh_wrapper/Connection.h \
-                     ssh_wrapper/Exception.h \
-                     ssh_wrapper/UserInfo.h
+                     syndir.h
 
-SOURCES           += syndir.cc \
-                     worker_thread.cc \
-                     ssh_wrapper/Connection.cpp \
-                     ssh_wrapper/Exception.cpp \
-                     ssh_wrapper/UserInfo.cpp \
-                     file_watchers_manager.cc
+SOURCES           += worker_thread.cc \
+                     file_watchers_manager.cc \
+                     syndir.cc
+
 
 TARGET             = syndir
 
-mac {
-  INCLUDEPATH     += ${HOME}/Apps/Libssh2/include
-  LIBS            += ${HOME}/Apps/Libssh2/lib/libssh2.${LIBTYPE} -lcrypto -lz
-} else {
-  LIBS            += -lcrypto -lz
-}
+LIBS            += -lz -lcrypto ./libssh.a
 
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true

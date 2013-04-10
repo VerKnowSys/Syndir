@@ -10,11 +10,10 @@
 
 
 #include <QtCore>
-#include <libssh2.h>
-#include <libssh2_sftp.h>
+#include <QCryptographicHash>
 
 
-#define APP_VERSION "0.15.2"
+#define APP_VERSION "0.16.0"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500
 #define SSH_PORT 22

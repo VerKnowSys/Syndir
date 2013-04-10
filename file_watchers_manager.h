@@ -11,10 +11,11 @@
 
 #include <iostream>
 #include <fstream>
-// #include <sys/stat.h>
+#include <sys/stat.h>
 
-#include <QCryptographicHash>
 #include "syndir.h"
+#include "libssh/libssh/libsshpp.hpp"
+#include "libssh/libssh/sftp.h"
 
 #ifdef GUI_ENABLED
     #include "screenshot_sync_app/synshot_config_widget.h"
@@ -22,6 +23,7 @@
 
 
 using namespace std;
+using namespace ssh;
 
 
 class FileWatchersManager: public QFileSystemWatcher {
@@ -58,7 +60,7 @@ class FileWatchersManager: public QFileSystemWatcher {
         QDateTime lastModified;
 
         QSettings settings;
-        static ssh::Session *connection;
+        Session *connection = NULL;
         #ifdef GUI_ENABLED
             ConfigWindow *configWindow = NULL;
         #endif
@@ -69,6 +71,5 @@ class FileWatchersManager: public QFileSystemWatcher {
         void dirChangedSlot(const QString& dir);
 
 };
-
 
 #endif

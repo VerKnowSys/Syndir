@@ -17,14 +17,21 @@ fi
 
 MAKE="make"
 SPEC_TYPE=""
-LIBTYPE="a"
 if [ "$(uname)" = "Darwin" ]; then
     SPEC_TYPE="-spec darwin-g++"
-    # LIBTYPE="dylib"
 fi
 
+cd libssh
+qmake ${SPEC_TYPE} "ssh.pro"
+${MAKE} CC=clang CXX=clang++
+cd ..
+
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
-${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
+${MAKE} CC=clang CXX=clang++
+
+if [ "${NOGUI}" = "YES" ]; then
+    exit
+fi
 
 if [ "$(uname)" = "Darwin" ]; then
     printf "Building synshot\n"
@@ -34,7 +41,7 @@ if [ "$(uname)" = "Darwin" ]; then
         make distclean
     fi
     qmake -spec macx-llvm "Synshot.pro"
-    ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
+    ${MAKE} CC=clang CXX=clang++
     if [ "$?" != "0" ]; then
         cd ..
         exit 1

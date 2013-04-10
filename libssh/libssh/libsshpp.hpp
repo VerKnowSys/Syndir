@@ -51,8 +51,8 @@
 /* do not use deprecated functions */
 #define LIBSSH_LEGACY_0_4
 
-#include <libssh/libssh.h>
-#include <libssh/server.h>
+#include "libssh.h"
+#include "server.h"
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>

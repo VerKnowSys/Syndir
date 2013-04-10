@@ -70,10 +70,10 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 
 void FileWatchersManager::connectToRemoteHost() {
-    while (connection == NULL) {
+    while (this->connection == NULL) {
         QSettings settings;
 
-        connection = new ssh::Session();
+        this->connection = new Session();
         int verbosity = SSH_LOG_PROTOCOL;
         connection->setOption(SSH_OPTIONS_HOST, (const char*)hostName.toUtf8());
         connection->setOption(SSH_OPTIONS_PORT, settings.value("ssh_port", SSH_PORT).toInt());
