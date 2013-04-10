@@ -11,13 +11,9 @@
 
 #include <iostream>
 #include <fstream>
+// #include <sys/stat.h>
 
 #include <QCryptographicHash>
-
-#include "ssh_wrapper/Connection.h"
-#include "ssh_wrapper/Exception.h"
-#include "ssh_wrapper/UserInfo.h"
-
 #include "syndir.h"
 
 #ifdef GUI_ENABLED
@@ -25,7 +21,6 @@
 #endif
 
 
-using namespace SSH2Wrapper;
 using namespace std;
 
 
@@ -63,7 +58,7 @@ class FileWatchersManager: public QFileSystemWatcher {
         QDateTime lastModified;
 
         QSettings settings;
-        Connection* connection = NULL;
+        static ssh::Session *connection;
         #ifdef GUI_ENABLED
             ConfigWindow *configWindow = NULL;
         #endif

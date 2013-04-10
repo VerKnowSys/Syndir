@@ -70,30 +70,38 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 
 void FileWatchersManager::connectToRemoteHost() {
-    while ((connection == NULL) or (not connection->isSessionValid())) {
-        try {
-            QSettings settings;
-            if (connection != NULL)
-                delete connection;
-            connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-            connection->setKeyPath(keysLocation.toStdString());
-            connection->setCredentials(userName.toStdString(), "");
-            connection->mkConnection();
-            QString notf = "Connected as:" + userName + "@" + hostName;
-            qDebug() << notf;
-            #ifdef GUI_ENABLED
-                notify(notf);
-            #endif
+    while (connection == NULL) {
+        QSettings settings;
 
-        } catch (Exception& e) {
-            QString notf = "Error connecting to remote host: " + QString(e.what()) + ". Will retry!";
-            qDebug() << notf;
-            #ifdef GUI_ENABLED
-                notify(notf);
-            #endif
-            sleep(1);
-            return connectToRemoteHost();
-        }
+        connection = new ssh::Session();
+        int verbosity = SSH_LOG_PROTOCOL;
+        connection->setOption(SSH_OPTIONS_HOST, (const char*)hostName.toUtf8());
+        connection->setOption(SSH_OPTIONS_PORT, settings.value("ssh_port", SSH_PORT).toInt());
+        connection->setOption(SSH_OPTIONS_LOG_VERBOSITY, verbosity);
+        connection->userauthPublickeyAuto();
+        connection->connect();
+
+        // if (connection != NULL)
+        //     delete connection;
+        // connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
+        // connection->setKeyPath(keysLocation.toStdString());
+        // connection->setCredentials(userName.toStdString(), "");
+        // connection->mkConnection();
+        QString notf = "Connected as:" + userName + "@" + hostName;
+        qDebug() << notf;
+        #ifdef GUI_ENABLED
+            notify(notf);
+        #endif
+
+        // } catch (Exception& e) {
+        //     QString notf = "Error connecting to remote host: " + QString(e.what()) + ". Will retry!";
+        //     qDebug() << notf;
+        //     #ifdef GUI_ENABLED
+        //         notify(notf);
+        //     #endif
+        //     sleep(1);
+        //     return connectToRemoteHost();
+        // }
     }
 }
 
@@ -184,25 +192,30 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     connectToRemoteHost();
 
     /* create session here */
-    LIBSSH2_SFTP *sftp_session = NULL;
-    while (sftp_session == NULL) {
-        /* connect if not connected */
-        sftp_session = libssh2_sftp_init(connection->session);
-        cout << ".";
-        fflush(stdout);
-        usleep(100);
-    }
+    sftp_session sftp = NULL;
 
-    libssh2_session_set_timeout(connection->session, DEFAULT_SESSION_TIMEOUT);
-    libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
+    // LIBSSH2_SFTP *sftp_session = NULL;
+    while (sftp_init(sftp) != SSH_OK) {
+        qDebug() << "Crap bang dup";
+        sftp_free(sftp);
+    }
+    //     /* connect if not connected */
+    //     sftp_session = libssh2_sftp_init(connection->session);
+    //     cout << ".";
+    //     fflush(stdout);
+    //     usleep(100);
+    // }
+
+    // libssh2_session_set_timeout(connection->session, DEFAULT_SESSION_TIMEOUT);
+    // libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
 
     if (not QFile::exists(file)) {
         qDebug() << "Deletion detected:" << file;
         qDebug() << "Synced deletion of remote file:" << fullDestPath;
-        libssh2_sftp_unlink(sftp_session, fullDestPath.toUtf8());
+        sftp_unlink(sftp, fullDestPath.toUtf8());
         removePath(file);
         files = removeFromList(files, QStringList(file));
-        libssh2_sftp_shutdown(sftp_session);
+        sftp_free(sftp);
         qDebug() << "Total files and dirs on watch:" << files.size();
         return;
     }
@@ -211,14 +224,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     auto finalPath = remotePath.toUtf8();
 
     /* Read permissions of a source file */
-    libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
+    sftp_mkdir(sftp, finalPath, 0755);
     if (not preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
         for (int i = 0; i < elems.length(); i++) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
             if (not elem.isEmpty()) {
-                libssh2_sftp_mkdir(sftp_session, finalPath, 0755);
+                sftp_mkdir(sftp, finalPath, 0755);
             }
         }
     }
@@ -230,13 +243,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     stat(file.toUtf8(), &results);
 
     /* Request a file via SFTP */
-    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-    while (sftp_handle == NULL) { /* it's case when network connection is overloaded */
-        sftp_handle = libssh2_sftp_open(sftp_session, fullDestPath.toUtf8(), LIBSSH2_FXF_READ|LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC, results.st_mode);
-        cout << "'";
-        fflush(stdout);
-        usleep(100);
-    }
+    // sftp_file sftp_handle;
+    // while (sftp_handle == NULL) { /* it's case when network connection is overloaded */
+    sftp_file sftp_handle = sftp_open(sftp, fullDestPath.toUtf8(), results.st_mode, results.st_mode);
+        // cout << "'";
+        // fflush(stdout);
+        // usleep(100);
+    // }
     ifstream fin(file.toUtf8(), ios::binary);
     if (fin) {
         fin.seekg(0, ios::end);
@@ -254,12 +267,12 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         uint chunk = 0; /* used only to count % progress */
         while (fin.good()) {
             fin.read(buf, BUFF); /* read file contents into buffer; todo: sanity checks */
-            int result = libssh2_sftp_write(sftp_handle, buf, fin.gcount()); /* write to remote file */
-            switch (result) {
-                case LIBSSH2_ERROR_ALLOC:
-                    qDebug() << "Error allocating buffer with size:" << bufsize;
-                    break;
-            }
+            int result = sftp_write(sftp_handle, buf, fin.gcount()); /* write to remote file */
+            // switch (result) {
+            //     case LIBSSH2_ERROR_ALLOC:
+            //         qDebug() << "Error allocating buffer with size:" << bufsize;
+            //         break;
+            // }
             chunk += 1;
             if (bufsize > 0) {
                 int percent = (chunk * BUFF) * 100 / bufsize;
@@ -282,8 +295,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         }
     }
     fin.close();
-    libssh2_sftp_close(sftp_handle);
-    libssh2_sftp_shutdown(sftp_session);
+    sftp_close(sftp_handle);
+    sftp_free(sftp);
     #ifdef GUI_ENABLED
         QSettings settings;
         QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
