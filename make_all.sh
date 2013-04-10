@@ -23,17 +23,6 @@ if [ "$(uname)" = "Darwin" ]; then
     # LIBTYPE="dylib"
 fi
 
-# please note that this dependency is by default on user side:
-if [ "$(id -u)" = "0" ]; then
-    printf "Cannot be build by root for now.\n"
-    exit 1
-else
-    if [ ! -d "${HOME}/Apps/Libssh2" ]; then
-        sofin install libssh2
-    fi
-fi
-
-
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
 ${MAKE} LIBTYPE=${LIBTYPE} CXX=clang++
 
