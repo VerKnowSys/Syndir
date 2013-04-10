@@ -10,7 +10,7 @@ SYSTEM_NAME        = $$system(uname)
   PKGCONFIG        = QtCore
 }
 QMAKE_CXX          = clang++
-DEFINES           += WITH_SFTP HAVE_POLL HAVE_SELECT HAVE_LIBCRYPTO HAVE_PTHREAD WITH_ZLIB HAVE_GETADDRINFO
+#DEFINES           += WITH_SFTP HAVE_POLL HAVE_SELECT HAVE_LIBCRYPTO HAVE_PTHREAD WITH_ZLIB HAVE_GETADDRINFO
 QT                -= gui
 
 HEADERS           += file_watchers_manager.h \

@@ -586,7 +586,7 @@ LIBSSH_API void ssh_event_free(ssh_event event);
 LIBSSH_API const char* ssh_get_serverbanner(ssh_session session);
 
 #ifndef LIBSSH_LEGACY_0_4
-#include "libssh/legacy.h"
+#include "legacy.h"
 #endif
 
 #ifdef __cplusplus

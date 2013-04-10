@@ -49,7 +49,7 @@
  */
 
 /* do not use deprecated functions */
-#define LIBSSH_LEGACY_0_4
+//#define LIBSSH_LEGACY_0_4
 
 #include "libssh.h"
 #include "server.h"
