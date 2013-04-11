@@ -10,7 +10,7 @@ SYSTEM_NAME        = $$system(uname)
   PKGCONFIG        = QtCore
 }
 QMAKE_CXX          = clang++
-#DEFINES           += WITH_SFTP HAVE_POLL HAVE_SELECT HAVE_LIBCRYPTO HAVE_PTHREAD WITH_ZLIB HAVE_GETADDRINFO
+QMAKE_CC           = clang
 QT                -= gui
 
 HEADERS           += file_watchers_manager.h \
@@ -24,7 +24,12 @@ SOURCES           += worker_thread.cc \
 
 TARGET             = syndir
 
-LIBS            += -lz -lcrypto ./libssh.a
+mac {
+  INCLUDEPATH     += PTssh/
+  LIBS            += -lz -lcrypto libPTssh.a
+} else {
+  LIBS            += -lz -lcrypto libPTssh.a
+}
 
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
