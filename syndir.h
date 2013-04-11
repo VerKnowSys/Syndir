@@ -9,8 +9,19 @@
 #define __SYNDIR_H__
 
 
+/* all system wide includes required: */
 #include <QtCore>
+#include <sys/stat.h>
+
 #include <QCryptographicHash>
+// #include "PTssh/PTsshConfig.h"
+#include "PTssh/PTsshW.h"
+#include "PTssh/PTssh.h"
+#include "PTssh/PTSftp.h"
+// #include "PTssh/SftpFileHandle.h"
+// #include "PTssh/SftpDirHandle.h"
+// #include "PTssh/Data.h"
+// #include "PTssh/SftpAttrs.h"
 
 
 #define APP_VERSION "0.16.0"
@@ -19,6 +30,7 @@
 #define SSH_PORT 22
 #define MAX_PORT_VALUE 65535
 #define MAXBUF 16384
+#define TEMP_BUFFER_SIZE 0x3F000 /* 252 KB - OpenSSH's sftp limit is a little under 0x40000 */
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
 #define ALLOWED_FILE_TYPES "\\.pro$|\\.hpp$|\\.h$|\\.c$|\\.cc$|\\.cpp$|\\.scala$|\\.java$|\\.rb$|Rakefile$|\\.properties$|\\.xml$|\\.html$|\\.js$|\\.coffee$|\\.sh$|\\.def$|\\.md$|\\.haml$|\\.slim$|\\.css$|\\.sass$|\\.scss$|\\.less$|\\.erb$|\\.yml|\\.yaml$$|\\.conf$|\\.json$|\\.jpg$|\\.jpeg$|\\.png$|\\.svg$|\\.gif$|\\.jar$|\\.ini$|\\.patch$|\\.jp2$"

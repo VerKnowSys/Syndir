@@ -14,8 +14,6 @@
 #include <sys/stat.h>
 
 #include "syndir.h"
-#include "libssh/libssh/libsshpp.hpp"
-#include "libssh/libssh/sftp.h"
 
 #ifdef GUI_ENABLED
     #include "screenshot_sync_app/synshot_config_widget.h"
@@ -23,7 +21,6 @@
 
 
 using namespace std;
-using namespace ssh;
 
 
 class FileWatchersManager: public QFileSystemWatcher {
@@ -49,7 +46,6 @@ class FileWatchersManager: public QFileSystemWatcher {
 
     protected:
         const QString keysLocation = QString(getenv("HOME")) + "/.ssh";
-        bool performNameConvertionToShaAndCopyToClipboard = false;
 
 
     private:
@@ -60,7 +56,9 @@ class FileWatchersManager: public QFileSystemWatcher {
         QDateTime lastModified;
 
         QSettings settings;
-        Session *connection = NULL;
+        PTssh *connection = NULL;
+        PTSftp *sftp = NULL;
+
         #ifdef GUI_ENABLED
             ConfigWindow *configWindow = NULL;
         #endif

@@ -11,7 +11,7 @@
 
 void usage() {
     qDebug() << "Usage:" << endl
-             << "synshot ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
+             << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
 }
 
 
@@ -49,12 +49,13 @@ int main(int argc, char *argv[]) {
     for (int i = 2; i < args.length(); i++) {
         remotes << args.at(i);
     }
-    cout << "Sofin v" << APP_VERSION << "-" << COPYRIGHT << endl << endl;
+    cout << "Syndir v" << APP_VERSION << " - " << COPYRIGHT << endl << endl;
 
     for (int i = 0; i < remotes.length(); i++) {
         qDebug() << "Creating thread for remote:" << remotes.at(i);
-        workers << new WorkerThread(sourceDir, remotes.at(i));
-        workers.at(i)->start();
+        new FileWatchersManager(sourceDir, remotes.at(i));
+        // workers << new WorkerThread(sourceDir, remotes.at(i));
+        // workers.at(i)->start();
     }
 
     return app.exec();

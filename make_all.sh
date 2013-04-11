@@ -21,10 +21,10 @@ if [ "$(uname)" = "Darwin" ]; then
     SPEC_TYPE="-spec darwin-g++"
 fi
 
-cd libssh
-qmake ${SPEC_TYPE} "ssh.pro"
-${MAKE} CC=clang CXX=clang++
-cd ..
+# cd libssh
+# qmake ${SPEC_TYPE} "ssh.pro"
+# ${MAKE} CC=clang CXX=clang++
+# cd ..
 
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
 ${MAKE} CC=clang CXX=clang++

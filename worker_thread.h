@@ -9,7 +9,7 @@
 #define __WORKER_THREAD_H__
 
 
-// #include "syndir.h"
+#include "syndir.h"
 #include "file_watchers_manager.h"
 
 #ifdef GUI_ENABLED
