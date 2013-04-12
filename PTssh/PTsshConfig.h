@@ -55,7 +55,7 @@ typedef unsigned long long	uint64;
 //#define PTSSH_STATISTICS              //If defined, statistics about bytes sent/received are logged
 #define PTSSH_ZLIB                    //Enable the plain ol' SSH spec zlib method
 //#define PTSSH_ZLIB_OPENSSH            //Enable the OpenSSH Zlib method: zlib@openssh.com
-#define PTSSH_SFTP                    //Enable SFTP v3 support for PTssh
+// #define PTSSH_SFTP                    //Enable SFTP v3 support for PTssh
 #define PTSSH_SCP                     //Enable SCP support in PTssh
 //#define PTSSH_MultiThreaded_AES_CTR //NOT YET IMPLEMENTED
 
@@ -89,7 +89,7 @@ typedef unsigned long long	uint64;
  aggressivlely cache data for sending and receiving.
  Best used for 1000Mbps or faster networks.
 */
-#define PTSSH_Optimize_For_Speed_1000Mbps
+// #define PTSSH_Optimize_For_Speed_1000Mbps
 
 /* This is a good middle-ground between performance and cpu usage. Applications that only
  * want to use a moderate amount of memory and still need fairly good speed over
@@ -106,7 +106,7 @@ typedef unsigned long long	uint64;
  * most suitable for enviornments. Where memory usage must be kept to a minimum
  * Note:
  *   You should probably also comment out PTSSH_ENABLE_LOGGING above! */
-//#define PTSSH_Optimize_For_Low_Memory_Usage
+#define PTSSH_Optimize_For_Low_Memory_Usage
 
 
 /************************
