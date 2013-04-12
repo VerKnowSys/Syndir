@@ -384,6 +384,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
             delete pBuf;
             pBuf = NULL;
             result = ptssh_scpSendFinish(connection, cNum);
+            connection->disconnect();
+            ptssh_destroy(&connection);
 
             if ( result == PTSSH_SUCCESS) {
                 qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
