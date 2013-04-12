@@ -662,14 +662,14 @@ PTssh::authByPublicKey(
 	//Decode the keys from base64
 	result = decodeBase64( pPublicKeyBlob64, pPublicKeyBlob64Len, &pPublicKeyBlob, pPublicKeyBlobLen);
 	if ( result != PTSSH_SUCCESS) {
-		printf("Base64 decode failure\n\n");
+		printf("Pubkey Base64 decode failure\n");
 		fflush(stdout);
 		goto publicKeyAuthError;
 	}
 
 	result = decodeBase64( pPrivateKeyBlob64, pPrivateKeyBlob64Len, &pPrivateKeyBlob, pPrivateKeyBlobLen);
 	if ( result != PTSSH_SUCCESS) {
-		printf("DUPA22\n\n");
+		printf("Privkey Base64 decode failure\n");
 		fflush(stdout);
 		goto publicKeyAuthError;
 	}
@@ -694,6 +694,8 @@ PTssh::authByPublicKey(
 	if ( publicKeyType != PKT_RSA && publicKeyType != PKT_DSS)
 	{
 		result = PTSSH_ERR_InvalidPublicKeyType;
+		printf("Invalid public SSH key type\n");
+		fflush(stdout);
 		goto publicKeyAuthError;
 	}
 
@@ -730,6 +732,8 @@ PTssh::authByPublicKey(
 	if ( ! pSigData)
 	{
 		result = PTSSH_ERR_CouldNotAllocateMemory;
+		printf("Couldn't allocate memory for SSH sig data\n");
+		fflush(stdout);
 		goto publicKeyAuthError;
 	}
 
@@ -803,8 +807,11 @@ PTssh::authByPublicKey(
 		pPrivateKeyBlobLen,
 		&pSig,     //pointer that will point to the created signature
 		sigLen);   //length of the signature
-	if ( result != PTSSH_SUCCESS)
+	if ( result != PTSSH_SUCCESS) {
+		printf("DUPA55\n\n");
+		fflush(stdout);
 		goto publicKeyAuthError;
+	}
 
 	len =
 		1 +                       //byte      SSH_MSG_USERAUTH_REQUEST
@@ -850,8 +857,11 @@ PTssh::authByPublicKey(
 
 		PTLOG((LL_debug1, "[PTssh] Sending an authentication by public key request\n"));
 		result = m_pChannelMgr->queueOutboundData(pBP);
-		if ( result != PTSSH_SUCCESS)
+		if ( result != PTSSH_SUCCESS) {
+			printf("DUPA66\n\n");
+			fflush(stdout);
 			delete pBP;
+		}
 		else
 		{
 			//Now let's wait until we get an auth response
