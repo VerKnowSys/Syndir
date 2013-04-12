@@ -25,6 +25,7 @@
 
 
 
+#define TEMPORARY_USER_PASSWORD "currently_openssh_keys_arent_supported_but_they_will_be:)"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500
