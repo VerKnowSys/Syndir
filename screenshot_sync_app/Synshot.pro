@@ -8,7 +8,7 @@ TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
 QMAKE_CC           = clang
 QMAKE_CXX          = clang++
-DEFINES           += GUI_ENABLED
+DEFINES           += GUI_ENABLED PTSSH_SFTP
 QT                += gui
 ICON               = images/Synshot.icns
 
@@ -29,16 +29,15 @@ TARGET            = ../Synshot
 
 mac {
   CONFIG          += app_bundle
-  LIBS            += -lcrypto -lz ../libssh.a
-  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DGUI_ENABLED -w -arch x86_64
+  LIBS            += -lcrypto -lz ../libPTssh.a
+  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -w -arch x86_64
   QMAKE_INFO_PLIST   = Synshot.plist
-  QMAKE_LDFLAGS     += -arch x86_64 -DGUI_ENABLED
+  QMAKE_LDFLAGS     += -arch x86_64
 
 } else {
 
   CONFIG          += app_bundle link_pkgconfig
-  PKGCONFIG        = libssh2
-  LIBS            += -lcrypto -lz
+  LIBS            += -lcrypto -lz ../libPTssh.a
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
 }
 
