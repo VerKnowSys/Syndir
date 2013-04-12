@@ -7,3 +7,4 @@ syndir
 /screenshot_sync_app/ui_Synshot.h
 /screenshot_sync_app/qrc_Synshot.cpp
 /*.tar.gz
+*.a
