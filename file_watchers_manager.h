@@ -32,6 +32,8 @@ class FileWatchersManager: public QFileSystemWatcher {
         void copyFileToRemoteHost(const QString& file, bool hashFile = false);
         void connectToRemoteHost();
         QStringList removeFromList(QStringList& list, const QStringList& toDelete);
+        void executeRemoteCommand(const QString& command);
+        void loadSettings(); /* load app settings */
 
 
         #ifdef GUI_ENABLED
@@ -57,7 +59,6 @@ class FileWatchersManager: public QFileSystemWatcher {
 
         QSettings settings;
         PTssh *connection = NULL;
-        PTSftp *sftp = NULL;
 
         #ifdef GUI_ENABLED
             ConfigWindow *configWindow = NULL;

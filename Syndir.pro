@@ -9,6 +9,7 @@ SYSTEM_NAME        = $$system(uname)
   CONFIG          += link_pkgconfig
   PKGCONFIG        = QtCore
 }
+DEFINES           += PTSSH_SFTP SHOW_STATISTICS _DEBUG
 QMAKE_CXX          = clang++
 QMAKE_CC           = clang
 QT                -= gui
@@ -34,7 +35,7 @@ mac {
 contains(SYSTEM_NAME, Linux): {
   QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
 } else {
-  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE
+  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -w
   # -DDEBUG=true
 }
 # QMAKE_LDFLAGS     +=

@@ -9,6 +9,8 @@
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
+    loadSettings();
+
     qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
@@ -42,7 +44,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
         exit(1); // XXX: FIXME: shouldn't just silent fail, but retry
     }
 
-    signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
+    // signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
 
     /* connect hooks to invokers */
     #ifndef GUI_ENABLED /* file changed emmiter isn't necessary in Synshot */
@@ -69,168 +71,113 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 #endif
 
 
+void FileWatchersManager::loadSettings() {
+    QSettings settings;
+
+    if (settings.value("source_dir").isNull())
+        settings.setValue("source_dir", DEFAULT_SOURCE_DIR);
+
+    if (settings.value("destination_dir").isNull())
+        settings.setValue("destination_dir", DEFAULT_DESTINATION_DIR);
+
+    if (settings.value("remote_path").isNull())
+        settings.setValue("remote_path", REMOTE_PATH);
+
+    if (settings.value("sound_file").isNull())
+        settings.setValue("sound_file", DEFAULT_SOUND_FILE);
+
+    if (settings.value("ssh_port").isNull())
+        settings.setValue("ssh_port", SSH_PORT);
+
+    if (settings.value("allowed_file_types").isNull())
+        settings.setValue("allowed_file_types", ALLOWED_FILE_TYPES);
+}
+
+
 void FileWatchersManager::connectToRemoteHost() {
     int result;
+    loadSettings();
+
     if (connection == NULL) {
-        QSettings settings;
+        int sshPort = settings.value("ssh_port", SSH_PORT).toInt();
 
-        qDebug() << "Creating new SSH connection";
-        connection = ptssh_create(); //new PTssh();
+        qDebug() << "Creating new SSH connection to host on port:" << sshPort;
+        connection = new PTssh();
 
-        // qDebug() << "Parsing SSH config values";
-        uint8 sshPort = settings.value("ssh_port", SSH_PORT).toUInt();
+        //Set the logging level
+        connection->setLogLevel(LL_debug1);
         if (connection and
             connection->init(userName.toUtf8().constData(), hostName.toUtf8().constData(), sshPort) != PTSSH_SUCCESS ) {
             // ptssh_destroy(&connection);
-            qDebug() << "Epic fail of SSH new";
-            return;
+            connection->disconnect();
+            qDebug() << "Epic fail of SSH new.";
+            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
+            qDebug() << "Retrying";
+            return connectToRemoteHost();
         }
-
-        //Set the logging level
-        ptssh_setLogLevel(connection, LL_debug4);
-
-        // using rsa keys to perform auth
-        auto pubkey = QString(keysLocation + "/id_rsa.pub");
-        QFile fileA(pubkey);
-        if (!fileA.open(QIODevice::ReadOnly)) {
-            qDebug() << "Failed to read SSH public key!";
-        }
-        QByteArray buffer = fileA.readAll().toBase64();
-        fileA.close();
-
-        auto privkey = QString(keysLocation + "/id_rsa");
-        QFile fileB(privkey);
-        if (!fileB.open(QIODevice::ReadOnly)) {
-            qDebug() << "Failed to read SSH private key!";
-        }
-        QByteArray bufferB = fileB.readAll().replace("-----END RSA PRIVATE KEY-----", "").replace("-----BEGIN RSA PRIVATE KEY-----", "").trimmed().toBase64();
-        fileB.close();
-
-        QByteArray d1 = buffer;
-        QByteArray d2 = bufferB;
-        const uint8 *a = (uint8*)(QString(d1).toStdString().c_str());
-        const uint8 *b = (uint8*)(QString(d2).toStdString().c_str());
-
-        qDebug() << "\nPUB:" << d1 << "\nPRIV (only length):" << d2.length();
-        // int result = ptssh_authByPublicKey(
-        //     connection,
-        //     QString(buffer).toUtf8(), strlen(QString(buffer).toUtf8()),
-        //     QString(bufferB).toUtf8(), strlen(QString(bufferB).toUtf8()),
-        //     NULL); /* no passphrase */
-
-
-        // result = ptssh_connect(connection);
-        // if (result < 0) {
-        //     qDebug() << "Failed to ssdkoif onn\n";
-        //     return;
-        // }
 
         qDebug() << "Conecting to:" << connection->getUsername() << "@" << connection->getRemoteHostAddress() << ":" << connection->getRemoteHostPort();
 
+        if (connection->isConnected()) {
+            qDebug() << "Connected to server.";
+        }
+
         result = connection->connectUp();
         if (result < 0) {
-            qDebug() << "Connection failed. Aborting.";
-            return;
+            qDebug() << "Connection failed. Retrying.";
+            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
+            return connectToRemoteHost();
+        }
+
+        bool passSupport = false;
+        connection->isAuthSupported(PTsshAuth_Password, passSupport);
+        qDebug() << "Password support on server side:" << passSupport;
+
+        bool pubKeySupport = false;
+        connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
+        qDebug() << "Public key support on server side:" << pubKeySupport;
+
+        // // using rsa keys to perform auth
+        // auto pubkey = QString(keysLocation + "/id_rsa.pub");
+        // QFile fileA(pubkey);
+        // if (!fileA.open(QIODevice::ReadOnly)) {
+        //     qDebug() << "Failed to read SSH public key!";
+        // }
+        // QByteArray buffer = fileA.readAll();
+        // fileA.close();
+
+        // auto privkey = QString(keysLocation + "/id_rsa");
+        // QFile fileB(privkey);
+        // if (!fileB.open(QIODevice::ReadOnly)) {
+        //     qDebug() << "Failed to read SSH private key!";
+        // }
+        // QByteArray bufferB = fileB.readAll(); //.replace("-----END RSA PRIVATE KEY-----", "").replace("-----BEGIN RSA PRIVATE KEY-----", "").trimmed();
+        // fileB.close();
+
+        // QByteArray d1 = buffer;
+        // QByteArray d2 = bufferB;
+        // const uint8 *a = (uint8*)(QString(d1).toStdString().c_str());
+        // const uint8 *b = (uint8*)(QString(d2).toStdString().c_str());
+
+        // qDebug() << "\nPUB:" << d1 << "\nPRIV:" << d2;
+        // int result = connection->authByPublicKey(
+        //     a, (uint32)strlen(buffer),
+        //     b, (uint32)strlen(bufferB),
+        //     NULL);
+
+        int result = connection->authByPassword(TEMPORARY_USER_PASSWORD);
+        if (result != PTSSH_SUCCESS) {
+            qDebug() << "AUTH FAILURE\n";
+            connection->disconnect();
+            delete connection;
+
+            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
+            return connectToRemoteHost();
         }
 
         if (connection->isAuthenticated()) {
             qDebug() << "Authenticated to server.";
         }
-        if (connection->isConnected()) {
-            qDebug() << "Connected to server.";
-        }
-
-
-        // result = ptssh_authByPassword(connection, (const char * )"q", (const char *)"q");
-        // while (result != PTSSH_SUCCESS) {
-            // result = ptssh_authByPassword(connection, "q"); // connection->authByPassword("q");
-            // result = connection->authByPassword("q");
-            // result = connection->authByPublicKey(
-                // a, strlen(QString(buffer).toUtf8()) * 2,
-                // b, strlen(QString(bufferB).toUtf8()) * 2);
-
-            // qDebug() << "Authentication failed\n:" << result;
-            // usleep(1000000);
-            // return;
-        // }
-
-
-        //     connection->disconnect();
-        //     delete connection;
-        //     delete sftp;
-
-        //     return connectToRemoteHost();
-
-        // result = ptssh_connect(connection);
-        // if ( result < 0) {
-        //     printf("Failed to connect 2\n" );
-        //     return connectToRemoteHost();;
-        // }
-
-        // std::string privateKey(data);
-        // const uint8 *pPublicKeyBlob64 = QString("").toAscii().constData();
-
-
-
-
-
-
-
-        // if (connection != NULL)
-        //     connection->deleteLater();
-        // connection = new LibsshQtClient(this);  //ssh_new();
-        // connection.auth_state = SSH_AUTH_STATE_NONE;
-        // if (!connection) {
-        //     exit(-1);
-        // }
-
-        /* syndir/synsheot config has higher priority over ~/.ssh/config values */
-
-
-        // connection->setDebug(false);
-        // connection->setPort(sshPort);
-        // connection->setUsername(userName);
-        // connection->setHostname(hostName);
-        // connection->setVerbosity(LibsshQtClient::LogFunction);
-
-
-
-        /* parse ~/.ssh/config */
-        // ssh_options_parse_config(connection->sshSession(), (QString(getenv("HOME")) + "/.ssh/config").toUtf8());
-
-        // qDebug() << "Setting SSH options. User:" << userName << "Host:" << hostName << "Port:" << sshPort;
-        // ssh_string publicKey =
-        //     publickey_from_file(connection, (QString(getenv("HOME")) + "/.ssh/id_rsa.pub").toUtf8(), NULL);
-
-        // ssh_private_key privateKey = privatekey_from_file(connection, (QString(getenv("HOME")) + "/.ssh/id_rsa").toUtf8(), SSH_KEYTYPE_RSA, NULL);
-
-        // ssh_userauth_none(connection, userName.toUtf8());
-        // auto auth = ssh_userauth_pubkey(connection, userName.toUtf8(), publicKey, privateKey);
-
-        //(connection, NULL); // NOTE: NULL is a passphrase of key here
-        //ssh_userauth_password(connection, getenv("USER"), "q");
-        //
-        // if (auth == SSH_AUTH_SUCCESS) {
-        //     qDebug() << "Connected.";
-        //     // return;
-        // } else if (auth == SSH_AUTH_DENIED) {
-        //     fprintf(stderr, "Authentication failed\n");
-        // } else {
-        //     fprintf(stderr, "Error while authenticating : %s\n", ssh_get_error(connection));
-        // }
-
-        // qDebug() << "Connecting to SSH server";
-        // connection->connectToHost(hostName, sshPort);
-        // ssh_connect(connection);
-
-        // if (connection != NULL)
-        //     delete connection;
-        // connection = new Connection(hostName.toStdString(), settings.value("ssh_port", SSH_PORT).toInt(), true);
-        // connection->setKeyPath(keysLocation.toStdString());
-        // connection->setCredentials(userName.toStdString(), "");
-        // connection->mkConnection();
-
-
 
         QString notf = "Connected as: " + userName + "@" + hostName;
         // qDebug() << notf;
@@ -238,42 +185,10 @@ void FileWatchersManager::connectToRemoteHost() {
             notify(notf);
         #endif
 
-        // if (connection == NULL) {
-        //     qDebug() << "Something went wrong. No connection";
-        //     // connection = NULL;
-        //     // sftp = NULL;
-        //     return connectToRemoteHost();
-        // }
+        qDebug() << "Connection estabilished.";
 
-
-
-
-
-
-
-
-
-
-        // sftp = (struct sftp_session_struct*)malloc(sizeof(struct sftp_session_struct));
-        // sftp = sftp_new(connection->sshSession());
-        // sftp_init(sftp);
-
-        // qDebug() << "SFTP server version:" << sftp->server_version;
-        // qDebug() << "SFTP channel:" << sftp->channel;
-        // qDebug() << "SFTP version:" << sftp->version;
-        // if (ssh_is_connected(connection) == 1) {
-        //     qDebug() << "Connection state OK";
-        // }
-        // } catch (Exception& e) {
-        //     QString notf = "Error connecting to remote host: " + QString(e.what()) + ". Will retry!";
-        //     qDebug() << notf;
-        //     #ifdef GUI_ENABLED
-        //         notify(notf);
-        //     #endif
-        //     sleep(1);
-        //     return connectToRemoteHost();
-        // }
-        // return;
+    } else {
+        qDebug() << "Still connected";
     }
 }
 
@@ -335,16 +250,33 @@ QStringList FileWatchersManager::removeFromList(QStringList& list, const QString
 }
 
 
+void FileWatchersManager::executeRemoteCommand(const QString& command) {
+    if (connection and connection->isConnected() and connection->isAuthenticated()) {
+        qDebug() << "Executing remote command:" << command;
+        uint32 channel = PTSSH_BAD_CHANNEL_NUMBER;
+        connection->createChannel_session(channel);
+        connection->channelRequest_exec(channel, command.toUtf8());
+        ptssh_closeChannel(connection, channel);
+    } else {
+        qDebug() << "Failed to execute remote command:" << command;
+    }
+}
+
+
 void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool hashFile) {
+
     int result;
     QTime myTimer;
     myTimer.start();
 
+    connectToRemoteHost();
+
     QString file = sourceFile;
     #ifdef GUI_ENABLED
-        auto fileInfo = QFileInfo(file);
-        auto dir = fileInfo.absolutePath();
-        auto extension = fileInfo.suffix();
+        qDebug() << "GUI enabled. Initializing";
+        auto fileInfo_q = QFileInfo(file);
+        auto dir = fileInfo_q.absolutePath();
+        auto extension = fileInfo_q.suffix();
 
         auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
         hash->addData(file.toUtf8(), file.length() + 1);
@@ -362,451 +294,114 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
 
+    if (not QFile::exists(file)) {
+        qDebug() << "Deletion detected:" << file;
+        qDebug() << "Synced deletion of remote file:" << fullDestPath;
+        executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8().replace(" ", "\\ "));
+        removePath(file);
+        files = removeFromList(files, QStringList(file));
+        qDebug() << "Total files and dirs on watch:" << files.size();
+        return;
+    }
+
     /* creating dir recursively for a single destination file */
     auto finalPath = remotePath.toUtf8();
-    while (!connection or !connection->isConnected()) { // or !connection->isAuthenticated()
-        connectToRemoteHost();
-        usleep(5000000);
-        cout << ".";
+
+    FILE *pFileHandle = NULL;
+    struct stat fileInfo;
+    uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
+
+    pFileHandle = fopen(file.toUtf8(), "rb");
+    if (not pFileHandle) {
+        qDebug() << "Can't local file" << file;
+        connection->disconnect();
+        return;
     }
-    qDebug() << "Connection estabilished.";
+
+    qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
 
 
-    /* initialize SFTP subsystem */
-    if (sftp != NULL) {
-        qDebug() << "Cleaning up old SFTP connections";
-        delete sftp;
-        sftp = NULL;
-    }
-    // result = ptssh_initSftp(connection); //connection->getSftpObj();
-    sftp = ptssh_getSftpObj(connection);
-    // if (result != PTSSH_SUCCESS) {
-    //     qDebug() << "Error init'ing sftp subsystem. Error" << result;
-    //     return;
-    // }
-    // sftp->init();
-     // {
-
-    if (sftp) {
-        qDebug() << "SFTP object created!";
-        qDebug() << "SFTP version:" << sftp->getSftpVersion();
-        // SftpAttrs attrs;
-        // SftpDirHandle *pSftpDirHandle = NULL;
-        // SftpDirHandle *pSDH = NULL;
-
-        /* deal with directories first */
-        SFTP_W_ATTR attrs;
-
-        // mallocatrs, 0x0, sizeof(SftpAttrs*));
-        // atrs->permissions(0755);
-        // sftp->makeDir(finalPath, );
-        memset(&attrs, 0x0, sizeof(SFTP_W_ATTR));
-        attrs.permissions =
-            FP_USR_RWX |
-            FP_GRP_RWX |
-            FP_OTH_RWX;
-
-            //Sets permissions to 0777 (Unix style)
-            // atrs->permissions =
-            //     FP_USR_RWX |
-            //     FP_GRP_RWX |
-            //     FP_OTH_RWX;  //Sets permissions to 0777 (Unix style)
-
-            qDebug() << "Trying to make dir:" << finalPath;
-            // ptssh_openDir(sftp, &pSDH, finalPath);
-            //
-            // result = sftp->makeDir(finalPath, atrs);
-           // / delete atrs;
-
-            result = ptssh_makeDir(sftp, finalPath, &attrs);
-            if (result != PTSSH_SUCCESS) {
-                qDebug() << "Mkdir failed!:" << finalPath;
-                // printf("Error making directory %s. Error %d\n", pRemoteDirToCreate, result);
-                // return;
-            }
-            if (not preDirs.isEmpty()) { /* sub dirs in path */
-                auto elems = preDirs.toString().split("/");
-                for (int i = 0; i < elems.length(); i++) {
-                    auto elem = elems.at(i);
-                    finalPath += "/" + elem;
-                    if (not elem.isEmpty()) {
-                        // ssh_scp_push_directory(scp, finalPath, 0755);
-                        // sftp_mkdir(sftp, finalPath, 0755);
-                        result = ptssh_makeDir(sftp, finalPath, &attrs);
-                        if (result != PTSSH_SUCCESS) {
-                            qDebug() << "Mkdir inner fail!:" << finalPath;
-                            // printf("Error making directory %s. Error %d\n", pRemoteDirToCreate, result);
-                            // return;
-                        }
-                    }
-                }
-            }
-
-
-            // ssh_get_disconnect_message
-
-            /* create session here */
-
-            qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
-            FILE *fileHandler = NULL;
-            SftpFileHandle *fileWriteHandler = NULL;
-            uint8 *pTmpBuf = NULL; //4KB temporary buffer
-            pTmpBuf = new uint8[TEMP_BUFFER_SIZE];
-            if (!pTmpBuf) {
-                qDebug() << "tmpbuf fail";
-                return;
-            }
-            memset(pTmpBuf, 0x0, TEMP_BUFFER_SIZE);
-
-
-            struct stat fileInfo;
-
-            fileHandler = fopen(file.toUtf8(), "rb");
-            if (fileHandler) {
-                uint32 bytesRead = 0;
-                uint64 totalBytesRead = 0;
-                stat(file.toUtf8(), &fileInfo);
-                #ifdef SHOW_STATISTICS
-                    start = clock();
-                #endif
-
-                result = ptssh_openFile(sftp, &fileWriteHandler, fullDestPath.toUtf8().constData(), FO_CREATE | FO_RDWR);
-                if (result != PTSSH_SUCCESS) {
-                    qDebug() << "Karubito dest:" << fullDestPath << ", source:" << file;
-                    // printf("Error creating file %s. Error %d\n", pRemoteFileToWrite, result);
-                    // return;
-                }
-
-                // printf("Using temp bufer size 0x%X (%d)\n", TEMP_BUFFER_SIZE, TEMP_BUFFER_SIZE);
-                while (totalBytesRead < (uint64)fileInfo.st_size) {
-                    bytesRead = fread(pTmpBuf, 1, TEMP_BUFFER_SIZE, fileHandler);
-                    if ( bytesRead > 0) {
-                        int result = ptssh_writeFile(fileWriteHandler, pTmpBuf, bytesRead);
-                        if (result != PTSSH_SUCCESS) {
-                            qDebug() << "Fejld write of:" << file << "to" << fullDestPath.toUtf8().constData() << "result:" << result << "BytesRead:" << bytesRead;
-
-                            // printf("Error writing to file %s. Error %d\n", fullDestPath.toUtf8(), result);
-                            return;
-                        }
-
-                        totalBytesRead += bytesRead;
-                    }
-                }
-            }
-            fclose(fileHandler);
-
-            result = sftp->closeFile(&fileWriteHandler); // ptssh_closeFile(sftp, &fileWriteHandler);
-            if ( result != PTSSH_SUCCESS) {
-                qDebug() << "Kraczor";
-                // printf("Error closing file %s. Error %d\n", fullDestPath.toUtf8(), result);
-                // return;
-            }
-
-            if (not QFile::exists(file)) {
-                qDebug() << "Deletion detected:" << file;
-                qDebug() << "Synced deletion of remote file:" << fullDestPath;
-                // XXX: FIXME:
-                // sftp_unlink(sftp, fullDestPath.toUtf8());
-                sftp->deleteFile(fullDestPath.toUtf8().constData());// ptssh_deleteFile(sftp, fullDestPath.toUtf8().constData());
-                removePath(file);
-                files = removeFromList(files, QStringList(file));
-                // sftp_free(sftp);
-                // if (scp != NULL) {
-                //     ssh_scp_close(scp);
-                //     ssh_scp_free(scp);
-                // }
-                qDebug() << "Total files and dirs on watch:" << files.size();
-                return;
-                }
+    /* create missing directories in remote path */
+    executeRemoteCommand("/bin/mkdir -p " + finalPath);
+    if (not preDirs.isEmpty()) { /* sub dirs in path */
+        auto elems = preDirs.toString().split("/");
+        for (int i = 0; i < elems.length(); i++) {
+            auto elem = elems.at(i);
+            finalPath += "/" + elem;
+            if (not elem.isEmpty())
+                executeRemoteCommand("/bin/mkdir -p " + finalPath);
         }
-
-        // if (result != PTSSH_SUCCESS) {
-        //     qDebug() << "Failed to init SFTP stuff. Error " << result;
-        //     return;
-        // }
-    // }
-
-
-
-    // delete pTmpBuf;
-    // qDebug() << "Shutting down sftp session.";
-    // ptssh_shutdownSftp(connection);
-    // sftp = NULL;
-
-
-
-
-
-
-
-    // while (connection == NULL) {
-    //     if (!connection)
-    //         connectToRemoteHost();
-    //     cout << "." << fflush(stdout);
-    //     usleep(1000);
-    // }
-    //
-    // sftp = sftp_new(connection->sshSession());
-
-    // sftp->ext = sftp_ext_new();
-    // int rc = sftp_init(sftp);
-
-    // while (sftp == NULL) {
-    //     if (!connection or !connection->sshSession()) {
-    //         // sftp_free(sftp);
-    //         connectToRemoteHost();
-    //     }
-    //     sftp = sftp_new(connection->sshSession());
-    //     usleep(100000); /* 100ms is enough */
-    //     cout << "…";
-    //     fflush(stdout);
-
-    //     // cout << " \r";
-    // }
-
-    // int rc = sftp_init(sftp);
-    // while (rc < 0) {
-    //     fprintf(stderr, "csync_sftp - error initialising sftp: %s\n", ssh_get_error(connection->sshSession()));
-    //     rc = sftp_init(sftp);
-    //     // sftp_free(sftp);
-    //     // return;
-    // }
-
-        // cout << "-";
-        // fprintf(stderr, "Error allocating SFTP session: %s\n", ssh_get_error(connection));
-        // return SSH_ERROR;
-        // sftp_free(sftp);
-        // return;
-    // }
-    // auto error = sftp_get_error(sftp);
-    // qDebug() << "ERROR:" << error;
-
-    // LIBSSH2_SFTP *sftp_session = NULL;
-
-    //     /* connect if not connected */
-    //     sftp_session = libssh2_sftp_init(connection->session);
-    //     cout << ".";
-    //     fflush(stdout);
-    //     usleep(100);
-    // }
-
-    // libssh2_session_set_timeout(connection->session, DEFAULT_SESSION_TIMEOUT);
-    // libssh2_session_set_blocking(connection->session, 1); /* set session to blocking */
-
-    // const ssh_session aSession = (ssh_session)malloc(sizeof(struct ssh_session_struct*));
-    // ssh_init();
-    //
-    //
-    //
-    // sftp_session sftp;
-    // ssh_session session;
-    // session = ssh_new();
-    // // sftp = (sftp_session)malloc(sizeof(struct sftp_session_struct));
-    // sftp_init(sftp);
-    // sftp = sftp_new(session);
-
-
-
-
-    /* Read permissions of a source file */
-    // const auto dup = connection->sshSession();
-    // ssh_scp scp;
-    // sftp = sftp_new(connection->sshSession());
-    // sftp_init(sftp);
-    // scp = ssh_scp_new(connection->sshSession(), SSH_SCP_WRITE | SSH_SCP_READ | SSH_SCP_RECURSIVE, finalPath);
-    // ssh_scp_init(scp);
-    // ssh_scp_push_directory(scp, finalPath, 0755);
-    // sftp_mkdir(sftp, finalPath, 0755);
-    // SftpAttrs *dirPerms = new SftpAttrs();
-
-
-    /* Read permissions of a source file */
-    // struct stat results;
-    // stat(file.toUtf8(), &results);
-
-    /* Request a file via SFTP */
-    // sftp_file sftp_handle;
-    // while (sftp_handle == NULL) { /* it's case when network connection is overloaded */
-    //
-    //
-
-    /* NOTE: we redeclaring SFTP session */
-    // if (sftp != NULL) {
-    //     sftp_free(sftp);
-    //     sftp = NULL; // necessary?
-    // }
-    // sftp = sftp_new(connection->sshSession());
-        // cout << "'";
-        // fflush(stdout);
-        // usleep(100);
-    // }
-
-    // if (scp != NULL) {
-    //     ssh_scp_close(scp);
-    //     ssh_scp_free(scp);
-    // }
-    // scp = ssh_scp_new(connection->sshSession(), SSH_SCP_WRITE, fullDestPath.toUtf8());
-    // ssh_scp_init(scp);
-    // terminate_ssh_session();
-    // ssh_free(session);
-    // if (sftp != NULL) {
-    //     qDebug() << "sftp NOT null";
-    //     sftp_free(sftp);
-    // }
-
-    // sftp = sftp_new(ssh_new());
-    // sftp = (struct sftp_session_struct*)malloc(sizeof(struct sftp_session_struct));
-    // sftp_init(sftp);
-
-    // sftp_file sftp_handle = sftp_open(sftp, fullDestPath.toUtf8(), results.st_mode, results.st_mode);
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // SftpAttrs attrs;
-    // SftpFileHandle *pSftpFileHandle = NULL;
-    // uint32 bytesRead = 0, bufLen = 0;
-    // uint8 *pBuf = NULL;
-
-    // int result = ptssh_openFile(sftp, &pSftpFileHandle, file.toUtf8(), FO_RDONLY);
-    // if ( result != PTSSH_SUCCESS) {
-    //     qDebug() << "Errorzz" << result << file;
-    //     return;
-    // }
-    // result = sftp->getFileAttributes(file.toUtf8(), false,  &attrs);
-    // if ( result != PTSSH_SUCCESS) {
-    //     qDebug() << "Error bo wujek Stefan";
-    //     return;
-    // }
-
-    // memset( &attrs, 0x0, sizeof(SFTP_W_ATTR));
-    // // attrs.permissions =
-    // //     FP_USR_RWX |
-    // //     FP_GRP_RWX |
-    // //     FP_OTH_RWX;  //Sets permissions to 0777 (Unix style)
-
-    // bufLen = (uint32)attrs.fileSize();
-    // memset(pBuf, 0x0, bufLen);
-
-    // #ifdef SHOW_STATISTICS
-    //     start = clock();
-    // #endif
-
-    // //Create a buffer big enough to hold the file
-    // pBuf = new uint8[ (uint32)attrs.fileSize()];
-    // if (! pBuf) {
-    //     qDebug() << "Fukof";
-    //     return;
-    // }
-
-
-    // result = pSftpFileHandle->read(pBuf, bufLen, 0, bytesRead);
-    // if ( result != PTSSH_SUCCESS)
-    // {
-    //     qDebug() << "Blablof";
-    //     return;
-    // }
-    // printf("Read %d bytes\n", bytesRead);
-
-    // #ifdef SHOW_STATISTICS
-    //     {
-    //         stop = clock();
-
-    //         uint32
-    //             KBs = ((uint32)bufLen) >> 10,
-    //             MBs = ((uint32)bufLen) >> 20;
-
-    //         double
-    //             //elapsedTimeInSec = stop - start,
-    //             elapsedTimeInSec = ((double)(stop - start)) / ((double)CLOCKS_PER_SEC),
-
-    //             KbytesPerSec = KBs / (elapsedTimeInSec),
-    //             MbytesPerSec = MBs / (elapsedTimeInSec);
-
-    //         printf("SFTP transfered %u bytes in %4.2f sec (%4.2fKB/sec %4.2fMB/sec\n",
-    //             bufLen, elapsedTimeInSec, KbytesPerSec, MbytesPerSec);
-    //     }
-    // #endif
-
-
-
-
-
-    // ifstream fin(file.toUtf8(), ios::binary);
-    // if (fin) {
-    //     fin.seekg(0, ios::end);
-    //     long bufsize = fin.tellg(); /* get file size in bytes */
-
-        // long BUFF = bufsize;
-        // if (bufsize > MAXBUF) /* set buffer to 12 KiB if file size exceeds limit */
-            // BUFF = MAXBUF;
-
-        // qDebug() << "File size:" << bufsize/1024 << "KiB. Memory buffer size:" << BUFF << "bytes";
-        // fin.seekg(0); /* rewind to beginning of file */
-        // qDebug() << "Streaming:" << file;
-
-        // uint8* buf = new uint8[BUFF];
-        // uint chunk = 0; /* used only to count % progress */
-    //     while (fin.good()) {
-    //         fin.read(buf, BUFF); /* read file contents into buffer; todo: sanity checks */
-    //         // int result = ssh_scp_write(scp, buf, fin.gcount()); /* write to remote file */
-    //         // int result = sftp_write(sftp_handle, buf, fin.gcount()); /* write to remote file */
-    //         SftpFileHandle *fileHandle = new SftpFileHandle(manager, ChannelManager *const pChannelMgr, uint32 cNum, uint32 remoteChannelNum, uint8 sftpVer);
-
-    //         fileHandle->write(buf, fin.gcount());
-
-    //         ptssh_writeFile(sftp, buf, fin.gcount());
-    //         // if (result < 0) {
-    //         //     qDebug() << "Error allocating buffer with size:" << bufsize;
-    //         //     break; // XXX: what now?
-    //         // }
-    //         chunk += 1;
-    //         if (bufsize > 0) {
-    //             int percent = (chunk * BUFF) * 100 / bufsize;
-    //             cout << "(" << percent << "%) " << (chunk * BUFF)/1024 << '/' << bufsize/1024 << " KiB" << '\r';
-    //             fflush(stdout);
-    //         }
-    //     }
-    //     delete[] buf;
-    //     if (bufsize < 1024)
-    //         qDebug() << "\r(100%)" << bufsize << "Bytes sent.";
-    //     else
-    //         qDebug() << "\r(100%)" << bufsize/1024 << "KiB sent.";
+    }
+
+    //Get the file statistics
+    stat(file.toUtf8(), &fileInfo);
+    result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8().replace(" ", "\\ "), fileInfo.st_size);
+    if (result == PTSSH_SUCCESS) {
+        //Everything went ok! The remote SSH server is ready for us to send
+        uint32
+            fileSize = (uint32)fileInfo.st_size;
+
+        /* If you want to be nice to the library, you can ask for the optimal data
+         * size that you can send on a channel. If you then write to the channel
+         * and keep your channel writes at this size, this will be the most efficient.
+         * Otherwise if a packet is too big, the underlying library will split it, which
+         * will incurr an overhead for allocating memory for a few smaller packets.
+         * Sending larger or smaller packets doesn't hurt anything, but may not be as fast
+         * and will likely use more CPU power. */
+        ptssh_getOptimalDataSize(connection, cNum, optimalSize);
+        char *pBuf = new char[optimalSize];
+        if (pBuf) {
+            bool bKeepGoing = true;
+            int32 bytesRead = 1;
+            //Read the file and send the data over the channel
+
+            printf("Queueing %uMB for sending\n", (fileSize>>20) );
+            while ( bytesRead > 0) {
+                bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
+
+                /* Writing to a channel is normally EXTREMELY quick. Underneath
+                 * it all, the pointer to the buffer is wrapped up in a SSH
+                 * BinaryPacket and then queued for sending. If there isn't room
+                 * in the queue, this function will then block until room is available
+                 * or until an error occurs... like the remote end disconnects
+                 * unexpectedly. The queue size can be increased if needed
+                 * in PTsshConfig.h. Default is about 4MB. This works really well for
+                 * gigabit networks while keeping memory usage down. */
+                if (bytesRead > 0) {
+                    result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
+                    if ( result != PTSSH_SUCCESS) {
+                        printf("Failed to write channel data. Error %d\n", result);
+                        break;
+                    } else {
+                        totalBytesQueued += bytesRead;
+                    }
+                }
+            }
+            fclose(pFileHandle);
+            printf("Done queueing %uMB for sending\n", (fileSize>> 20));
+
+            /* do cleanup */
+            delete pBuf;
+            pBuf = NULL;
+            result = ptssh_scpSendFinish(connection, cNum);
+
+            if ( result == PTSSH_SUCCESS) {
+                qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
+            } else {
+                qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath;
+            }
+        }
+    }
 
     /* rename remote file to hash name */
     if (hashFile) {
         #ifdef GUI_ENABLED
-            // qDebug() << "Remote rename from" << fullDestPath << "to" << remotePath + "/" + result + "." + extension;
-            // libssh2_sftp_rename(sftp_session, fullDestPath.toUtf8(), (remotePath + "/" + result + "." + extension).toUtf8());
-            QString destName = (remotePath + "/" + result + "." + extension).toUtf8();
-            qDebug() << "Renaming" << file << "to" << destName;
-            result = ptssh_renameFileOrDir(sftp, fullDestPath.toUtf8(), destName);
-            if ( result != PTSSH_SUCCESS) {
-                // printf("Error renaming directory from\n\t%s\n -to-\n\t%s\nError %d\n",
-                //     pRemoteDirToCreate, pRemoteDirRenamed, result);
-                //return -1;
-                qDebug() << "Remote dir rename failed";
-            }
+            QString destName = (remotePath + "/" + resultSHA1 + "." + extension).toUtf8();
+            qDebug() << "Renaming remote file" << file << "to" << destName;
+            executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8().replace(" ", "\\ ") + " " + destName.toUtf8());
         #endif
     }
-    // }
-    // fin.close();
-    // sftp_close(sftp_handle);
-    // sftp_free(sftp);
-    // if (scp != NULL) {
-    //     ssh_scp_close(scp);
-    //     ssh_scp_free(scp);
-    // }
-
+    qDebug() << "Shooting SFTP session";
 
     #ifdef GUI_ENABLED
         QSettings settings;

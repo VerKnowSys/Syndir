@@ -53,7 +53,7 @@ typedef unsigned long long	uint64;
 * <START> PTssh Enable/Disable features
 ************************/
 //#define PTSSH_STATISTICS              //If defined, statistics about bytes sent/received are logged
-//#define PTSSH_ZLIB                    //Enable the plain ol' SSH spec zlib method
+#define PTSSH_ZLIB                    //Enable the plain ol' SSH spec zlib method
 //#define PTSSH_ZLIB_OPENSSH            //Enable the OpenSSH Zlib method: zlib@openssh.com
 #define PTSSH_SFTP                    //Enable SFTP v3 support for PTssh
 #define PTSSH_SCP                     //Enable SCP support in PTssh

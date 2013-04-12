@@ -18,6 +18,18 @@ void usage() {
 static void loadDefaultSettings() {
     QSettings settings;
 
+    if (settings.value("source_dir").isNull())
+        settings.setValue("source_dir", DEFAULT_SOURCE_DIR);
+
+    if (settings.value("destination_dir").isNull())
+        settings.setValue("destination_dir", DEFAULT_DESTINATION_DIR);
+
+    if (settings.value("remote_path").isNull())
+        settings.setValue("remote_path", REMOTE_PATH);
+
+    if (settings.value("sound_file").isNull())
+        settings.setValue("sound_file", DEFAULT_SOUND_FILE);
+
     if (settings.value("ssh_port").isNull())
         settings.setValue("ssh_port", SSH_PORT);
 
@@ -53,9 +65,8 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < remotes.length(); i++) {
         qDebug() << "Creating thread for remote:" << remotes.at(i);
-        new FileWatchersManager(sourceDir, remotes.at(i));
-        // workers << new WorkerThread(sourceDir, remotes.at(i));
-        // workers.at(i)->start();
+        workers << new WorkerThread(sourceDir, remotes.at(i));
+        workers.at(i)->start();
     }
 
     return app.exec();
