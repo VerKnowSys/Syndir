@@ -15,17 +15,17 @@
 
 #include <QCryptographicHash>
 
-#include "PTssh/PTsshConfig.h"
-#include "PTssh/PTsshW.h"
-#include "PTssh/PTssh.h"
-#include "PTssh/PTSftp.h"
+#include "../PTssh/PTsshConfig.h"
+#include "../PTssh/PTsshW.h"
+#include "../PTssh/PTssh.h"
+#include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.16.1"
+#define APP_VERSION "0.17.0"
 
 
+#define TEMPORARY_USER_PASSWORD "define_your_pass"
 
-#define TEMPORARY_USER_PASSWORD "currently_openssh_keys_arent_supported_but_they_will_be:)"
 #define DEFAULT_SESSION_TIMEOUT 30000L /* 30 seconds */
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500

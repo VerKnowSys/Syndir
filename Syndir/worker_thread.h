@@ -13,7 +13,7 @@
 #include "file_watchers_manager.h"
 
 #ifdef GUI_ENABLED
-    #include "screenshot_sync_app/synshot_config_widget.h"
+    #include "../Synshot/synshot_config_widget.h"
 #endif
 
 

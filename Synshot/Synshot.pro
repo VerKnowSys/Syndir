@@ -12,17 +12,17 @@ DEFINES           += GUI_ENABLED PTSSH_SFTP
 QT                += gui
 ICON               = images/Synshot.icns
 
-HEADERS           += ../syndir.h \
-                     ../worker_thread.h \
+HEADERS           += ../Syndir/syndir.h \
+                     ../Syndir/worker_thread.h \
                      synshot.h \
                      notifications.h \
                      synshot_config_widget.h \
-                     ../file_watchers_manager.h
+                     ../Syndir/file_watchers_manager.h
 
-SOURCES           += ../file_watchers_manager.cc \
+SOURCES           += ../Syndir/file_watchers_manager.cc \
                      synshot.cc \
                      notifications.cc \
-                     ../worker_thread.cc \
+                     ../Syndir/worker_thread.cc \
                      synshot_config_widget.cc
 
 TARGET            = ../Synshot
