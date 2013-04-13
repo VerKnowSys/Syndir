@@ -23,13 +23,13 @@ SOURCES           += worker_thread.cc \
                      syndir.cc
 
 
-TARGET             = syndir
+TARGET             = ../Syndir
 
 mac {
   INCLUDEPATH     += PTssh/
-  LIBS            += -lz -lcrypto libPTssh.a
+  LIBS            += -lz -lcrypto ../libPTssh.a
 } else {
-  LIBS            += -lz -lcrypto libPTssh.a
+  LIBS            += -lz -lcrypto ../libPTssh.a
 }
 
 contains(SYSTEM_NAME, Linux): {

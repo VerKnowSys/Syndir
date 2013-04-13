@@ -13,7 +13,7 @@
 /* auto generated: */
 #include "ui_Synshot.h"
 
-#include "../syndir.h"
+#include "../Syndir/syndir.h"
 #include "notifications.h"
 
 

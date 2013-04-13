@@ -8,8 +8,8 @@
 
 #include <QtGui/QtGui>
 
-#include "../syndir.h"
-#include "../worker_thread.h"
+#include "../Syndir/syndir.h"
+#include "../Syndir/worker_thread.h"
 #include "synshot_config_widget.h"
 
 
