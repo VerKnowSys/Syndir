@@ -27,16 +27,18 @@ qmake ${SPEC_TYPE} Project.pro
 ${MAKE} CC=clang CXX=clang++
 
 if [ "${PACKAGE}" = "YES" ]; then
-    printf "Creating software bundle\n"
-    macdeployqt Synshot.app -dmg
-    macdeployqt Syndir.app -dmg
-    printf "Doing merge into Synshot"
-    cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
-    rm -rf ./Syndir.app
-    printf "Creating archive\n"
-    rm -f ./Synshot-${VERSION}.tar.gz
-    VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
-    tar cjf ./Synshot-${VERSION}.tar.gz ./Synshot.app
+    if [ "$(uname)" = "Darwin" ]; then
+        printf "Creating software bundle\n"
+        macdeployqt Synshot.app -dmg
+        macdeployqt Syndir.app -dmg
+        printf "Doing merge into Synshot"
+        cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
+        rm -rf ./Syndir.app
+        printf "Creating archive\n"
+        rm -f ./Synshot-${VERSION}.tar.gz
+        VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
+        tar cjf ./Synshot-${VERSION}.tar.gz ./Synshot.app
+    fi
 fi
 
 printf "\n"
