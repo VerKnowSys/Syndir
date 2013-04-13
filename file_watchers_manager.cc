@@ -98,7 +98,7 @@ void FileWatchersManager::connectToRemoteHost() {
     int result;
     loadSettings();
 
-    if (connection == NULL) {
+    if (connection == NULL or not connection->isConnected()) {
         int sshPort = settings.value("ssh_port", SSH_PORT).toInt();
 
         qDebug() << "Creating new SSH connection to host on port:" << sshPort;
@@ -381,17 +381,22 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
             printf("Done queueing %uMB for sending\n", (fileSize>> 20));
 
             /* do cleanup */
-            delete pBuf;
-            pBuf = NULL;
             result = ptssh_scpSendFinish(connection, cNum);
-            connection->disconnect();
-            ptssh_destroy(&connection);
-
             if ( result == PTSSH_SUCCESS) {
                 qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
             } else {
                 qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath;
             }
+
+            delete pBuf;
+            pBuf = NULL;
+
+            connection->disconnect();
+            ptssh_destroy(&connection);
+
+            qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
+            /* XXX: HACK: reconnect AFTER doing a screenshot, to release threads, but next shot will be instant */
+            // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
         }
     }
 

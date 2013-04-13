@@ -30,7 +30,6 @@ class FileWatchersManager: public QFileSystemWatcher {
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
         void scanDir(QDir dir);
         void copyFileToRemoteHost(const QString& file, bool hashFile = false);
-        void connectToRemoteHost();
         QStringList removeFromList(QStringList& list, const QStringList& toDelete);
         void executeRemoteCommand(const QString& command);
         void loadSettings(); /* load app settings */
@@ -66,6 +65,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
 
     public slots:
+        void connectToRemoteHost();
         void fileChangedSlot(const QString& file);
         void dirChangedSlot(const QString& dir);
 
