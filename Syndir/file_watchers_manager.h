@@ -56,6 +56,7 @@ class FileWatchersManager: public QFileSystemWatcher {
     private:
         QStringList files = QStringList(), oldFiles = QStringList();
         QString baseCWD, fullDestinationSSHPath, remotePath, userName, hostName;
+        int sshPort = SSH_PORT;
 
         QString last = "NOFILE";
         QDateTime lastModified;
@@ -69,6 +70,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
 
     public slots:
+        void disconnectSSHSession();
         void connectToRemoteHost();
         void fileChangedSlot(const QString& file);
         void dirChangedSlot(const QString& dir);

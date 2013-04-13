@@ -10,10 +10,12 @@
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
     loadSettings();
+    QSettings settings;
 
     qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
+    this->sshPort = settings.value("ssh_port", SSH_PORT).toInt();
 
     /* user might be implicit: */
     QStringList sshDirPartial = fullDestinationSSHPath.split(":");
@@ -21,7 +23,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
     QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
     QRegExp emailSign("@");
     if (not userWithHost.contains(emailSign)) {
-        this->userName = getenv("USER"); /* set username if not given explicitly */
+        this->userName = strdup(getenv("USER")); /* set username if not given explicitly */
         this->hostName = sshUserServerPartial.value(0);
         // qDebug() << "Implicit" << userName << hostName;
     } else { /* or explicit */
@@ -33,7 +35,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
     if (this->userName.isEmpty()) {
         qDebug() << "No user name specified, trying to get it from ENV.";
-        this->userName = getenv("USER");
+        this->userName = strdup(getenv("USER"));
     }
 
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
@@ -99,30 +101,30 @@ void FileWatchersManager::loadSettings() {
 
 void FileWatchersManager::connectToRemoteHost() {
     int result;
-    loadSettings();
-
-    if (connection == NULL or not connection->isConnected() or not connection->isAuthenticated()) {
-        int sshPort = settings.value("ssh_port", SSH_PORT).toInt();
+    // if (not connection or not connection->isConnected() or not connection->isAuthenticated()) {
+        QSettings settings;
         QString sshPass = settings.value("ssh_password", SSH_PASSWORD).toString();
 
         qDebug() << "Creating new SSH connection to host on port:" << sshPort;
-        connection = new PTssh();
+        if (connection != NULL) {
+            disconnectSSHSession();
+        }
+        connection = ptssh_create();
 
         //Set the logging level
         connection->setLogLevel(LL_debug1);
         if (connection and
             connection->init(userName.toUtf8().constData(), hostName.toUtf8().constData(), sshPort) != PTSSH_SUCCESS ) {
-            connection->disconnect();
+
             qDebug() << "Epic fail of SSH new.";
             usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
             qDebug() << "Retrying";
-            return connectToRemoteHost();
+            connectToRemoteHost();
+            return;
         }
 
-        qDebug() << "Conecting to:" << userName << "@" << hostName << ":" << sshPort;
-
         if (connection->isConnected()) {
-            qDebug() << "Connected to server.";
+            qDebug() << "Connected to:" << userName << "@" << hostName << ":" << sshPort;
         }
 
         result = connection->connectUp();
@@ -132,9 +134,9 @@ void FileWatchersManager::connectToRemoteHost() {
                 notify("Connection to server failed.");
                 emit setWork(ERROR);
             #endif
-            connection->disconnect();
-            ptssh_destroy(&connection);
-            return connectToRemoteHost();
+            disconnectSSHSession();
+            connectToRemoteHost();
+            return;
         }
 
         bool passSupport = false;
@@ -181,10 +183,12 @@ void FileWatchersManager::connectToRemoteHost() {
                 notify("Password wasn't set.");
                 emit setWork(ERROR);
             #endif
-            connection->disconnect();
-            ptssh_destroy(&connection);
+            disconnectSSHSession();
+            // if (connection)
+            //     ptssh_destroy(&connection); /* destroys connection threads */
             usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            return connectToRemoteHost();
+            connectToRemoteHost();
+            return;
         }
 
         if (not passSupport and not connection->isAuthenticated()) {
@@ -193,23 +197,25 @@ void FileWatchersManager::connectToRemoteHost() {
                 notify("Server disallows password use, but key auth failed.");
                 emit setWork(ERROR);
             #endif
-            connection->disconnect();
-            ptssh_destroy(&connection);
+            disconnectSSHSession();
             usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            return connectToRemoteHost();
+            connectToRemoteHost();
+            return;
         }
 
-        int result = connection->authByPassword(sshPass.toUtf8());
+        result = connection->authByPassword(sshPass.toUtf8());
         if (result != PTSSH_SUCCESS) {
             qDebug() << "Incorrect password!";
             #ifdef GUI_ENABLED
                 notify("Incorrect password given");
                 emit setWork(ERROR);
             #endif
-            connection->disconnect();
-            ptssh_destroy(&connection);
+            disconnectSSHSession();
+            // if (connection)
+            //     ptssh_destroy(&connection); /* destroys connection threads */
             usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            return connectToRemoteHost();
+            connectToRemoteHost();
+            return;
         } else {
             QString notf = "Connected as: " + userName + "@" + hostName;
             #ifdef GUI_ENABLED
@@ -219,9 +225,9 @@ void FileWatchersManager::connectToRemoteHost() {
             qDebug() << "Connection estabilished.";
         }
 
-    } else {
-        qDebug() << "Still connected";
-    }
+    // } else {
+    //     qDebug() << "Still connected";
+    // }
 }
 
 
@@ -229,12 +235,12 @@ void FileWatchersManager::connectToRemoteHost() {
 void FileWatchersManager::scanDir(QDir dir) {
     qDebug() << "Scanning:" << dir.absolutePath();
 
-    this->oldFiles = QStringList(this->files);
-    this->files = QStringList();
-    // for (int index = 0; index < files.length(); index++) {
-    // //     removePath(files.at(index));
-    //     files.removeAt(index);
-    // }
+    this->oldFiles = this->files;
+    // this->files = QStringList();
+    for (int index = 0; index < files.length(); index++) {
+        // removePath(files.at(index));
+        files.removeAt(index);
+    }
 
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     QDirIterator it(dir, QDirIterator::Subdirectories);
@@ -284,7 +290,7 @@ QStringList FileWatchersManager::removeFromList(QStringList& list, const QString
 
 
 void FileWatchersManager::executeRemoteCommand(const QString& command) {
-    if (connection) {
+    if (connection->isAuthenticated()) {
         qDebug() << "Executing remote command:" << command;
         uint32 channel = PTSSH_BAD_CHANNEL_NUMBER;
         int result = connection->createChannel_session(channel);
@@ -303,6 +309,19 @@ void FileWatchersManager::executeRemoteCommand(const QString& command) {
 }
 
 
+void FileWatchersManager::disconnectSSHSession() {
+    if (connection != NULL) {
+        int result = connection->disconnect();
+        while (result != PTSSH_SUCCESS) {
+            qDebug() << "Disconnecting…";
+            sleep(1);
+        }
+        ptssh_destroy(&connection); /* destroys connection threads */
+        // delete connection;
+    }
+}
+
+
 void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool hashFile) {
 
     int result;
@@ -313,7 +332,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     QString file = sourceFile;
     #ifdef GUI_ENABLED
-        qDebug() << "GUI enabled. Initializing";
+        qDebug() << "GUI enabled.";
         auto fileInfo_q = QFileInfo(file);
         auto dir = fileInfo_q.absolutePath();
         auto extension = fileInfo_q.suffix();
@@ -346,6 +365,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         removePath(file);
         files = removeFromList(files, QStringList(file));
         qDebug() << "Total files and dirs on watch:" << files.size();
+        disconnectSSHSession();
         return;
     }
 
@@ -356,7 +376,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     pFileHandle = fopen(file.toUtf8(), "rb");
     if (not pFileHandle) {
         qDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
-        connection->disconnect();
+        disconnectSSHSession();
         return;
     }
 
@@ -364,14 +384,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     /* create missing directories in remote path */
     auto finalPath = remotePath.toUtf8();
-    executeRemoteCommand("/bin/mkdir -p " + finalPath);
+    executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
     if (not preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
         for (int i = 0; i < elems.length(); i++) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
             if (not elem.isEmpty())
-                executeRemoteCommand("/bin/mkdir -p " + finalPath);
+                executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
         }
     }
 
@@ -449,8 +469,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
 
-    connection->disconnect();
-    ptssh_destroy(&connection); /* destroys connection threads */
+    disconnectSSHSession();
+    // if (connection)
+    //     ptssh_destroy(&connection); /* destroys connection threads */
 
     qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
     // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
@@ -472,21 +493,23 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
                 if (not QDir(nextOne).exists()) {
                     // qDebug() << "Traversing next file:" << nextOne;
                     if (not oldFiles.contains(nextOne)) {
-                        // qDebug() << "New file found in monitored dir:" << nextOne;
+                        qDebug() << "New file?:" << nextOne;
                         #ifdef GUI_ENABLED
                             emit setWork(WORKING);
                             copyFileToRemoteHost(nextOne, true);
                         #else
-                            emit fileChangedSlot(nextOne);
+                            copyFileToRemoteHost(nextOne);
                         #endif
                     }
                 }
             } else {
-                #ifdef GUI_ENABLED
+                qDebug() << "File was REMOVED:" << nextOne;
+                // usleep(SOME_ADDITIONAL_PAUSE); /* XXX: HACK: this way we avoid thread race without additional sync */
+                #ifdef GUI_ENABLED /* synchronized deletion only for Syndir */
                     emit setWork(DELETE);
                     copyFileToRemoteHost(nextOne, true);
                 #else
-                    emit fileChangedSlot(nextOne);
+                    copyFileToRemoteHost(nextOne);
                 #endif
             }
         }
