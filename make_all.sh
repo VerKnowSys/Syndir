@@ -22,10 +22,18 @@ if [ "$(uname)" = "Darwin" ]; then
 fi
 
 cd PTssh
+if [ "${PACKAGE}" = "YES" ]; then
+    printf "Preparing package. Performing clean build\n"
+    make distclean
+fi
 qmake ${SPEC_TYPE} "PTssh.pro"
 ${MAKE} CC=clang CXX=clang++
 cd ..
 
+if [ "${PACKAGE}" = "YES" ]; then
+    printf "Preparing package. Performing clean build\n"
+    make distclean
+fi
 qmake ${SPEC_TYPE} "${PROJECT_NAME}"
 ${MAKE} CC=clang CXX=clang++
 
