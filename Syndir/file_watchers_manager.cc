@@ -279,7 +279,7 @@ void FileWatchersManager::fileChangedSlot(const QString& file) {
         this->lastModified = QFileInfo(file).created();
         this->last = file;
         qDebug() << "Invoked copy to remote host for file:" << file;
-        copyFileToRemoteHost(file);
+        copyFilesToRemoteHost(QStringList(file));
     }
 }
 
@@ -326,7 +326,7 @@ void FileWatchersManager::disconnectSSHSession() {
 }
 
 
-void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool hashFile) {
+void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, bool hashFile) {
 
     int result;
     QTime myTimer;
@@ -334,148 +334,147 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     connectToRemoteHost();
 
-    QString file = sourceFile;
-    #ifdef GUI_ENABLED
-        qDebug() << "GUI enabled.";
-        auto fileInfo_q = QFileInfo(file);
-        auto dir = fileInfo_q.absolutePath();
-        auto extension = fileInfo_q.suffix();
+    Q_FOREACH(QString file, fileList) {
 
-        auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
-        hash->addData(file.toUtf8(), file.length() + 1);
-        auto resultSHA1 = strdup(hash->result().toHex());
-        delete hash;
+        #ifdef GUI_ENABLED
+            qDebug() << "GUI enabled.";
+            auto fileInfo_q = QFileInfo(file);
+            auto dir = fileInfo_q.absolutePath();
+            auto extension = fileInfo_q.suffix();
 
-        auto renamedFile = dir + "/" + resultSHA1 + "." + extension;
-        auto clipboard = QApplication::clipboard();
-        QSettings settings;
-        clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + "." + extension);
-    #endif
+            auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
+            hash->addData(file.toUtf8(), file.length() + 1);
+            auto resultSHA1 = strdup(hash->result().toHex());
+            delete hash;
 
-    QString fileDirName = QFileInfo(file).absolutePath();
-    QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
-    QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
-    QString chopFileName = prePath.toUtf8();
-    QString fullDestPath = remotePath + chopFileName;
+            auto renamedFile = dir + "/" + resultSHA1 + "." + extension;
+            auto clipboard = QApplication::clipboard();
+            QSettings settings;
+            clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + "." + extension);
+        #endif
 
-    /* escape possible spaces in file name */
-    fullDestPath = fullDestPath.replace(" ", "\\ ");
+        QString fileDirName = QFileInfo(file).absolutePath();
+        QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
+        QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
+        QString chopFileName = prePath.toUtf8();
+        QString fullDestPath = remotePath + chopFileName;
 
-    /* deal with deletion of local file with remote sync */
-    if (not QFile::exists(file)) {
-        qDebug() << "Deletion detected:" << file;
-        qDebug() << "Synced deletion of remote file:" << fullDestPath;
-        executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8());
-        removePath(file);
-        files = removeFromList(files, QStringList(file));
-        qDebug() << "Total files and dirs on watch:" << files.size();
-        disconnectSSHSession();
-        return;
-    }
+        /* escape possible spaces in file name */
+        fullDestPath = fullDestPath.replace(" ", "\\ ");
 
-    FILE *pFileHandle = NULL;
-    struct stat fileInfo;
-    uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
+        /* deal with deletion of local file with remote sync */
+        if (not QFile::exists(file)) {
 
-    pFileHandle = fopen(file.toUtf8(), "rb");
-    if (not pFileHandle) {
-        qDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
-        disconnectSSHSession();
-        return;
-    }
+            qDebug() << "Deletion detected:" << file;
+            qDebug() << "Synced deletion of remote file:" << fullDestPath;
+            executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8());
+            removePath(file);
+            files = removeFromList(files, QStringList(file));
+            qDebug() << "Total files and dirs on watch:" << files.size();
 
-    qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
+        } else {
 
-    /* create missing directories in remote path */
-    auto finalPath = remotePath.toUtf8();
-    executeRemoteCommand("/bin/mkdir -p " + finalPath);
-    if (not preDirs.isEmpty()) { /* sub dirs in path */
-        auto elems = preDirs.toString().split("/");
-        for (int i = 0; i < elems.length(); i++) {
-            auto elem = elems.at(i);
-            finalPath += "/" + elem;
-            if (not elem.isEmpty())
+            FILE *pFileHandle = NULL;
+            struct stat fileInfo;
+            uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
+
+            pFileHandle = fopen(file.toUtf8(), "rb");
+            if (not pFileHandle) {
+
+                qDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
+
+            } else {
+                qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
+                /* create missing directories in remote path */
+                auto finalPath = remotePath.toUtf8();
                 executeRemoteCommand("/bin/mkdir -p " + finalPath);
-        }
-    }
+                if (not preDirs.isEmpty()) { /* sub dirs in path */
+                    auto elems = preDirs.toString().split("/");
+                    for (int i = 0; i < elems.length(); i++) {
+                        auto elem = elems.at(i);
+                        finalPath += "/" + elem;
+                        if (not elem.isEmpty())
+                            executeRemoteCommand("/bin/mkdir -p " + finalPath);
+                    }
+                }
 
-    /* Get the file info and use it to create remote copy of that file */
-    stat(file.toUtf8(), &fileInfo);
-    result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8(), fileInfo.st_size);
-    if (result == PTSSH_SUCCESS) {
-        uint32
-            fileSize = (uint32)fileInfo.st_size;
+                /* Get the file info and use it to create remote copy of that file */
+                stat(file.toUtf8(), &fileInfo);
+                result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8(), fileInfo.st_size);
+                if (result == PTSSH_SUCCESS) {
+                    uint32
+                        fileSize = (uint32)fileInfo.st_size;
 
-        /* If you want to be nice to the library, you can ask for the optimal data
-         * size that you can send on a channel. If you then write to the channel
-         * and keep your channel writes at this size, this will be the most efficient.
-         * Otherwise if a packet is too big, the underlying library will split it, which
-         * will incurr an overhead for allocating memory for a few smaller packets.
-         * Sending larger or smaller packets doesn't hurt anything, but may not be as fast
-         * and will likely use more CPU power. */
-        ptssh_getOptimalDataSize(connection, cNum, optimalSize);
-        char *pBuf = new char[optimalSize];
-        if (pBuf) {
-            bool bKeepGoing = true;
-            int32 bytesRead = 1;
+                    /* If you want to be nice to the library, you can ask for the optimal data
+                     * size that you can send on a channel. If you then write to the channel
+                     * and keep your channel writes at this size, this will be the most efficient.
+                     * Otherwise if a packet is too big, the underlying library will split it, which
+                     * will incurr an overhead for allocating memory for a few smaller packets.
+                     * Sending larger or smaller packets doesn't hurt anything, but may not be as fast
+                     * and will likely use more CPU power. */
+                    ptssh_getOptimalDataSize(connection, cNum, optimalSize);
+                    char *pBuf = new char[optimalSize];
+                    if (pBuf) {
+                        bool bKeepGoing = true;
+                        int32 bytesRead = 1;
 
-            qDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
-            while ( bytesRead > 0) {
-                bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
+                        qDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
+                        while ( bytesRead > 0) {
+                            bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
 
-                /* Writing to a channel is normally EXTREMELY quick. Underneath
-                 * it all, the pointer to the buffer is wrapped up in a SSH
-                 * BinaryPacket and then queued for sending. If there isn't room
-                 * in the queue, this function will then block until room is available
-                 * or until an error occurs... like the remote end disconnects
-                 * unexpectedly. The queue size can be increased if needed
-                 * in PTsshConfig.h. Default is about 4MB. This works really well for
-                 * gigabit networks while keeping memory usage down. */
-                if (bytesRead > 0) {
-                    result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
-                    if ( result != PTSSH_SUCCESS) {
-                        qDebug() << "Failed to write channel data. Error:" << result;
-                        break;
-                    } else {
-                        totalBytesQueued += bytesRead;
+                            /* Writing to a channel is normally EXTREMELY quick. Underneath
+                             * it all, the pointer to the buffer is wrapped up in a SSH
+                             * BinaryPacket and then queued for sending. If there isn't room
+                             * in the queue, this function will then block until room is available
+                             * or until an error occurs... like the remote end disconnects
+                             * unexpectedly. The queue size can be increased if needed
+                             * in PTsshConfig.h. Default is about 4MB. This works really well for
+                             * gigabit networks while keeping memory usage down. */
+                            if (bytesRead > 0) {
+                                result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
+                                if ( result != PTSSH_SUCCESS) {
+                                    qDebug() << "Failed to write channel data. Error:" << result;
+                                    break;
+                                } else {
+                                    totalBytesQueued += bytesRead;
+                                }
+                            }
+                        }
+                        fclose(pFileHandle);
+                        qDebug() << "Done queueing" << fileSize/1024 << "KiB for sending";
+
+                        /* do cleanup */
+                        result = ptssh_scpSendFinish(connection, cNum);
+                        if ( result == PTSSH_SUCCESS) {
+                            qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
+                            /* rename remote file to hash name */
+                            if (hashFile) {
+                                #ifdef GUI_ENABLED
+                                    QString destName = (remotePath + "/" + resultSHA1 + "." + extension).toUtf8();
+                                    qDebug() << "Renaming remote file" << file << "to" << destName;
+                                    executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8() + " " + destName.toUtf8());
+
+                                    QSettings settings;
+                                    QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+                                    emit setWork(OK);
+                                    notify("Screenshot uploaded. Link copied to clipboard");
+                                #endif
+                            }
+                        } else {
+                            qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath << "Error:" << result;
+                        }
+
+                        delete pBuf;
+                        pBuf = NULL;
                     }
                 }
             }
-            fclose(pFileHandle);
-            qDebug() << "Done queueing" << fileSize/1024 << "KiB for sending";
-
-            /* do cleanup */
-            result = ptssh_scpSendFinish(connection, cNum);
-            if ( result == PTSSH_SUCCESS) {
-                qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
-                /* rename remote file to hash name */
-                if (hashFile) {
-                    #ifdef GUI_ENABLED
-                        QString destName = (remotePath + "/" + resultSHA1 + "." + extension).toUtf8();
-                        qDebug() << "Renaming remote file" << file << "to" << destName;
-                        executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8() + " " + destName.toUtf8());
-
-                        QSettings settings;
-                        QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
-                        emit setWork(OK);
-                        notify("Screenshot uploaded. Link copied to clipboard");
-                    #endif
-                }
-            } else {
-                qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath << "Error:" << result;
-            }
-
-            delete pBuf;
-            pBuf = NULL;
         }
     }
-
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
 
     disconnectSSHSession();
-    // if (connection)
-    //     ptssh_destroy(&connection); /* destroys connection threads */
 
     qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
     // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
@@ -491,31 +490,37 @@ void FileWatchersManager::dirChangedSlot(const QString& dir) {
         qDebug() << "Dir changed:" << dir;
         scanDir(QDir(dir)); /* don't scan non existent directories */
 
-        /* scan for new files by file list diff */
-        Q_FOREACH(QString nextOne, files) {
-            if (QFile::exists(nextOne)) {
-                if (not QDir(nextOne).exists()) {
-                    // qDebug() << "Traversing next file:" << nextOne;
-                    if (not oldFiles.contains(nextOne)) {
-                        qDebug() << "New file?:" << nextOne;
-                        #ifdef GUI_ENABLED
-                            emit setWork(WORKING);
-                            copyFileToRemoteHost(nextOne, true);
-                        #else
-                            copyFileToRemoteHost(nextOne);
-                        #endif
+        /* show number of differences */
+        auto diffs = abs(files.length() - oldFiles.length());
+        qDebug() << "Found" << diffs << "change(s)";
+
+        if (diffs > 0) {
+            /* scan for new files by file list diff */
+            QStringList gatheredList = QStringList();
+            Q_FOREACH(QString nextOne, files) {
+                if (QFile::exists(nextOne)) {
+                    if (not QDir(nextOne).exists()) {
+                        // qDebug() << "Traversing next file:" << nextOne;
+                        if (not oldFiles.contains(nextOne)) {
+                            qDebug() << "New file?:" << nextOne;
+                            gatheredList << nextOne;
+                        }
                     }
+                } else {
+                    qDebug() << "File was REMOVED:" << nextOne;
+                    // usleep(SOME_ADDITIONAL_PAUSE); /* XXX: HACK: this way we avoid thread race without additional sync */
+                    gatheredList << nextOne;
                 }
-            } else {
-                qDebug() << "File was REMOVED:" << nextOne;
-                // usleep(SOME_ADDITIONAL_PAUSE); /* XXX: HACK: this way we avoid thread race without additional sync */
-                #ifdef GUI_ENABLED /* synchronized deletion only for Syndir */
-                    emit setWork(DELETE);
-                    copyFileToRemoteHost(nextOne, true);
-                #else
-                    copyFileToRemoteHost(nextOne);
-                #endif
             }
+
+            #ifdef GUI_ENABLED
+                emit setWork(WORKING);
+                copyFilesToRemoteHost(gatheredList, true);
+            #else
+                copyFilesToRemoteHost(gatheredList);
+            #endif
         }
+
     }
+
 }

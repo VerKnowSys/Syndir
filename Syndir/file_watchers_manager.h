@@ -33,7 +33,7 @@ class FileWatchersManager: public QFileSystemWatcher {
     public:
         FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath);
         void scanDir(QDir dir);
-        void copyFileToRemoteHost(const QString& file, bool hashFile = false);
+        void copyFilesToRemoteHost(const QStringList& fileList, bool hashFile = false);
         QStringList removeFromList(QStringList& list, const QStringList& toDelete);
         void executeRemoteCommand(const QString& command);
         void loadSettings(); /* load app settings */
