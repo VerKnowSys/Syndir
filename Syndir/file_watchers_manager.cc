@@ -119,7 +119,7 @@ void FileWatchersManager::connectToRemoteHost() {
             return connectToRemoteHost();
         }
 
-        qDebug() << "Conecting to:" << connection->getUsername() << "@" << connection->getRemoteHostAddress() << ":" << connection->getRemoteHostPort();
+        qDebug() << "Conecting to:" << userName << "@" << hostName << ":" << sshPort;
 
         if (connection->isConnected()) {
             qDebug() << "Connected to server.";
@@ -229,11 +229,12 @@ void FileWatchersManager::connectToRemoteHost() {
 void FileWatchersManager::scanDir(QDir dir) {
     qDebug() << "Scanning:" << dir.absolutePath();
 
-    this->oldFiles = this->files;
-    for (int index = 0; index < files.size(); index++) {
-    //     removePath(files.at(index));
-        files.removeAt(index);
-    }
+    this->oldFiles = QStringList(this->files);
+    this->files = QStringList();
+    // for (int index = 0; index < files.length(); index++) {
+    // //     removePath(files.at(index));
+    //     files.removeAt(index);
+    // }
 
     dir.setFilter(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
     QDirIterator it(dir, QDirIterator::Subdirectories);
@@ -319,11 +320,12 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
         auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
         hash->addData(file.toUtf8(), file.length() + 1);
-        auto resultSHA1 = hash->result().toHex();
+        auto resultSHA1 = strdup(hash->result().toHex());
         delete hash;
 
         auto renamedFile = dir + "/" + resultSHA1 + "." + extension;
         auto clipboard = QApplication::clipboard();
+        QSettings settings;
         clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + "." + extension);
     #endif
 
