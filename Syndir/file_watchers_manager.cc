@@ -9,42 +9,13 @@
 
 
 FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString& fullDestinationSSHPath) {
-    loadSettings();
-    QSettings settings;
 
     qDebug() << "Starting recursive watch on dir:" << sourceDir << "with sync to remote:" << fullDestinationSSHPath;
     this->baseCWD = sourceDir;
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
-    this->sshPort = settings.value("ssh_port", SSH_PORT).toInt();
 
-    /* user might be implicit: */
-    QStringList sshDirPartial = fullDestinationSSHPath.split(":");
-    QString userWithHost = sshDirPartial.value(0);
-    QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
-    QRegExp emailSign("@");
-    if (not userWithHost.contains(emailSign)) {
-        this->userName = strdup(getenv("USER")); /* set username if not given explicitly */
-        this->hostName = sshUserServerPartial.value(0);
-        // qDebug() << "Implicit" << userName << hostName;
-    } else { /* or explicit */
-        // qDebug() << "Explicit";
-        this->userName = sshUserServerPartial.value(0);
-        this->hostName = sshUserServerPartial.value(1);
-    }
-    this->remotePath = sshDirPartial.value(1); /* last one is a remote path */
-
-    if (this->userName.isEmpty()) {
-        qDebug() << "No user name specified, trying to get it from ENV.";
-        this->userName = strdup(getenv("USER"));
-    }
-
-    if (this->hostName.isEmpty() or this->userName.isEmpty()) {
-        qDebug() << "Invalid (empty) host or user name.";
-        #ifndef GUI_ENABLED
-            usage();
-        #endif
-        exit(1); // XXX: FIXME: shouldn't just silent fail, but retry
-    }
+    loadSettings();
+    QSettings settings;
 
     // signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
 
@@ -96,12 +67,45 @@ void FileWatchersManager::loadSettings() {
 
     if (settings.value("allowed_file_types").isNull())
         settings.setValue("allowed_file_types", ALLOWED_FILE_TYPES);
+
+    /* set values of current watchers manager: */
+    this->sshPort = settings.value("ssh_port", SSH_PORT).toInt();
+
+    /* user might be implicit: */
+    QStringList sshDirPartial = fullDestinationSSHPath.split(":");
+    QString userWithHost = sshDirPartial.value(0);
+    QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
+    QRegExp emailSign("@");
+    if (not userWithHost.contains(emailSign)) {
+        this->userName = strdup(getenv("USER")); /* set username if not given explicitly */
+        this->hostName = sshUserServerPartial.value(0);
+        // qDebug() << "Implicit" << userName << hostName;
+    } else { /* or explicit */
+        // qDebug() << "Explicit";
+        this->userName = sshUserServerPartial.value(0);
+        this->hostName = sshUserServerPartial.value(1);
+    }
+    this->remotePath = sshDirPartial.value(1); /* last one is a remote path */
+
+    if (this->userName.isEmpty()) {
+        qDebug() << "No user name specified, trying to get it from ENV.";
+        this->userName = strdup(getenv("USER"));
+    }
+
+    if (this->hostName.isEmpty() or this->userName.isEmpty()) {
+        qDebug() << "Invalid (empty) host or user name.";
+        #ifndef GUI_ENABLED
+            usage();
+        #endif
+        exit(1); // XXX: FIXME: shouldn't just silent fail, but retry
+    }
 }
 
 
 void FileWatchersManager::connectToRemoteHost() {
     int result;
     // if (not connection or not connection->isConnected() or not connection->isAuthenticated()) {
+        loadSettings();
         QSettings settings;
         QString sshPass = settings.value("ssh_password", SSH_PASSWORD).toString();
 
