@@ -353,9 +353,8 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         if (pBuf) {
             bool bKeepGoing = true;
             int32 bytesRead = 1;
-            //Read the file and send the data over the channel
 
-            printf("Queueing %uMB for sending\n", (fileSize>>20) );
+            qDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
             while ( bytesRead > 0) {
                 bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
 
@@ -370,7 +369,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
                 if (bytesRead > 0) {
                     result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
                     if ( result != PTSSH_SUCCESS) {
-                        printf("Failed to write channel data. Error %d\n", result);
+                        qDebug() << "Failed to write channel data. Error:" << result;
                         break;
                     } else {
                         totalBytesQueued += bytesRead;
@@ -378,14 +377,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
                 }
             }
             fclose(pFileHandle);
-            printf("Done queueing %uMB for sending\n", (fileSize>> 20));
+            qDebug() << "Done queueing" << fileSize/1024 << "KiB for sending";
 
             /* do cleanup */
             result = ptssh_scpSendFinish(connection, cNum);
             if ( result == PTSSH_SUCCESS) {
                 qDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
             } else {
-                qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath;
+                qDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath << "Error:" << result;
             }
 
             delete pBuf;
