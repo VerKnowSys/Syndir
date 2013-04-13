@@ -254,8 +254,12 @@ void FileWatchersManager::executeRemoteCommand(const QString& command) {
     if (connection and connection->isConnected() and connection->isAuthenticated()) {
         qDebug() << "Executing remote command:" << command;
         uint32 channel = PTSSH_BAD_CHANNEL_NUMBER;
-        connection->createChannel_session(channel);
-        int result = connection->channelRequest_exec(channel, command.toUtf8());
+        int result = connection->createChannel_session(channel);
+        if (result != PTSSH_SUCCESS) {
+            qDebug() << "Creation of remote session failed for command:" << command;
+            return;
+        }
+        result = connection->channelRequest_exec(channel, command.toUtf8());
         if (result != PTSSH_SUCCESS) {
             qDebug() << "Remote command failed:" << command;
         }
@@ -297,18 +301,19 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     QString chopFileName = prePath.toUtf8();
     QString fullDestPath = remotePath + chopFileName;
 
+    /* escape possible spaces in file name */
+    fullDestPath = fullDestPath.replace(" ", "\\ ");
+
+    /* deal with deletion of local file with remote sync */
     if (not QFile::exists(file)) {
         qDebug() << "Deletion detected:" << file;
         qDebug() << "Synced deletion of remote file:" << fullDestPath;
-        executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8().replace(" ", "\\ "));
+        executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8());
         removePath(file);
         files = removeFromList(files, QStringList(file));
         qDebug() << "Total files and dirs on watch:" << files.size();
         return;
     }
-
-    /* creating dir recursively for a single destination file */
-    auto finalPath = remotePath.toUtf8();
 
     FILE *pFileHandle = NULL;
     struct stat fileInfo;
@@ -316,15 +321,15 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     pFileHandle = fopen(file.toUtf8(), "rb");
     if (not pFileHandle) {
-        qDebug() << "Can't local file" << file;
+        qDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
         connection->disconnect();
         return;
     }
 
     qDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
 
-
     /* create missing directories in remote path */
+    auto finalPath = remotePath.toUtf8();
     executeRemoteCommand("/bin/mkdir -p " + finalPath);
     if (not preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
@@ -336,11 +341,10 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         }
     }
 
-    //Get the file statistics
+    /* Get the file info and use it to create remote copy of that file */
     stat(file.toUtf8(), &fileInfo);
-    result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8().replace(" ", "\\ "), fileInfo.st_size);
+    result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8(), fileInfo.st_size);
     if (result == PTSSH_SUCCESS) {
-        //Everything went ok! The remote SSH server is ready for us to send
         uint32
             fileSize = (uint32)fileInfo.st_size;
 
@@ -400,10 +404,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
         #ifdef GUI_ENABLED
             QString destName = (remotePath + "/" + resultSHA1 + "." + extension).toUtf8();
             qDebug() << "Renaming remote file" << file << "to" << destName;
-            executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8().replace(" ", "\\ ") + " " + destName.toUtf8());
+            executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8() + " " + destName.toUtf8());
         #endif
     }
-    qDebug() << "Shooting SSH session";
 
     #ifdef GUI_ENABLED
         QSettings settings;
@@ -415,10 +418,9 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     qDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
 
     connection->disconnect();
-    ptssh_destroy(&connection);
+    ptssh_destroy(&connection); /* destroys connection threads */
 
     qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
-    /* XXX: HACK: reconnect AFTER doing a screenshot, to release threads, but next shot will be instant */
     // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
 }
 
