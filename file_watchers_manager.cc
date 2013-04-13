@@ -390,13 +390,6 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
             delete pBuf;
             pBuf = NULL;
-
-            connection->disconnect();
-            ptssh_destroy(&connection);
-
-            qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
-            /* XXX: HACK: reconnect AFTER doing a screenshot, to release threads, but next shot will be instant */
-            // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
         }
     }
 
@@ -408,7 +401,7 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
             executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8().replace(" ", "\\ ") + " " + destName.toUtf8());
         #endif
     }
-    qDebug() << "Shooting SFTP session";
+    qDebug() << "Shooting SSH session";
 
     #ifdef GUI_ENABLED
         QSettings settings;
@@ -418,6 +411,13 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
     #endif
     qDebug() << "Total files and dirs on watch:" << files.size();
     qDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
+
+    connection->disconnect();
+    ptssh_destroy(&connection);
+
+    qDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
+    /* XXX: HACK: reconnect AFTER doing a screenshot, to release threads, but next shot will be instant */
+    // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
 }
 
 
