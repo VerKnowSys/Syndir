@@ -384,14 +384,14 @@ void FileWatchersManager::copyFileToRemoteHost(const QString& sourceFile, bool h
 
     /* create missing directories in remote path */
     auto finalPath = remotePath.toUtf8();
-    executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
+    executeRemoteCommand("/bin/mkdir -p " + finalPath);
     if (not preDirs.isEmpty()) { /* sub dirs in path */
         auto elems = preDirs.toString().split("/");
         for (int i = 0; i < elems.length(); i++) {
             auto elem = elems.at(i);
             finalPath += "/" + elem;
             if (not elem.isEmpty())
-                executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
+                executeRemoteCommand("/bin/mkdir -p " + finalPath);
         }
     }
 
