@@ -255,7 +255,10 @@ void FileWatchersManager::executeRemoteCommand(const QString& command) {
         qDebug() << "Executing remote command:" << command;
         uint32 channel = PTSSH_BAD_CHANNEL_NUMBER;
         connection->createChannel_session(channel);
-        connection->channelRequest_exec(channel, command.toUtf8());
+        int result = connection->channelRequest_exec(channel, command.toUtf8());
+        if (result != PTSSH_SUCCESS) {
+            qDebug() << "Remote command failed:" << command;
+        }
         ptssh_closeChannel(connection, channel);
     } else {
         qDebug() << "Failed to execute remote command:" << command;
