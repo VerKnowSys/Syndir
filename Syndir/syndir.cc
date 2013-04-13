@@ -21,9 +21,6 @@ static void loadDefaultSettings() {
     if (settings.value("source_dir").isNull())
         settings.setValue("source_dir", DEFAULT_SOURCE_DIR);
 
-    if (settings.value("destination_dir").isNull())
-        settings.setValue("destination_dir", DEFAULT_DESTINATION_DIR);
-
     if (settings.value("ssh_port").isNull())
         settings.setValue("ssh_port", SSH_PORT);
 
