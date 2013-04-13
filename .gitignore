@@ -8,3 +8,4 @@ syndir
 /Synshot/qrc_Synshot.cpp
 /*.tar.gz
 *.a
+/Syndir.app/

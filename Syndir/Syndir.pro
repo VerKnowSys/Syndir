@@ -9,7 +9,7 @@ SYSTEM_NAME        = $$system(uname)
   CONFIG          += link_pkgconfig
   PKGCONFIG        = QtCore
 }
-DEFINES           += PTSSH_SFTP SHOW_STATISTICS _DEBUG
+DEFINES           += _DEBUG
 QMAKE_CXX          = clang++
 QMAKE_CC           = clang
 QT                -= gui

@@ -8,7 +8,7 @@ TEMPLATE           = app
 SYSTEM_NAME        = $$system(uname)
 QMAKE_CC           = clang
 QMAKE_CXX          = clang++
-DEFINES           += GUI_ENABLED PTSSH_SFTP
+DEFINES           += GUI_ENABLED
 QT                += gui
 ICON               = images/Synshot.icns
 
