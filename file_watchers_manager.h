@@ -13,6 +13,10 @@
 #include <fstream>
 #include <sys/stat.h>
 
+#ifdef __linux__
+    #include <unistd.h>
+#endif
+
 #include "syndir.h"
 
 #ifdef GUI_ENABLED
