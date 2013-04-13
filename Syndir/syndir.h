@@ -21,14 +21,13 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.17.0"
+#define APP_VERSION "0.17.1"
 
-
-#define TEMPORARY_USER_PASSWORD "define_your_pass"
 
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500
 #define SSH_PORT 22
+#define SSH_PASSWORD "NO-SSH-PASSWORD-SET"
 #define MAX_PORT_VALUE 65535
 #define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"

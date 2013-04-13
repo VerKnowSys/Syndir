@@ -118,7 +118,7 @@
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Screenshot dir</string>
+       <string>Local screenshot dir</string>
       </property>
       <property name="scaledContents">
        <bool>false</bool>
@@ -293,11 +293,50 @@
        <bool>true</bool>
       </property>
       <property name="plainText">
-       <string>
-</string>
+       <string/>
       </property>
       <property name="backgroundVisible">
        <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="defaultPortLabel_7">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>SSH password</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="defaultSSHPassword">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
+      <property name="mouseTracking">
+       <bool>false</bool>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
+      <property name="maxLength">
+       <number>32767</number>
+      </property>
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
       </property>
      </widget>
     </item>
@@ -306,10 +345,12 @@
  </widget>
  <tabstops>
   <tabstop>defaultSSHPort</tabstop>
+  <tabstop>defaultSSHPassword</tabstop>
   <tabstop>notificationSound</tabstop>
   <tabstop>screenshotDir</tabstop>
   <tabstop>destinationRemoteDir</tabstop>
   <tabstop>urlPrefix</tabstop>
+  <tabstop>allowedFileTypes</tabstop>
  </tabstops>
  <resources>
   <include location="Synshot.qrc"/>

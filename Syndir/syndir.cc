@@ -33,6 +33,9 @@ static void loadDefaultSettings() {
     if (settings.value("ssh_port").isNull())
         settings.setValue("ssh_port", SSH_PORT);
 
+    if (settings.value("ssh_password").isNull())
+        settings.setValue("ssh_password", SSH_PASSWORD);
+
     if (settings.value("allowed_file_types").isNull())
         settings.setValue("allowed_file_types", ALLOWED_FILE_TYPES);
 }

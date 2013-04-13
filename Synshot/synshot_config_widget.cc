@@ -86,6 +86,9 @@ void ConfigWindow::showConfigurePanel() {
     settingsWindow->defaultSSHPort->setText(settings.value("ssh_port").toString());
     connect(settingsWindow->defaultSSHPort, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPort(QString)));
 
+    settingsWindow->defaultSSHPassword->setText(settings.value("ssh_password").toString());
+    connect(settingsWindow->defaultSSHPassword, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPassword(QString)));
+
     settingsWindow->notificationSound->setText(settings.value("sound_file").toString());
     connect(settingsWindow->notificationSound, SIGNAL(textChanged(QString)), this, SLOT(updateNotificationSound(QString)));
 
@@ -103,6 +106,20 @@ void ConfigWindow::showConfigurePanel() {
 
     this->show();
 
+}
+
+
+void ConfigWindow::updateDefaultSSHPassword(const QString& text) {
+    if (text.length() > 0) {
+        settingsWindow->defaultSSHPassword->setStyleSheet("border: 2px solid green");
+        settings.setValue("ssh_password", text);
+        qDebug() << "ssh_password changed";
+    }
+    if (text.length() == 0) {
+        settingsWindow->defaultSSHPassword->setStyleSheet("border: 2px solid green");
+        settings.setValue("ssh_password", SSH_PASSWORD); /* set default value if entry is empty -> means that we don't want to use ssh password for remote access */
+        qDebug() << "Password was reset. SSH auth wont be used";
+    }
 }
 
 
