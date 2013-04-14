@@ -77,7 +77,7 @@ void FileWatchersManager::loadSettings() {
     QStringList sshUserServerPartial = userWithHost.split("@"); /* first part is user@host */
     QRegExp emailSign("@");
     if (not userWithHost.contains(emailSign)) {
-        this->userName = strdup(getenv("USER")); /* set username if not given explicitly */
+        this->userName = getenv("USER"); /* set username if not given explicitly */
         this->hostName = sshUserServerPartial.value(0);
         // logDebug() << "Implicit" << userName << hostName;
     } else { /* or explicit */
@@ -89,7 +89,7 @@ void FileWatchersManager::loadSettings() {
 
     if (this->userName.isEmpty()) {
         logDebug() << "No user name specified, trying to get it from ENV.";
-        this->userName = strdup(getenv("USER"));
+        this->userName = getenv("USER");
     }
 
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
@@ -344,7 +344,7 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
 
             auto hash = new QCryptographicHash(QCryptographicHash::Sha1);
             hash->addData(file.toUtf8(), file.length() + 1);
-            auto resultSHA1 = strdup(hash->result().toHex());
+            auto resultSHA1 = hash->result().toHex();
             delete hash;
 
             auto renamedFile = dir + "/" + resultSHA1 + "." + extension;
