@@ -52,6 +52,12 @@
         QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
         QStringList args = app.arguments();
 
+        /* Logger setup */
+        ConsoleAppender *consoleAppender = new ConsoleAppender();
+        Logger::registerAppender(consoleAppender);
+        consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
+        consoleAppender->setDetailsLevel(Logger::Trace);
+
         QStringList remotes;
 
         /* init instance of config window for GUI */

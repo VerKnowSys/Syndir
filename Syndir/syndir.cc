@@ -45,6 +45,12 @@ int main(int argc, char *argv[]) {
     QStringList remotes;
     QList<WorkerThread*> workers;
 
+    /* Logger setup */
+    ConsoleAppender *consoleAppender = new ConsoleAppender();
+    Logger::registerAppender(consoleAppender);
+    consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
+    consoleAppender->setDetailsLevel(Logger::Trace);
+
     /* handle bad arguments */
     if (args.size() < 3) {
         usage();
