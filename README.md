@@ -1,4 +1,4 @@
-# Syndir - SCP/SFTP file synchronization utility.
+# Syndir - SCP file synchronization utility.
 # Synshot - GUI Screenshot utility for power users.
 
 
@@ -11,7 +11,7 @@
 
 
 ## Syndir features:
-* Synchronize your files with 0 setup. Works with SFTP. Requires SSH public key authentication.
+* Synchronize your files with 0 setup. Works with SCP. Requires SSH public key authentication.
 * Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.
 * Any amount of remote hosts supported. Just give them as additional params.
 * Automatic creation of remote non existent remote directories.
@@ -23,7 +23,7 @@
 ## Synshot features:
 * Uses Syndir core. Uses SSH public key authentication.
 * Simple, small tray application for OSX and Linux.
-* Blazing fast. It reuses and maintains single connection to SFTP host.
+* Blazing fast. It reuses and maintains single connection to SCP host.
 * Works under huge IO/Network loads.
 * Security through obscurity. Each screenshot is uploaded first, then renamed to SHA1 of it's name.
 * After each upload automatically copies destination link to system clipboard.
@@ -81,9 +81,14 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 
 ## KNOWN BUGS:
-* Rare bug in endless loop in case of very long, old network sessions. (machine sleep for night). Current workaround is to restart an app.
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
 
 
 ## License:
 * Released under the [BSD](http://opensource.org/licenses/BSD-2-Clause) license.
+
+
+## Used 3rd party software and licenses info:
+* PTssh implementation by Paul Thomas (BSD licensed)
+* CuteLogger MT logger implementation by Boris Moiseev (LGPL licensed)
+* QT4 4.8.x implementation (LGPL licensed)
