@@ -9,7 +9,9 @@
 #define __NOTIFICATIONS_H__
 
 
-#include <QtCore>
+
+#include "../Syndir/syndir.h"
+
 #include <QProcess>
 
 

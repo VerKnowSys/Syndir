@@ -64,7 +64,7 @@
         auto worker = new WorkerThread(configWindow, sourceDir, destination);
         worker->start();
 
-        qDebug() << "Synshot initialized.";
+        logDebug() << "Synshot initialized.";
 
         return app.exec();
     }

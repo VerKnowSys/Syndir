@@ -20,13 +20,17 @@
 
 #include <QCryptographicHash>
 
+#include "../CuteLogger/Logger.h"
+#include "../CuteLogger/ConsoleAppender.h"
+#include "../CuteLogger/FileAppender.h"
+
 #include "../PTssh/PTsshConfig.h"
 #include "../PTssh/PTsshW.h"
 #include "../PTssh/PTssh.h"
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.17.4"
+#define APP_VERSION "0.18.0"
 
 
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
@@ -50,6 +54,16 @@
 #define OK 2
 #define ERROR 3
 #define DELETE 4
+
+
+/* Loggers */
+#define logTrace LOG_TRACE
+#define logDebug LOG_DEBUG
+#define logInfo  LOG_INFO
+#define logWarn  LOG_WARNING
+#define logError LOG_ERROR
+#define logFatal LOG_FATAL
+
 
 
 void usage();

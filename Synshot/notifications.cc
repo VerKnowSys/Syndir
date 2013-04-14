@@ -21,16 +21,16 @@ void notify(const QString& notification) {
     process->closeWriteChannel();
     process->waitForFinished();
     delete process;
-    qDebug() << "Launched notification:" << notification;
+    logDebug() << "Launched notification:" << notification;
 }
 
 #else
 
 void notify(const QString& notification) {
 
-    qDebug() << "Not Yet Implemented";
+    logDebug() << "Not Yet Implemented";
 
-    qDebug() << "Launched notification:" << notification;
+    logDebug() << "Launched notification:" << notification;
 }
 
 #endif

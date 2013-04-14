@@ -9,7 +9,7 @@
 
 
 ConfigWindow::ConfigWindow() {
-    qDebug() << "Initiating configuration window";
+    logDebug() << "Initiating configuration window";
 
     iconGroupBox = new QGroupBox("Tray Icon");
     iconLabel = new QLabel("Icon:");
@@ -45,13 +45,13 @@ ConfigWindow::ConfigWindow() {
 
 
 void ConfigWindow::backToIdleState() {
-    qDebug() << "Back to idle.";
+    logDebug() << "Back to idle.";
     trayIcon->setIcon(iconDefault);
 }
 
 
 void ConfigWindow::doingWork(int state) {
-    qDebug() << "Got state:" << state;
+    logDebug() << "Got state:" << state;
     switch (state) {
         case IDLE: {
             trayIcon->setIcon(iconDefault);
@@ -80,7 +80,7 @@ void ConfigWindow::doingWork(int state) {
 
 
 void ConfigWindow::showConfigurePanel() {
-    qDebug() << "Launching configure";
+    logDebug() << "Launching configure";
 
     /* load data to line edit elements and bind actions to "textChanged()" signal */
     settingsWindow->defaultSSHPort->setText(settings.value("ssh_port").toString());
@@ -113,12 +113,12 @@ void ConfigWindow::updateDefaultSSHPassword(const QString& text) {
     if (text.length() > 0) {
         settingsWindow->defaultSSHPassword->setStyleSheet("border: 2px solid green");
         settings.setValue("ssh_password", text);
-        qDebug() << "ssh_password changed";
+        logDebug() << "ssh_password changed";
     }
     if (text.length() == 0) {
         settingsWindow->defaultSSHPassword->setStyleSheet("border: 2px solid green");
         settings.setValue("ssh_password", SSH_PASSWORD); /* set default value if entry is empty -> means that we don't want to use ssh password for remote access */
-        qDebug() << "Password was reset. SSH auth wont be used";
+        logDebug() << "Password was reset. SSH auth wont be used";
     }
 }
 
@@ -129,7 +129,7 @@ void ConfigWindow::updateDefaultSSHPort(const QString& text) {
     if (ok and (port <= MAX_PORT_VALUE)) {
         settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid green");
         settings.setValue("ssh_port", text);
-        qDebug() << "ssh_port changed to:" << text;
+        logDebug() << "ssh_port changed to:" << text;
     } else {
         settingsWindow->defaultSSHPort->setStyleSheet("border: 2px solid red");
     }
@@ -140,7 +140,7 @@ void ConfigWindow::updateNotificationSound(const QString& text) {
     if (QFile::exists(text)) {
         settingsWindow->notificationSound->setStyleSheet("border: 2px solid green");
         settings.setValue("sound_file", text);
-        qDebug() << "sound_file changed to:" << text;
+        logDebug() << "sound_file changed to:" << text;
     } else {
         settingsWindow->notificationSound->setStyleSheet("border: 2px solid red");
     }
@@ -153,7 +153,7 @@ void ConfigWindow::updateScreenshotDir(const QString& text) {
     if (QDir(destText).exists()) {
         settingsWindow->screenshotDir->setStyleSheet("border: 2px solid green");
         settings.setValue("source_dir", text);
-        qDebug() << "source_dir changed to:" << text;
+        logDebug() << "source_dir changed to:" << text;
     } else {
         settingsWindow->screenshotDir->setStyleSheet("border: 2px solid red");
     }
@@ -166,7 +166,7 @@ void ConfigWindow::updateDestinationRemoteDir(const QString& text) {
     if (QDir(destText).exists()) {
         settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid green");
         settings.setValue("destination_dir", text);
-        qDebug() << "destination_dir changed to:" << text;
+        logDebug() << "destination_dir changed to:" << text;
     } else {
         settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid red");
     }
@@ -178,7 +178,7 @@ void ConfigWindow::updateUrlPrefix(const QString& text) {
     if (text != settings.value("remote_path").toString()) {
         settingsWindow->urlPrefix->setStyleSheet("border: 2px solid green");
         settings.setValue("remote_path", text);
-        qDebug() << "remote_path changed to:" << text;
+        logDebug() << "remote_path changed to:" << text;
     }
 }
 
@@ -191,20 +191,20 @@ void ConfigWindow::updateAllowedFileTypes() {
             text = ALLOWED_FILE_TYPES;
         }
         settings.setValue("allowed_file_types", text);
-        qDebug() << "allowed_file_types changed to:" << text;
+        logDebug() << "allowed_file_types changed to:" << text;
     }
 }
 
 
 void ConfigWindow::closeEvent(QCloseEvent *event) {
-    qDebug() << "Got close window event";
+    logDebug() << "Got close window event";
     this->hide();
     event->ignore();
 }
 
 
 void ConfigWindow::keyPressEvent(QKeyEvent *event) {
-    qDebug() << "Got key event";
+    logDebug() << "Got key event";
     if (event->key() == Qt::Key_Escape) {
         this->hide();
         event->ignore();

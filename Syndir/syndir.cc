@@ -10,7 +10,7 @@
 
 
 void usage() {
-    qDebug() << "Usage:" << endl
+    logDebug() << "Usage:" << endl
              << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
 }
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
     cout << "Syndir v" << APP_VERSION << " - " << COPYRIGHT << endl << endl;
 
     for (int i = 0; i < remotes.length(); i++) {
-        qDebug() << "Creating thread for remote:" << remotes.at(i);
+        logDebug() << "Creating thread for remote:" << remotes.at(i);
         workers << new WorkerThread(sourceDir, remotes.at(i));
         workers.at(i)->start();
     }
