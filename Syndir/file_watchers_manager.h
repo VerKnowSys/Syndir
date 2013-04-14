@@ -36,6 +36,7 @@ class FileWatchersManager: public QFileSystemWatcher {
         void copyFilesToRemoteHost(const QStringList& fileList, bool hashFile = false);
         QStringList removeFromList(QStringList& list, const QStringList& toDelete);
         void executeRemoteCommand(const QString& command);
+        bool sendFileToRemote(PTssh* connection, const QString& file, const QString& destinationFile);
         void loadSettings(); /* load app settings */
 
 

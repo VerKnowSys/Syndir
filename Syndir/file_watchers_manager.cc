@@ -326,6 +326,98 @@ void FileWatchersManager::disconnectSSHSession() {
 }
 
 
+bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& file, const QString& destinationFile) {
+
+    FILE *pFileHandle = NULL;
+    pFileHandle = fopen(file.toUtf8(), "rb");
+    if (not pFileHandle) {
+
+        logDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
+        return false;
+
+    } else {
+        /* create missing directories in remote path */
+        auto finalPath = remotePath.toUtf8();
+        QString fileDirName = QFileInfo(file).absolutePath();
+        QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
+
+        executeRemoteCommand("/bin/mkdir -p " + finalPath);
+        if (not preDirs.isEmpty()) { /* sub dirs in path */
+            auto elems = preDirs.toString().split("/");
+            Q_FOREACH(auto elem, elems) {
+                finalPath += "/" + elem;
+                if (not elem.isEmpty())
+                    executeRemoteCommand("/bin/mkdir -p " + finalPath);
+            }
+        }
+
+        /* Get the file info and use it to create remote copy of that file */
+        uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
+        struct stat fileInfo;
+        stat(file.toUtf8(), &fileInfo);
+
+        int result = ptssh_scpSendInit(connection, cNum, optimalSize, destinationFile.toUtf8(), fileInfo.st_size);
+        if (result == PTSSH_SUCCESS) {
+            uint32
+                fileSize = (uint32)fileInfo.st_size;
+
+            /* If you want to be nice to the library, you can ask for the optimal data
+             * size that you can send on a channel. If you then write to the channel
+             * and keep your channel writes at this size, this will be the most efficient.
+             * Otherwise if a packet is too big, the underlying library will split it, which
+             * will incurr an overhead for allocating memory for a few smaller packets.
+             * Sending larger or smaller packets doesn't hurt anything, but may not be as fast
+             * and will likely use more CPU power. */
+            ptssh_getOptimalDataSize(connection, cNum, optimalSize);
+            char *pBuf = new char[optimalSize];
+            if (pBuf) {
+                bool bKeepGoing = true;
+                int32 bytesRead = 1;
+
+                logDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
+                while ( bytesRead > 0) {
+                    bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
+
+                    /* Writing to a channel is normally EXTREMELY quick. Underneath
+                     * it all, the pointer to the buffer is wrapped up in a SSH
+                     * BinaryPacket and then queued for sending. If there isn't room
+                     * in the queue, this function will then block until room is available
+                     * or until an error occurs... like the remote end disconnects
+                     * unexpectedly. The queue size can be increased if needed
+                     * in PTsshConfig.h. Default is about 4MB. This works really well for
+                     * gigabit networks while keeping memory usage down. */
+                    if (bytesRead > 0) {
+                        result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
+                        if ( result != PTSSH_SUCCESS) {
+                            logDebug() << "Failed to write channel data. Error:" << result;
+                            delete pBuf;
+                            return false;
+                        } else {
+                            totalBytesQueued += bytesRead;
+                        }
+                    }
+                }
+                fclose(pFileHandle);
+                logDebug() << "Done queueing" << fileSize/1024 << "KiB for sending";
+
+                /* do cleanup */
+                result = ptssh_scpSendFinish(connection, cNum);
+                if ( result == PTSSH_SUCCESS) {
+                    logDebug() << "File synchronized successfully:" << file << "to remote:" << destinationFile;
+                    delete pBuf;
+                    return true;
+                } else {
+                    logDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath << "Error:" << result;
+                    delete pBuf;
+                    return false;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
 void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, bool hashFile) {
 
     int result;
@@ -335,6 +427,14 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
     connectToRemoteHost();
 
     Q_FOREACH(QString file, fileList) {
+
+        QString fileDirName = QFileInfo(file).absolutePath();
+        QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
+        // QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
+        QString chopFileName = prePath.toUtf8();
+        QString fullDestPath = remotePath + chopFileName; /* standard file name without rename */
+        /* escape possible spaces in file name */
+        fullDestPath = fullDestPath.replace(" ", "\\ ");
 
         #ifdef GUI_ENABLED
             logDebug() << "GUI enabled.";
@@ -351,21 +451,11 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
             auto clipboard = QApplication::clipboard();
             QSettings settings;
             clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + "." + extension);
-        #endif
 
-        QString fileDirName = QFileInfo(file).absolutePath();
-        QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
-        QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
-        QString chopFileName = prePath.toUtf8();
-        QString fullDestPath = remotePath + chopFileName; /* standard file name without rename */
-        #ifdef GUI_ENABLED
             if (hashFile) { /* if using sha1 replacement in name */
                 fullDestPath = remotePath + "/" + resultSHA1 + "." + extension;
             }
         #endif
-
-        /* escape possible spaces in file name */
-        fullDestPath = fullDestPath.replace(" ", "\\ ");
 
         /* deal with deletion of local file with remote sync */
         if (not QFile::exists(file)) {
@@ -379,100 +469,22 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
 
         } else {
 
-            FILE *pFileHandle = NULL;
-            struct stat fileInfo;
-            uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
+            logDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
 
-            pFileHandle = fopen(file.toUtf8(), "rb");
-            if (not pFileHandle) {
+            while (not sendFileToRemote(connection, file, fullDestPath)); /* send file until success, never give up */
 
-                logDebug() << "Can't open local file:" << file << "Permissions problem? Cannot continue";
-
-            } else {
-                logDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
-                /* create missing directories in remote path */
-                auto finalPath = remotePath.toUtf8();
-                executeRemoteCommand("/bin/mkdir -p " + finalPath);
-                if (not preDirs.isEmpty()) { /* sub dirs in path */
-                    auto elems = preDirs.toString().split("/");
-                    for (int i = 0; i < elems.length(); i++) {
-                        auto elem = elems.at(i);
-                        finalPath += "/" + elem;
-                        if (not elem.isEmpty())
-                            executeRemoteCommand("/bin/mkdir -p " + finalPath);
-                    }
-                }
-
-                /* Get the file info and use it to create remote copy of that file */
-                stat(file.toUtf8(), &fileInfo);
-                result = ptssh_scpSendInit(connection, cNum, optimalSize, fullDestPath.toUtf8(), fileInfo.st_size);
-                if (result == PTSSH_SUCCESS) {
-                    uint32
-                        fileSize = (uint32)fileInfo.st_size;
-
-                    /* If you want to be nice to the library, you can ask for the optimal data
-                     * size that you can send on a channel. If you then write to the channel
-                     * and keep your channel writes at this size, this will be the most efficient.
-                     * Otherwise if a packet is too big, the underlying library will split it, which
-                     * will incurr an overhead for allocating memory for a few smaller packets.
-                     * Sending larger or smaller packets doesn't hurt anything, but may not be as fast
-                     * and will likely use more CPU power. */
-                    ptssh_getOptimalDataSize(connection, cNum, optimalSize);
-                    char *pBuf = new char[optimalSize];
-                    if (pBuf) {
-                        bool bKeepGoing = true;
-                        int32 bytesRead = 1;
-
-                        logDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
-                        while ( bytesRead > 0) {
-                            bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
-
-                            /* Writing to a channel is normally EXTREMELY quick. Underneath
-                             * it all, the pointer to the buffer is wrapped up in a SSH
-                             * BinaryPacket and then queued for sending. If there isn't room
-                             * in the queue, this function will then block until room is available
-                             * or until an error occurs... like the remote end disconnects
-                             * unexpectedly. The queue size can be increased if needed
-                             * in PTsshConfig.h. Default is about 4MB. This works really well for
-                             * gigabit networks while keeping memory usage down. */
-                            if (bytesRead > 0) {
-                                result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
-                                if ( result != PTSSH_SUCCESS) {
-                                    logDebug() << "Failed to write channel data. Error:" << result;
-                                    break;
-                                } else {
-                                    totalBytesQueued += bytesRead;
-                                }
-                            }
-                        }
-                        fclose(pFileHandle);
-                        logDebug() << "Done queueing" << fileSize/1024 << "KiB for sending";
-
-                        /* do cleanup */
-                        result = ptssh_scpSendFinish(connection, cNum);
-                        if ( result == PTSSH_SUCCESS) {
-                            logDebug() << "File synchronized successfully:" << file << "to remote:" << fullDestPath;
-                            if (hashFile) {
-                                #ifdef GUI_ENABLED
-                                    QSettings settings;
-                                    QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
-                                    emit setWork(OK);
-                                    notify("Screenshot uploaded. Link copied to clipboard");
-                                #endif
-                            }
-                        } else {
-                            logDebug() << "File synchronization FAILURE!" << file << "to" << fullDestinationSSHPath << "Error:" << result;
-                        }
-
-                        delete pBuf;
-                        pBuf = NULL;
-                    }
-                }
+            if (hashFile) {
+                #ifdef GUI_ENABLED
+                    QSettings settings;
+                    QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+                    emit setWork(OK);
+                    notify("Screenshot uploaded. Link copied to clipboard");
+                #endif
             }
         }
     }
-    logDebug() << "Total files and dirs on watch:" << files.size();
     logDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
+    logDebug() << "Total files and dirs on watch:" << files.size();
 
     disconnectSSHSession();
 
