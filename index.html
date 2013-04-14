@@ -50,7 +50,7 @@
 </ul><h2>Syndir features:</h2>
 
 <ul>
-<li>Synchronize your files with 0 setup. Works with SFTP. Requires SSH public key authentication.</li>
+<li>Synchronize your files fast. Works with SCP.</li>
 <li>Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.</li>
 <li>Any amount of remote hosts supported. Just give them as additional params.</li>
 <li>Automatic creation of remote non existent remote directories.</li>
@@ -62,7 +62,7 @@
 <ul>
 <li>Uses Syndir core. Uses SSH public key authentication.</li>
 <li>Simple, small tray application for OSX and Linux.</li>
-<li>Blazing fast. It reuses and maintains single connection to SFTP host.</li>
+<li>Blazing fast. It reuses and maintains single connection to SCP host.</li>
 <li>Works under huge IO/Network loads.</li>
 <li>Security through obscurity. Each screenshot is uploaded first, then renamed to SHA1 of it's name.</li>
 <li>After each upload automatically copies destination link to system clipboard.</li>
@@ -116,18 +116,24 @@
 <h2>OSX binary builds download:</h2>
 
 <ul>
-<li><a href="http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.13.1.tar.gz">Synshot 0.13.1</a></li>
-<li><a href="http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.14.1.tar.gz">Synshot 0.14.1</a></li>
-<li><a href="http://dmilith.verknowsys.com/Public/Synshot-releases/Synshot-0.15.1.tar.gz">Synshot 0.15.1</a></li>
+<li><a href="http://dmilith.verknowsys.com/Public/Synshot-releases">Synshot binary builds</a></li>
+<li>Current stable version: <a href="http://dmilith.verknowsys.com/Public/Synshot-releases">Synshot 0.15.x</a>
+</li>
 </ul><h2>KNOWN BUGS:</h2>
 
 <ul>
-<li>Rare bug in endless loop in case of very long, old network sessions. (machine sleep for night). Current workaround is to restart an app.</li>
 <li>Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.</li>
+<li>Currently no SSH keys are working. If you need SSH keys to work, use 0.15.x version. For now only password auth is supported (it requires some more work)</li>
 </ul><h2>License:</h2>
 
 <ul>
 <li>Released under the <a href="http://opensource.org/licenses/BSD-2-Clause">BSD</a> license.</li>
+</ul><h2>Used 3rd party software and licenses info:</h2>
+
+<ul>
+<li>PTssh implementation by Paul Thomas (BSD licensed)</li>
+<li>CuteLogger MT logger implementation by Boris Moiseev (LGPL licensed)</li>
+<li>QT4 4.8.x implementation (LGPL licensed)</li>
 </ul>
       </section>
       <footer>
