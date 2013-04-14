@@ -9,6 +9,11 @@
 #define __SYNDIR_H__
 
 
+/* ignore certain kinds of warnings: */
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+
+
 /* all system wide includes required: */
 #include <QtCore>
 #include <sys/stat.h>
