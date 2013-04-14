@@ -357,7 +357,12 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
         QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
         QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
         QString chopFileName = prePath.toUtf8();
-        QString fullDestPath = remotePath + chopFileName;
+        QString fullDestPath = remotePath + chopFileName; /* standard file name without rename */
+        #ifdef GUI_ENABLED
+            if (hashFile) { /* if using sha1 replacement in name */
+                fullDestPath = remotePath + "/" + resultSHA1 + "." + extension;
+            }
+        #endif
 
         /* escape possible spaces in file name */
         fullDestPath = fullDestPath.replace(" ", "\\ ");
@@ -446,14 +451,9 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
                         /* do cleanup */
                         result = ptssh_scpSendFinish(connection, cNum);
                         if ( result == PTSSH_SUCCESS) {
-                            logDebug() << "File synchronized successfully:" << file << "to" << fullDestinationSSHPath;
-                            /* rename remote file to hash name */
+                            logDebug() << "File synchronized successfully:" << file << "to remote:" << fullDestPath;
                             if (hashFile) {
                                 #ifdef GUI_ENABLED
-                                    QString destName = (remotePath + "/" + resultSHA1 + "." + extension).toUtf8();
-                                    logDebug() << "Renaming remote file" << file << "to" << destName;
-                                    executeRemoteCommand("/bin/mv " + fullDestPath.toUtf8() + " " + destName.toUtf8());
-
                                     QSettings settings;
                                     QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
                                     emit setWork(OK);

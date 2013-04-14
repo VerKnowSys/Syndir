@@ -25,7 +25,7 @@
 * Simple, small tray application for OSX and Linux.
 * Blazing fast. It reuses and maintains single connection to SCP host.
 * Works under huge IO/Network loads.
-* Security through obscurity. Each screenshot is uploaded first, then renamed to SHA1 of it's name.
+* Security through obscurity. Each screenshot file is renamed on the fly to SHA1 of it's name.
 * After each upload automatically copies destination link to system clipboard.
 * Tested by a power user. Not kids from marketing toy store.
 * Supports Growl notifications under OSX.
