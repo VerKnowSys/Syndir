@@ -11,7 +11,7 @@
 
 
 ## Syndir features:
-* Synchronize your files with 0 setup. Works with SCP. Requires SSH public key authentication.
+* Synchronize your files fast. Works with SCP.
 * Live file monitoring. Syndir by default runs in foreground as blocking application, watching directories recursively. On each file change it will automatically upload changed file to remote host in destination folder.
 * Any amount of remote hosts supported. Just give them as additional params.
 * Automatic creation of remote non existent remote directories.
@@ -82,6 +82,7 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 ## KNOWN BUGS:
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
+* Currently no SSH keys are working. For now only password auth is supported (it requires some more work)
 
 
 ## License:
