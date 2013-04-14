@@ -4,38 +4,18 @@
 #   Daniel (dmilith) Dettlaff
 #
 
-SYSTEM_NAME        = $$system(uname)
-! mac {
-  CONFIG          += link_pkgconfig
-  PKGCONFIG        = QtCore
-}
-DEFINES           += _DEBUG
-QMAKE_CXX          = clang++
-QMAKE_CC           = clang
-QT                -= gui
 
-HEADERS           += file_watchers_manager.h \
-                     worker_thread.h \
-                     syndir.h
-
-SOURCES           += worker_thread.cc \
-                     file_watchers_manager.cc \
-                     syndir.cc
+include(../Common.pro)
 
 
-TARGET             = ../Syndir
+HEADERS += file_watchers_manager.h \
+           worker_thread.h \
+           syndir.h
 
-mac {
-  INCLUDEPATH     += PTssh/
-  LIBS            += -lz -lcrypto ../libPTssh.a
-} else {
-  LIBS            += -lz -lcrypto ../libPTssh.a
-}
+SOURCES += worker_thread.cc \
+           file_watchers_manager.cc \
+           syndir.cc
 
-contains(SYSTEM_NAME, Linux): {
-  QMAKE_CXXFLAGS  += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -DDEBUG=true
-} else {
-  QMAKE_CXXFLAGS  += -std=c++11 -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -w
-  # -DDEBUG=true
-}
-# QMAKE_LDFLAGS     +=
+
+TARGET = ../Syndir
+LIBS += -lz -lcrypto ../libPTssh.a ../liblogger.a
