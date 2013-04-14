@@ -294,7 +294,7 @@ QStringList FileWatchersManager::removeFromList(QStringList& list, const QString
 
 
 void FileWatchersManager::executeRemoteCommand(const QString& command) {
-    if (connection->isAuthenticated()) {
+    if (connection) {
         logDebug() << "Executing remote command:" << command;
         uint32 channel = PTSSH_BAD_CHANNEL_NUMBER;
         int result = connection->createChannel_session(channel);
