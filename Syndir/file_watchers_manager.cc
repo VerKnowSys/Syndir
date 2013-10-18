@@ -221,7 +221,7 @@ void FileWatchersManager::connectToRemoteHost() {
             connectToRemoteHost();
             return;
         } else {
-            QString notf = "Connected as: " + userName + "@" + hostName;
+            QString notf = "ScreenShot link copied to clipboard."; // as: " + userName + "@" + hostName;
             #ifdef GUI_ENABLED
                 notify(notf);
                 emit setWork(OK);
@@ -478,7 +478,7 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
                     QSettings settings;
                     QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
                     emit setWork(OK);
-                    notify("Screenshot uploaded. Link copied to clipboard");
+                    // notify("Screenshot uploaded.");
                 #endif
             }
         }
