@@ -161,15 +161,15 @@ void ConfigWindow::updateScreenshotDir(const QString& text) {
 
 
 void ConfigWindow::updateDestinationRemoteDir(const QString& text) {
-    QString destText = text;
-    destText = destText.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir, NOTE: it wont use HOME dir of remote system but local system home dir. Use wisely. */
-    if (QDir(destText).exists()) {
-        settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid green");
-        settings.setValue("destination_dir", text);
-        logDebug() << "destination_dir changed to:" << text;
-    } else {
-        settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid red");
-    }
+    // QString destText = text;
+    // destText = destText.replace(QChar('~'), getenv("HOME")); /* replace ~ special sign to user HOME dir, NOTE: it wont use HOME dir of remote system but local system home dir. Use wisely. */
+    // if (QDir(destText).exists()) {
+    settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid green");
+    settings.setValue("destination_dir", text);
+    logDebug() << "destination_dir changed to:" << text;
+    // } else {
+    //     settingsWindow->destinationRemoteDir->setStyleSheet("border: 2px solid red");
+    // }
 }
 
 
