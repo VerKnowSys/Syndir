@@ -22,7 +22,7 @@
 
 ## Synshot features:
 * Uses Syndir core. Uses SSH public key authentication.
-* Simple, small tray application for OSX and Linux.
+* Simple, small tray application for OSX (and probably Linux/FreeBSD too).
 * Blazing fast. It reuses and maintains single connection to SCP host.
 * Works under huge IO/Network loads.
 * Security through obscurity. Each screenshot file is renamed on the fly to SHA1 of it's name.

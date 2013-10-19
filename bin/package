@@ -1,0 +1,26 @@
+#!/bin/sh
+
+make distclean
+bin/build
+
+if [ ! -x "/usr/bin/sofin" ]; then
+    printf "Using Sofin for software installation is a preffered method for installing dependencies of Syndir. I don't support that case. Use on your own risk.\n"
+    # exit 1
+fi
+
+printf "Creating software bundle\n"
+macdeployqt Synshot.app -dmg
+macdeployqt Syndir.app -dmg
+printf "Doing merge into Synshot"
+cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
+rm -rf ./Syndir.app
+printf "Creating archive\n"
+rm -f ./Synshot-${VERSION}.tar.gz
+VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
+tar cjf ./Synshot-${VERSION}.tar.gz ./Synshot.app
+
+printf "\n"
+exit 0
+
+
+
