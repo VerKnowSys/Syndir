@@ -19,12 +19,8 @@ if [ "$(uname)" = "Darwin" ]; then
     SPEC_TYPE="-spec macx-llvm" #darwin-g++"
 fi
 
-if [ "${PACKAGE}" = "YES" ]; then
-    printf "Preparing package. Performing clean build\n"
-    make distclean
-fi
 qmake ${SPEC_TYPE} Project.pro
-${MAKE} CC=clang CXX=clang++
+${MAKE} -j8 CC=clang CXX=clang++
 
 printf "\n"
 exit 0
