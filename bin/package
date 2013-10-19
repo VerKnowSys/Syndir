@@ -1,6 +1,6 @@
 #!/bin/sh
 
-make distclean
+bin/clean
 bin/build
 
 if [ ! -x "/usr/bin/sofin" ]; then
