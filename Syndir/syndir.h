@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.18.4"
+#define APP_VERSION "0.18.5"
 
 
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
