@@ -21,9 +21,4 @@ fi
 
 qmake ${SPEC_TYPE} Project.pro
 ${MAKE} -j8 CC=clang CXX=clang++
-
-printf "\n"
-exit 0
-
-
-
+exit $?
