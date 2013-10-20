@@ -147,9 +147,9 @@ void FileWatchersManager::connectToRemoteHost() {
         connection->isAuthSupported(PTsshAuth_Password, passSupport);
         logDebug() << "Password support on server side:" << passSupport;
 
-        bool pubKeySupport = false;
-        connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
-        logDebug() << "Public key support on server side:" << pubKeySupport;
+        // bool pubKeySupport = false;
+        // connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
+        // logDebug() << "Public key support on server side:" << pubKeySupport;
 
         // // using rsa keys to perform auth
         // auto pubkey = QString(keysLocation + "/id_rsa.pub");
