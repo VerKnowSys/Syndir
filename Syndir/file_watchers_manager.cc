@@ -321,7 +321,6 @@ void FileWatchersManager::disconnectSSHSession() {
             sleep(1);
         }
         ptssh_destroy(&connection); /* destroys connection threads */
-        // delete connection;
     }
 }
 
@@ -399,6 +398,7 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
                         result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
                         if ( result != PTSSH_SUCCESS) {
                             logDebug() << "Failed to write channel data. Error:" << result;
+                            fclose(pFileHandle);
                             delete pBuf;
                             return false;
                         } else {
