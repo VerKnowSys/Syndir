@@ -355,12 +355,14 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
         uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
 
         struct stat fileInfo, nextFileInfo;
-        do { /* XXX: FIXME: OPTIMIZE: a loop to detect if file is written or not yet */
-            stat(file.toUtf8(), &fileInfo);
-            usleep(FILE_SYNC_TIMEOUT); // pause for a second (IO wait, cause we have no idea how big the file is)
-            stat(file.toUtf8(), &nextFileInfo);
+        stat(file.toUtf8(), &fileInfo);
+        usleep(FILE_SYNC_TIMEOUT*2); // XXX: pause for a second (IO wait, cause we have no idea how big the file is)
+        stat(file.toUtf8(), &nextFileInfo);
+
+        if (fileInfo.st_size != nextFileInfo.st_size) {
             logTrace() << "Waiting for file to be synced:" << file;
-        } while (fileInfo.st_size != nextFileInfo.st_size);
+            return sendFileToRemote(connection, file, destinationFile);
+        }
 
         int result = ptssh_scpSendInit(connection, cNum, optimalSize, destinationFile.toUtf8(), fileInfo.st_size);
         if (result == PTSSH_SUCCESS) {
