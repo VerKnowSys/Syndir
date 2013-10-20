@@ -65,7 +65,7 @@ typedef unsigned long long	uint64;
 * If you do not need PTssh's logging/debugging messages, you can comment this line out.
 * This will keep from building PTssh with debugging/logging strings and will drastically
 * reduce the size of the code */
-#define PTSSH_ENABLE_LOGGING
+//#define PTSSH_ENABLE_LOGGING
 
 #ifdef PTSSH_ENABLE_LOGGING
 #  define PTSSH_SHOW_CONNECTION_DETAILS //Prints out debugging info about the connection to remote SSH
@@ -209,7 +209,7 @@ typedef unsigned long long	uint64;
 /**< Specifies the maximum number of channels that a single PSSH object can
 manage. For efficiency and low memory usage, don't set this too high. The
 max number of channels the SSH spec allows is equal to where a uint32 tops out */
-#define PTSSH_MAX_CHANNELS			128
+#define PTSSH_MAX_CHANNELS			16
 
 #define PTSSH_MAJOR_VERSION	0
 #define PTSSH_MINOR_VERSION	3
