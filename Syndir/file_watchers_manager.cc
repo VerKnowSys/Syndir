@@ -360,6 +360,7 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
         stat(file.toUtf8(), &nextFileInfo);
 
         if (fileInfo.st_size != nextFileInfo.st_size) {
+            fclose(pFileHandle);
             logTrace() << "Waiting for file to be synced:" << file;
             return sendFileToRemote(connection, file, destinationFile);
         }
