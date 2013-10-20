@@ -21,22 +21,21 @@
 
 
 ## Synshot features:
-* Uses Syndir core. Uses SSH public key authentication.
-* Simple, small tray application for OSX (and probably Linux/FreeBSD too).
-* Blazing fast. It reuses and maintains single connection to SCP host.
-* Works under huge IO/Network loads.
-* Security through obscurity. Each screenshot file is renamed on the fly to SHA1 of it's name.
-* After each upload automatically copies destination link to system clipboard.
+* Uses Syndir core. (Currently no SSH public key authentication feature available).
+* Simple, small tray application (< 25MiB RSS) for OSX (and probably Linux/FreeBSD too, but I support only OSX).
+* Works under huge IO/Network loads on slow networks.
+* It's secure by default. Each file is renamed on the fly to SHA1 of it's name. Try to guess that.
+* After each upload it automatically copies destination link to system clipboard, while uploading file in background.
+* Supports Growl notifications.
+* Supports any file synchronization (HD movies upload? why not?). Just put sync folder in your Dock. Then just drop any file there, and Synshot will do the rest. Easy.
 * Tested by a power user. Not kids from marketing toy store.
-* Supports Growl notifications under OSX.
-* Supports Sound notifications.
 * Requires a simple Nginx config to bind remote address to your server. I use:
 
 ```nginx
 server {
    listen s.verknowsys.com;
    server_name s.verknowsys.com;
-   root /home/dmilith/Web/Public/Sshots/;
+   root /home/dmilith/Web/Public/SyncFiles/;
    autoindex off;
 }
 ```
@@ -44,22 +43,20 @@ server {
 
 ## Requirements:
 * [Qt4 4.8.x](http://qt-project.org/downloads) (only QtCore part of framework for Syndir, QtGui for Synshot)
-* [LibSSH2 1.4.x](http://www.libssh2.org)
 
 
 ## Preffered/Optional requirements.:
-* [Sofin 0.46.x](http://verknowsys.github.com/sofin/) - Because it has predefined "qt" (with minimal build of Qt4 for servers) and "libssh2" definitions. Sofin is used by default in Syndir's installation script: [make_all.sh](https://github.com/VerKnowSys/Syndir/blob/master/make_all.sh).
-* Qt4 GUI libraries to build Synshot (screenshot sync utility)
+* [Sofin 0.46.x](http://verknowsys.github.com/sofin/)
+* Qt4 GUI libraries to build Synshot (for GUI to file sync utility)
 * [Growl](http://growl.info) - When available, will be used for notifications in GUI app. If unavailable, you'll get only sound notifications.
 
 
 ## Building:
-```sh
-./make_all.sh # standard build.
-```
-```sh
-PACKAGE=YES ./make_all.sh # will also create standalone Synshot.app with all requirements bundled.
-```
+`bin/build`
+
+
+## Packaging:
+`bin/package`
 
 
 ## Examples:
@@ -77,12 +74,14 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 ## OSX binary builds download:
 * [Synshot binary builds](http://dmilith.verknowsys.com/Public/Synshot-releases)
-* Current version: [Synshot 0.15.x](http://dmilith.verknowsys.com/Public/Synshot-releases)
+* Current version: [Synshot 0.18.x](http://dmilith.verknowsys.com/Public/Synshot-releases)
 
 
-## KNOWN BUGS:
+## KNOWN ISSUES/ DRAWBACKS:
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
 * Currently no SSH keys are working. For now only password auth is supported (it requires some more work)
+* Synshot might be CPU heavy while uploading large files. This might be an issue for mobile machines using battery power. It's not that big when uploading small files (e.g. screenshot). It's caused very efficient sending algorithm used in PtSSH implementation.
+* Currently (this will change in future) SSH passwords are written PLAIN TEXT in configuration files of Syndir and Synshot. (respectively: ~/Library/Preferences/com.verknowsys.Syndir.plist and ~/Library/Preferences/com.verknowsys.Synshot.plist). It's recommended to use some special, unpriviledged user for file sync.
 
 
 ## License:
