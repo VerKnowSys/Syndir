@@ -353,8 +353,14 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
 
         /* Get the file info and use it to create remote copy of that file */
         uint32 cNum = -1, optimalSize = 0, totalBytesQueued = 0;
-        struct stat fileInfo;
-        stat(file.toUtf8(), &fileInfo);
+
+        struct stat fileInfo, nextFileInfo;
+        do { /* XXX: FIXME: OPTIMIZE: a loop to detect if file is written or not yet */
+            stat(file.toUtf8(), &fileInfo);
+            usleep(FILE_SYNC_TIMEOUT); // pause for a second (IO wait, cause we have no idea how big the file is)
+            stat(file.toUtf8(), &nextFileInfo);
+            logTrace() << "Waiting for file to be synced:" << file;
+        } while (fileInfo.st_size != nextFileInfo.st_size);
 
         int result = ptssh_scpSendInit(connection, cNum, optimalSize, destinationFile.toUtf8(), fileInfo.st_size);
         if (result == PTSSH_SUCCESS) {
@@ -374,7 +380,7 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
                 bool bKeepGoing = true;
                 int32 bytesRead = 1;
 
-                logDebug() << "Queueing" << fileSize/1024 << "KiB for sending";
+                logDebug() << "Queueing" << fileSize/1024 << "KiB (" << fileSize << "bytes) for sending";
                 while ( bytesRead > 0) {
                     bytesRead = fread(pBuf, 1, optimalSize, pFileHandle);
 

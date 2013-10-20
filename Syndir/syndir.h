@@ -30,10 +30,11 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.18.5"
+#define APP_VERSION "0.18.6"
 
 
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
+#define FILE_SYNC_TIMEOUT 1000000 /* 1 second in us */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500
 #define SSH_PORT 22
 #define SSH_PASSWORD "NO-SSH-PASSWORD-SET"
