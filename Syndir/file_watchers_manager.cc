@@ -324,6 +324,7 @@ void FileWatchersManager::disconnectSSHSession() {
             sleep(1);
         }
         ptssh_destroy(&connection); /* destroys connection threads */
+        connection = NULL;
     }
 }
 
