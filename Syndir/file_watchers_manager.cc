@@ -145,7 +145,10 @@ void FileWatchersManager::connectToRemoteHost() {
 
         bool passSupport = false;
         connection->isAuthSupported(PTsshAuth_Password, passSupport);
-        logDebug() << "Password support on server side:" << passSupport;
+        if (not passSupport) {
+            logError() << "Password auth unsupportted for server:" << hostName;
+        } else
+            logDebug() << "Password support enabled on server side:" << passSupport;
 
         // bool pubKeySupport = false;
         // connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
