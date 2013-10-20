@@ -15,9 +15,9 @@ printf "Doing merge into Synshot"
 cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
 rm -rf ./Syndir.app
 printf "Creating archive\n"
-rm -f ./Synshot-${VERSION}.tar.gz
+rm -f ./Synshot-${VERSION}.zip
 VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
-tar cjf ./Synshot-${VERSION}.tar.gz ./Synshot.app
+zip -r -y Synshot-${VERSION}.zip Synshot.app
 
 printf "\n"
 exit 0

@@ -6,6 +6,6 @@ syndir
 /Synshot.app/
 /Synshot/ui_Synshot.h
 /Synshot/qrc_Synshot.cpp
-/*.tar.gz
+/*.zip
 *.a
 /Syndir.app/
