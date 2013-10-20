@@ -116,7 +116,7 @@ void FileWatchersManager::connectToRemoteHost() {
         connection = ptssh_create();
 
         //Set the logging level
-        connection->setLogLevel(LL_debug1);
+        connection->setLogLevel(LL_info); // NOTE: DEBUG: LL_debug1
         if (connection and
             connection->init(userName.toUtf8().constData(), hostName.toUtf8().constData(), sshPort) != PTSSH_SUCCESS ) {
 
