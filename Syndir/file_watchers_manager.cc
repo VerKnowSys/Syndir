@@ -485,9 +485,10 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
             if (hashFile) {
                 #ifdef GUI_ENABLED
                     QSettings settings;
-                    QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+                    // NOTE: WTF?! this is causing SERIOUS memory leaks when using JackD sound system.
+                    // QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
+                    notify("File transfer finished.");
                     emit setWork(OK);
-                    // notify("Screenshot uploaded.");
                 #endif
             }
         }
