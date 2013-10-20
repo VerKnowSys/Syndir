@@ -1,0 +1,5 @@
+#!/bin/sh
+
+bin/build
+Synshot.app/Contents/MacOS/Synshot
+exit $?

@@ -1,3 +1,4 @@
 #!/bin/sh
 
 make distclean
+rm -f *.a
