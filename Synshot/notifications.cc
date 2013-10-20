@@ -20,7 +20,8 @@ void notify(const QString& notification) {
     process->write(notificationContent.toUtf8());
     process->closeWriteChannel();
     process->waitForFinished();
-    delete process;
+    process->terminate();
+    process->deleteLater();
     logDebug() << "Launched notification:" << notification;
 }
 
