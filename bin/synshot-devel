@@ -1,5 +1,9 @@
 #!/bin/sh
 
 bin/build
-Synshot.app/Contents/MacOS/Synshot
+if [ "$1" = "lldb" ]; then
+    lldb Synshot.app/Contents/MacOS/Synshot
+else
+    Synshot.app/Contents/MacOS/Synshot
+fi
 exit $?
