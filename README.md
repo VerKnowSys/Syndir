@@ -22,7 +22,7 @@
 
 ## Synshot features:
 * Uses Syndir core.
-* Has Putty (*.ppk) SSH keys support. Just generate `id_rsa.ppk` from your `id_rsa` file (by default located in $HOME/.ssh). On OSX, You may use [Puttygen-osx](https://github.com/eldridgegreg/puttygen-osx) to generate the ppk key. Please note, that only unecrypted and passless keys are supported (for now).
+* Has Putty (*.ppk) SSH keys support. Just generate `id_rsa.ppk` from your `id_rsa` file (by default located in $HOME/.ssh). Use instructions below to generate PPK key from OpenSSH key if You already have one. Please note, that only unecrypted and passless keys are supported (for now).
 
 ```bash
 # to quickly create your PPK key from existing OpenSSH key do this:
@@ -35,7 +35,7 @@ puttygen id_rsa -o id_rsa.ppk
 * Simple, small tray application (< 25MiB RSS) for OSX (and probably Linux/FreeBSD too, but I support only OSX).
 * Works under huge IO/Network loads on slow networks.
 * It's secure by default. Each file is renamed on the fly to SHA1 of it's name. Try to guess that.
-* After each upload it automatically copies destination link to system clipboard, while uploading file in background.
+* After each upload, it automatically copies destination link to system clipboard, while uploading file in background.
 * Supports Growl notifications.
 * Supports any file synchronization (HD movies upload? why not?). Just put sync folder in your Dock. Then just drop any file there, and Synshot will do the rest. Easy.
 * Tested by a power user. Not kids from marketing toy store.
@@ -56,9 +56,9 @@ server {
 
 
 ## Preffered/Optional requirements.:
-* [Sofin 0.46.x](http://verknowsys.github.com/sofin/)
+* [Sofin 0.51.x](http://verknowsys.github.com/sofin/)
 * Qt4 GUI libraries to build Synshot (for GUI to file sync utility)
-* [Growl](http://growl.info) - When available, will be used for notifications in GUI app. If unavailable, you'll get only sound notifications.
+* [Growl](http://growl.info) - When available, will be used for notifications in GUI app.
 
 
 ## Building:
@@ -69,7 +69,7 @@ server {
 `bin/package`
 
 
-## Examples:
+## Syndir usage examples:
 ```sh
 syndir /Volumes/Projects/MyProjectDir myhost.com:/existing/destination/MyProjectDir
 ```
@@ -82,15 +82,15 @@ syndir /Volumes/Projects/MyProjectDir dmilith@myhost.com:/existing/destination/M
 Will launch Syndir in watch mode, automatically uploading each modified file from MyProjectDir(s) to destination MyProjectDir. It works recursively thoughout directory structure for each given remote location.
 
 
-## OSX binary builds download:
-* [Synshot binary builds](http://dmilith.verknowsys.com/Public/Synshot-releases)
-* Current version: [Synshot 0.20.x](http://dmilith.verknowsys.com/Public/Synshot-releases)
+## OSX 64bit binary builds (for OSX 10.6.x - 10.9.x):
+* [Synshot binary builds site](http://dmilith.verknowsys.com/Public/Synshot-releases)
 
 
 ## KNOWN ISSUES/ DRAWBACKS:
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
 * Currently no SSH keys are working. For now only password auth is supported (it requires some more work)
-* Synshot might be CPU heavy while uploading large files. This might be an issue for mobile machines using battery power. It's not that big when uploading small files (e.g. screenshot). It's caused very efficient sending algorithm used in PtSSH implementation.
+* Synshot might be CPU heavy (single thread) while uploading large files. This might be an issue for mobile machines using battery power. It's not that big when uploading small files (e.g. screenshot). It's caused very efficient sending algorithm used in PtSSH implementation.
+* For now sound notifications are currently disabled by default. It's caused Qt4 memory leakage when using JackD Audio System as primary sound card.
 
 
 ## License:
