@@ -7,3 +7,5 @@
 
 TEMPLATE           = subdirs
 SUBDIRS            = PTssh CuteLogger Syndir Synshot
+CONFIG             += ordered
+Synshot.depends    = Syndir
