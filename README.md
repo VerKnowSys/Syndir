@@ -88,7 +88,6 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 ## KNOWN ISSUES/ DRAWBACKS:
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
-* Currently no SSH keys are working. For now only password auth is supported (it requires some more work)
 * Synshot might be CPU heavy (single thread) while uploading large files. This might be an issue for mobile machines using battery power. It's not that big when uploading small files (e.g. screenshot). It's caused very efficient sending algorithm used in PtSSH implementation.
 * For now sound notifications are currently disabled by default. It's caused Qt4 memory leakage when using JackD Audio System as primary sound card.
 
