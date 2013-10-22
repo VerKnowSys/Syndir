@@ -5,22 +5,28 @@ bin/build
 
 if [ ! -x "/usr/bin/sofin" ]; then
     printf "Using Sofin for software installation is a preffered method for installing dependencies of Syndir. I don't support that case. Use on your own risk.\n"
-    # exit 1
 fi
 
 printf "Creating software bundle\n"
-macdeployqt Synshot.app -dmg
 macdeployqt Syndir.app -dmg
-printf "Doing merge into Synshot"
+macdeployqt Synshot.app -dmg
+printf "Doing merge into Synshot\n"
 cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
-rm -rf ./Syndir.app
+
+printf "Hacking bundle to reduce bloat"
+rm -rf Syndir.app
+mv Synshot.app/Contents/PlugIns/imageformats/libqtiff.dylib ./
+rm -rf Synshot.app/Contents/PlugIns
+mkdir -p Synshot.app/Contents/PlugIns/imageformats
+mv libqtiff.dylib Synshot.app/Contents/PlugIns/imageformats/
+rm -rf Synshot.app/Contents/Resources/empty.lproj
+
+for i in $(find Synshot.app/Contents/MacOS -type f); do
+    strip $i
+done
 printf "Creating archive\n"
-rm -f ./Synshot-${VERSION}.zip
+rm -f Synshot-${VERSION}.zip
 VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
 zip -r -y Synshot-${VERSION}.zip Synshot.app
-
-printf "\n"
-exit 0
-
 
 
