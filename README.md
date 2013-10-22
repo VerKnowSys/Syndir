@@ -23,6 +23,15 @@
 ## Synshot features:
 * Uses Syndir core.
 * Has Putty (*.ppk) SSH keys support. Just generate `id_rsa.ppk` from your `id_rsa` file (by default located in $HOME/.ssh). On OSX, You may use [Puttygen-osx](https://github.com/eldridgegreg/puttygen-osx) to generate the ppk key. Please note, that only unecrypted and passless keys are supported (for now).
+
+```bash
+# to quickly create your PPK key from existing OpenSSH key do this:
+sofin install putty
+cd ~/.ssh
+puttygen id_rsa -o id_rsa.ppk
+# and that's all. Syndir and Synshot will do the rest.
+```
+
 * Simple, small tray application (< 25MiB RSS) for OSX (and probably Linux/FreeBSD too, but I support only OSX).
 * Works under huge IO/Network loads on slow networks.
 * It's secure by default. Each file is renamed on the fly to SHA1 of it's name. Try to guess that.
