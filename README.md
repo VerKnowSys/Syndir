@@ -21,7 +21,8 @@
 
 
 ## Synshot features:
-* Uses Syndir core. (Currently no SSH public key authentication feature available).
+* Uses Syndir core.
+* Has Putty (*.ppk) SSH keys support. Just generate `id_rsa.ppk` from your `id_rsa` file (by default located in $HOME/.ssh). On OSX, You may use [Puttygen-osx](https://github.com/eldridgegreg/puttygen-osx) to generate the ppk key. Please note, that only unecrypted and passless keys are supported (for now).
 * Simple, small tray application (< 25MiB RSS) for OSX (and probably Linux/FreeBSD too, but I support only OSX).
 * Works under huge IO/Network loads on slow networks.
 * It's secure by default. Each file is renamed on the fly to SHA1 of it's name. Try to guess that.
@@ -74,14 +75,13 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 
 ## OSX binary builds download:
 * [Synshot binary builds](http://dmilith.verknowsys.com/Public/Synshot-releases)
-* Current version: [Synshot 0.18.x](http://dmilith.verknowsys.com/Public/Synshot-releases)
+* Current version: [Synshot 0.20.x](http://dmilith.verknowsys.com/Public/Synshot-releases)
 
 
 ## KNOWN ISSUES/ DRAWBACKS:
 * Synshot/ Syndir are currently unable to gracefully handle "too many open files" error on deep/big source directories.
 * Currently no SSH keys are working. For now only password auth is supported (it requires some more work)
 * Synshot might be CPU heavy while uploading large files. This might be an issue for mobile machines using battery power. It's not that big when uploading small files (e.g. screenshot). It's caused very efficient sending algorithm used in PtSSH implementation.
-* Currently (this will change in future) SSH passwords are written PLAIN TEXT in configuration files of Syndir and Synshot. (respectively: ~/Library/Preferences/com.verknowsys.Syndir.plist and ~/Library/Preferences/com.verknowsys.Synshot.plist). It's recommended to use some special, unpriviledged user for file sync.
 
 
 ## License:

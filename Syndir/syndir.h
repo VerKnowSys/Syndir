@@ -30,9 +30,10 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.18.10"
+#define APP_VERSION "0.20.0"
 
 
+#define ID_RSA_PPK "/id_rsa.ppk"
 #define DEFAULT_CONNECTION_TIMEOUT 10000L /* 10 seconds */
 #define FILE_SYNC_TIMEOUT 1000000 /* 1 second in us */
 #define ICON_BACK_TO_IDLE_TIMEOUT 3500

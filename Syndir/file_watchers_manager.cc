@@ -102,6 +102,15 @@ void FileWatchersManager::loadSettings() {
 }
 
 
+void FileWatchersManager::callSuccess() {
+    QString notf = "ScreenShot link copied to clipboard."; // as: " + userName + "@" + hostName;
+    #ifdef GUI_ENABLED
+        notify(notf);
+        emit setWork(OK);
+    #endif
+}
+
+
 void FileWatchersManager::connectToRemoteHost() {
     int result;
     // if (not connection or not connection->isConnected() or not connection->isAuthenticated()) {
@@ -143,93 +152,92 @@ void FileWatchersManager::connectToRemoteHost() {
             return;
         }
 
-        bool passSupport = false;
-        connection->isAuthSupported(PTsshAuth_Password, passSupport);
-        if (not passSupport) {
-            logError() << "Password auth unsupportted for server:" << hostName;
-        } else
-            logDebug() << "Password support enabled on server side:" << passSupport;
+        // bool passSupport = false;
+        // connection->isAuthSupported(PTsshAuth_Password, passSupport);
+        // if (not passSupport) {
+        //     logError() << "Password auth unsupportted for server:" << hostName;
+        // } else
+        //     logDebug() << "Password support enabled on server side:" << passSupport;
 
+        // NOTE: This code leaks memory! :
         // bool pubKeySupport = false;
         // connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
         // logDebug() << "Public key support on server side:" << pubKeySupport;
 
-        // // using rsa keys to perform auth
-        // auto pubkey = QString(keysLocation + "/id_rsa.pub");
-        // QFile fileA(pubkey);
-        // if (!fileA.open(QIODevice::ReadOnly)) {
-        //     logDebug() << "Failed to read SSH public key!";
-        // }
-        // QByteArray buffer = fileA.readAll();
-        // fileA.close();
+        // Try using rsa keys to perform auth if ppk key is available
+        auto privateKeyFile = QString(keysLocation + ID_RSA_PPK);
+        if (QFile(privateKeyFile).exists()) {
+            logInfo() << "Trying Pubkey authorization cause PPK file found:" << privateKeyFile;
+            QFile fileA(privateKeyFile);
+            if (!fileA.open(QIODevice::ReadOnly)) {
+                logWarn() << "Failed to read SSH ppk key! Please note that currently, only Putty SSH keys are supported.";
+            }
+            QString buffer = fileA.readAll();
+            fileA.close();
+            QStringList lines = buffer.split('\r');
 
-        // auto privkey = QString(keysLocation + "/id_rsa");
-        // QFile fileB(privkey);
-        // if (!fileB.open(QIODevice::ReadOnly)) {
-        //     logDebug() << "Failed to read SSH private key!";
-        // }
-        // QByteArray bufferB = fileB.readAll(); //.replace("-----END RSA PRIVATE KEY-----", "").replace("-----BEGIN RSA PRIVATE KEY-----", "").trimmed();
-        // fileB.close();
+            int pubkeyLenghtLine = 3;
+            int pubLines = lines.at(pubkeyLenghtLine).split("Public-Lines:").last().toInt();
+            logDebug() << "Will read" << pubLines << "lines of file" << privateKeyFile;
 
-        // QByteArray d1 = buffer;
-        // QByteArray d2 = bufferB;
-        // const uint8 *a = (uint8*)(QString(d1).toStdString().c_str());
-        // const uint8 *b = (uint8*)(QString(d2).toStdString().c_str());
+            QString pubkey = "";
+            for (int line = pubkeyLenghtLine + 1; line < pubkeyLenghtLine + 1 + pubLines; line++) {
+                pubkey += lines.at(line);
+            }
+            pubkey = pubkey.replace('\n', "").trimmed();
 
-        // logDebug() << "\nPUB:" << d1 << "\nPRIV:" << d2;
-        // int result = connection->authByPublicKey(
-        //     a, (uint32)strlen(buffer),
-        //     b, (uint32)strlen(bufferB),
-        //     NULL);
+            int privkeyLengthLine = 10;
+            int privLines = lines.at(privkeyLengthLine).split("Private-Lines:").last().toInt();
+            logDebug() << "Will read" << privLines << "of file" << privateKeyFile;
 
+            QString privkey = "";
+            for (int line = privkeyLengthLine + 1; line < privkeyLengthLine + 1 + privLines; line++) {
+                privkey += lines.at(line);
+            }
+            privkey = privkey.replace('\n', "").trimmed();
 
-        /* XXX: FIXME: using plain passwords indicates LOW security: */
-        if (sshPass == QString(SSH_PASSWORD)) {
-            logDebug() << "Password auth was disabled! Detected password default value (after reset).";
-            #ifdef GUI_ENABLED
-                notify("Password wasn't set.");
-                emit setWork(ERROR);
-            #endif
-            disconnectSSHSession();
-            // if (connection)
-            //     ptssh_destroy(&connection); /* destroys connection threads */
-            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            connectToRemoteHost();
-            return;
-        }
+            int g_RsaPublicKeySize = pubkey.length();
+            unsigned char g_RsaPublicKey[g_RsaPublicKeySize];
+            for (int buff = 0; buff < pubkey.length(); buff++) {
+                g_RsaPublicKey[buff] = pubkey.at(buff).toAscii();
+            }
 
-        if (not passSupport and not connection->isAuthenticated()) {
-            logDebug() << "Server disallows password use, but key auth failed. Will retry anyway";
-            #ifdef GUI_ENABLED
-                notify("Server disallows password use, but key auth failed.");
-                emit setWork(ERROR);
-            #endif
-            disconnectSSHSession();
-            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            connectToRemoteHost();
-            return;
-        }
+            int g_RsaPrivateKeySize = privkey.length();
+            unsigned char g_RsaPrivateKey[g_RsaPrivateKeySize];
+            for (int buff = 0; buff < privkey.length(); buff++) {
+                g_RsaPrivateKey[buff] = privkey.at(buff).toAscii();
+            }
 
-        result = connection->authByPassword(sshPass.toUtf8());
+            result = connection->authByPublicKey(
+                g_RsaPublicKey,
+                g_RsaPublicKeySize,
+                g_RsaPrivateKey,
+                g_RsaPrivateKeySize
+            );
+
+        } /* if PPK key wasn't found, just try password auth */
+
         if (result != PTSSH_SUCCESS) {
-            logDebug() << "Incorrect password!";
-            #ifdef GUI_ENABLED
-                notify("Incorrect password given");
-                emit setWork(ERROR);
-            #endif
-            disconnectSSHSession();
-            // if (connection)
-            //     ptssh_destroy(&connection); /* destroys connection threads */
-            usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
-            connectToRemoteHost();
-            return;
+            result = connection->authByPassword(sshPass.toUtf8());
+            if (result != PTSSH_SUCCESS) {
+                logDebug() << "Incorrect password!";
+                #ifdef GUI_ENABLED
+                    notify("Incorrect password given");
+                    emit setWork(ERROR);
+                #endif
+                disconnectSSHSession();
+                // if (connection)
+                //     ptssh_destroy(&connection); /* destroys connection threads */
+                usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
+                connectToRemoteHost();
+                return;
+            } else {
+                logInfo() << "Pasword auth successful!";
+                callSuccess();
+            }
         } else {
-            QString notf = "ScreenShot link copied to clipboard."; // as: " + userName + "@" + hostName;
-            #ifdef GUI_ENABLED
-                notify(notf);
-                emit setWork(OK);
-            #endif
-            logDebug() << "Connection estabilished.";
+            logInfo() << "Pubkey auth successful!";
+            callSuccess();
         }
 
     // } else {
