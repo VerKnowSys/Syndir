@@ -141,7 +141,7 @@ void FileWatchersManager::connectToRemoteHost() {
         }
 
         result = connection->connectUp();
-        if (result < 0) {
+        if (result != PTSSH_SUCCESS) {
             logDebug() << "Connection failed. Retrying.";
             #ifdef GUI_ENABLED
                 notify("Connection to server failed.");
@@ -152,17 +152,6 @@ void FileWatchersManager::connectToRemoteHost() {
             return;
         }
 
-        // bool passSupport = false;
-        // connection->isAuthSupported(PTsshAuth_Password, passSupport);
-        // if (not passSupport) {
-        //     logError() << "Password auth unsupportted for server:" << hostName;
-        // } else
-        //     logDebug() << "Password support enabled on server side:" << passSupport;
-
-        // NOTE: This code leaks memory! :
-        // bool pubKeySupport = false;
-        // connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
-        // logDebug() << "Public key support on server side:" << pubKeySupport;
         result = PTSSH_FAILURE; /* reset result state before attempt to auth! */
 
         // Try using rsa keys to perform auth if ppk key is available
@@ -177,8 +166,13 @@ void FileWatchersManager::connectToRemoteHost() {
             fileA.close();
             QStringList lines = buffer.split('\r');
 
-            int pubkeyLenghtLine = 3;
-            int pubLines = lines.at(pubkeyLenghtLine).split("Public-Lines:").last().toInt();
+            /* default values based on PPK file format: */
+            const QString publicLinesId = "Public-Lines:";
+            const QString privateLinesId = "Private-Lines:";
+            const int pubkeyLenghtLine = 3;
+            const int privkeyLengthLine = 10;
+
+            int pubLines = lines.at(pubkeyLenghtLine).split(publicLinesId).last().toInt();
             logDebug() << "Will read" << pubLines << "lines of file" << privateKeyFile;
 
             QString pubkey = "";
@@ -187,8 +181,7 @@ void FileWatchersManager::connectToRemoteHost() {
             }
             pubkey = pubkey.replace('\n', "").trimmed();
 
-            int privkeyLengthLine = 10;
-            int privLines = lines.at(privkeyLengthLine).split("Private-Lines:").last().toInt();
+            int privLines = lines.at(privkeyLengthLine).split(privateLinesId).last().toInt();
             logDebug() << "Will read" << privLines << "of file" << privateKeyFile;
 
             QString privkey = "";
