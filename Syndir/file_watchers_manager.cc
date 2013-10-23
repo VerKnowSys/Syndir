@@ -129,7 +129,7 @@ void FileWatchersManager::connectToRemoteHost() {
         if (connection and
             connection->init(userName.toUtf8().constData(), hostName.toUtf8().constData(), sshPort) != PTSSH_SUCCESS ) {
 
-            logDebug() << "Epic fail of SSH new.";
+            logWarn() << "Epic fail with SSH connection!";
             usleep(DEFAULT_CONNECTION_TIMEOUT * 1000);
             logDebug() << "Retrying";
             connectToRemoteHost();
@@ -157,10 +157,11 @@ void FileWatchersManager::connectToRemoteHost() {
         // Try using rsa keys to perform auth if ppk key is available
         auto privateKeyFile = QString(keysLocation + ID_RSA_PPK);
         if (QFile(privateKeyFile).exists()) {
-            logInfo() << "Trying Pubkey authorization cause PPK file found:" << privateKeyFile;
+            logInfo() << "Trying SSH key authorization. Using PPK file:" << privateKeyFile;
             QFile fileA(privateKeyFile);
             if (!fileA.open(QIODevice::ReadOnly)) {
-                logWarn() << "Failed to read SSH ppk key! Please note that currently, only Putty SSH keys are supported.";
+                logWarn() << "Access denied to read SSH ppk key!";
+                return;
             }
             QString buffer = fileA.readAll();
             fileA.close();
@@ -212,11 +213,12 @@ void FileWatchersManager::connectToRemoteHost() {
         } /* if PPK key wasn't found, just try password auth */
 
         if (result != PTSSH_SUCCESS) {
+            logInfo() << "Trying password authorization";
             result = connection->authByPassword(sshPass.toUtf8());
             if (result != PTSSH_SUCCESS) {
-                logDebug() << "Incorrect password!";
+                logWarn() << "Incorrect SSH password!";
                 #ifdef GUI_ENABLED
-                    notify("Incorrect password given");
+                    notify("Incorrect SSH password given");
                     emit setWork(ERROR);
                 #endif
                 disconnectSSHSession();
@@ -226,11 +228,11 @@ void FileWatchersManager::connectToRemoteHost() {
                 connectToRemoteHost();
                 return;
             } else {
-                logInfo() << "Pasword auth successful!";
+                logInfo() << "Password authorization successful!";
                 callSuccess();
             }
         } else {
-            logInfo() << "Pubkey auth successful!";
+            logInfo() << "SSH key authorization successful!";
             callSuccess();
         }
 
