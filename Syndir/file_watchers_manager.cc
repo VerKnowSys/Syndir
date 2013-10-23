@@ -163,6 +163,7 @@ void FileWatchersManager::connectToRemoteHost() {
         // bool pubKeySupport = false;
         // connection->isAuthSupported(PTsshAuth_PublicKey, pubKeySupport);
         // logDebug() << "Public key support on server side:" << pubKeySupport;
+        result = PTSSH_FAILURE; /* reset result state before attempt to auth! */
 
         // Try using rsa keys to perform auth if ppk key is available
         auto privateKeyFile = QString(keysLocation + ID_RSA_PPK);
