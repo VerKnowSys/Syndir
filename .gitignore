@@ -9,3 +9,4 @@ syndir
 /*.zip
 *.a
 /Syndir.app/
+/releases/
