@@ -73,8 +73,7 @@ void ConfigWindow::doingWork(int state) {
             trayIcon->setIcon(iconDelete);
         } break;
     }
-
-    if (state != IDLE)
+    if (state == OK)
         QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(backToIdleState()));
 }
 

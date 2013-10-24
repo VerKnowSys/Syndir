@@ -106,7 +106,7 @@ void FileWatchersManager::callSuccess() {
     QString notf = "ScreenShot link copied to clipboard."; // as: " + userName + "@" + hostName;
     #ifdef GUI_ENABLED
         notify(notf);
-        emit setWork(OK);
+        // emit setWork(OK);
     #endif
 }
 
@@ -493,18 +493,12 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
         } else {
 
             logDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
+            #ifdef GUI_ENABLED
+                emit setWork(WORKING);
+            #endif
 
             while (not sendFileToRemote(connection, file, fullDestPath)); /* send file until success, never give up */
 
-            if (hashFile) {
-                #ifdef GUI_ENABLED
-                    QSettings settings;
-                    // NOTE: WTF?! this is causing SERIOUS memory leaks when using JackD sound system.
-                    // QSound::play(settings.value("sound_file", DEFAULT_SOUND_FILE).toString());
-                    notify("File transfer finished.");
-                    emit setWork(OK);
-                #endif
-            }
         }
     }
     logDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
@@ -513,7 +507,12 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
     disconnectSSHSession();
 
     logDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
-    // QTimer::singleShot(ICON_BACK_TO_IDLE_TIMEOUT, this, SLOT(connectToRemoteHost()));
+    if (hashFile) {
+        #ifdef GUI_ENABLED
+            notify("File transfer finished.");
+            emit setWork(OK);
+        #endif
+    }
 }
 
 
