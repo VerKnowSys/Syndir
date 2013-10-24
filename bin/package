@@ -33,7 +33,7 @@ mv *.zip releases/
 if [ "${USER}" = "dmilith" ]; then # XXX: hacky but i'm lazy ;p
     scp releases/Synshot-${VERSION}.zip dmilith@v:/home/dmilith/Web/Public/Synshot-releases
     rm -fr /Applications/Synshot.app
-    kill $(ps -efm | grep -v grep | grep Synshot | awk '{print $2}')
+    killall Synshot
     mv Synshot.app /Applications/
     open /Applications/Synshot.app
 fi
