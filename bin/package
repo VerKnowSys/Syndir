@@ -25,11 +25,11 @@ for i in $(find Synshot.app/Contents/MacOS -type f); do
     strip $i
 done
 printf "Creating archive\n"
-rm -f Synshot-${VERSION}.zip
 VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
+rm -f Synshot-${VERSION}.zip
 zip -r -y Synshot-${VERSION}.zip Synshot.app
 
 if [ "${USER}" = "dmilith" ]; then # XXX: hacky but i'm lazy ;p
-    scp Synshot-0.20.3.zip dmilith@v:/home/dmilith/Web/Public/Synshot-releases
+    scp Synshot-${VERSION}.zip dmilith@v:/home/dmilith/Web/Public/Synshot-releases
 fi
 printf "Done.\n"
