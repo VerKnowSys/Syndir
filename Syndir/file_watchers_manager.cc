@@ -172,43 +172,49 @@ void FileWatchersManager::connectToRemoteHost() {
             const QString privateLinesId = "Private-Lines:";
             const int pubkeyLenghtLine = 3;
             const int privkeyLengthLine = 10;
+            bool okprv = false,
+                 okpub = false;
 
-            int pubLines = lines.at(pubkeyLenghtLine).split(publicLinesId).last().toInt();
-            logDebug() << "Will read" << pubLines << "lines of file" << privateKeyFile;
+            int pubLines = lines.at(pubkeyLenghtLine).split(publicLinesId).last().toInt(&okpub, 10);
+            if (okpub) {
+                logDebug() << "Will read" << pubLines << "lines of file" << privateKeyFile;
 
-            QString pubkey = "";
-            for (int line = pubkeyLenghtLine + 1; line < pubkeyLenghtLine + 1 + pubLines; line++) {
-                pubkey += lines.at(line);
+                QString pubkey = "";
+                for (int line = pubkeyLenghtLine + 1; line < pubkeyLenghtLine + 1 + pubLines; line++) {
+                    pubkey += lines.at(line);
+                }
+                pubkey = pubkey.replace('\n', "").trimmed();
+
+                int privLines = lines.at(privkeyLengthLine).split(privateLinesId).last().toInt(&okprv, 10);
+                if (okprv) {
+                    logDebug() << "Will read" << privLines << "of file" << privateKeyFile;
+
+                    QString privkey = "";
+                    for (int line = privkeyLengthLine + 1; line < privkeyLengthLine + 1 + privLines; line++) {
+                        privkey += lines.at(line);
+                    }
+                    privkey = privkey.replace('\n', "").trimmed();
+
+                    int g_RsaPublicKeySize = pubkey.length();
+                    unsigned char g_RsaPublicKey[g_RsaPublicKeySize];
+                    for (int buff = 0; buff < pubkey.length(); buff++) {
+                        g_RsaPublicKey[buff] = pubkey.at(buff).toAscii();
+                    }
+
+                    int g_RsaPrivateKeySize = privkey.length();
+                    unsigned char g_RsaPrivateKey[g_RsaPrivateKeySize];
+                    for (int buff = 0; buff < privkey.length(); buff++) {
+                        g_RsaPrivateKey[buff] = privkey.at(buff).toAscii();
+                    }
+
+                    result = connection->authByPublicKey(
+                        g_RsaPublicKey,
+                        g_RsaPublicKeySize,
+                        g_RsaPrivateKey,
+                        g_RsaPrivateKeySize
+                    );
+                }
             }
-            pubkey = pubkey.replace('\n', "").trimmed();
-
-            int privLines = lines.at(privkeyLengthLine).split(privateLinesId).last().toInt();
-            logDebug() << "Will read" << privLines << "of file" << privateKeyFile;
-
-            QString privkey = "";
-            for (int line = privkeyLengthLine + 1; line < privkeyLengthLine + 1 + privLines; line++) {
-                privkey += lines.at(line);
-            }
-            privkey = privkey.replace('\n', "").trimmed();
-
-            int g_RsaPublicKeySize = pubkey.length();
-            unsigned char g_RsaPublicKey[g_RsaPublicKeySize];
-            for (int buff = 0; buff < pubkey.length(); buff++) {
-                g_RsaPublicKey[buff] = pubkey.at(buff).toAscii();
-            }
-
-            int g_RsaPrivateKeySize = privkey.length();
-            unsigned char g_RsaPrivateKey[g_RsaPrivateKeySize];
-            for (int buff = 0; buff < privkey.length(); buff++) {
-                g_RsaPrivateKey[buff] = privkey.at(buff).toAscii();
-            }
-
-            result = connection->authByPublicKey(
-                g_RsaPublicKey,
-                g_RsaPublicKeySize,
-                g_RsaPrivateKey,
-                g_RsaPrivateKeySize
-            );
 
         } /* if PPK key wasn't found, just try password auth */
 

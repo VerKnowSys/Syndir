@@ -13,7 +13,7 @@ macdeployqt Synshot.app -dmg
 printf "Doing merge into Synshot\n"
 cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
 
-printf "Hacking bundle to reduce bloat"
+printf "Hacking bundle to reduce bloat\n"
 rm -rf Syndir.app
 mv Synshot.app/Contents/PlugIns/imageformats/libqtiff.dylib ./
 rm -rf Synshot.app/Contents/PlugIns
@@ -29,4 +29,4 @@ rm -f Synshot-${VERSION}.zip
 VERSION="$(grep 'APP_VERSION' Syndir/syndir.h | awk '{ gsub(/\"/, "", $3);  print $3; }')"
 zip -r -y Synshot-${VERSION}.zip Synshot.app
 
-
+printf "Done.\n"
