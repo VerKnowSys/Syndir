@@ -23,11 +23,10 @@
         "end tell\n"
         "if isRunning then\n"
           "tell application id \"com.Growl.GrowlHelperApp\"\n"
-            "set the allNotificationsList to {\"Synshot Notification\", \"Synshot Notification\"}\n"
+            "set the allNotificationsList to {\"Synshot Notification\"}\n"
             "set the enabledNotificationsList to {\"Synshot Notification\"}\n"
             "register as application \"Synshot\" all notifications allNotificationsList default notifications enabledNotificationsList icon of application \"Synshot\"\n"
             "notify with name \"Synshot Notification\" title \"Synshot Notification\" description \"NOTIFICATION_CONTENTS\" application name \"Synshot\"\n"
-            "notify with name \"Another Synshot Notification\" title \"Another Synshot Notification\" description \"NOTIFICATION_CONTENTS\" application name \"Synshot\"\n"
           "end tell\n"
         "end if\n");
 

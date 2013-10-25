@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.20.4"
+#define APP_VERSION "0.20.5"
 
 
 #define ID_RSA_PPK "/id_rsa.ppk"
