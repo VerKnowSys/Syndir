@@ -410,7 +410,7 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
                     if (bytesRead > 0) {
                         result = ptssh_channelWrite(connection, cNum, pBuf, bytesRead);
                         if ( result != PTSSH_SUCCESS) {
-                            logDebug() << "Failed to write channel data. Error:" << result;
+                            logError() << "Failed to write channel data. Error:" << result;
                             fclose(pFileHandle);
                             delete pBuf;
                             return false;
@@ -425,7 +425,7 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
                 /* do cleanup */
                 result = ptssh_scpSendFinish(connection, cNum);
                 if ( result == PTSSH_SUCCESS) {
-                    logDebug() << "File synchronized successfully:" << file << "to remote:" << destinationFile;
+                    logInfo() << "File synchronized successfully:" << file << "to remote:" << destinationFile;
                     delete pBuf;
                     return true;
                 } else {
@@ -453,7 +453,7 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
 
     Q_FOREACH(QString file, fileList) {
 
-        QString fileDirName = QFileInfo(file).absolutePath();
+        // QString fileDirName = QFileInfo(file).absolutePath();
         QStringRef prePath(&file, baseCWD.size(), (file.size() - baseCWD.size()));
         // QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
         QString chopFileName = prePath.toUtf8();
@@ -485,16 +485,15 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
         /* deal with deletion of local file with remote sync */
         if (not QFile::exists(file)) {
 
-            logDebug() << "Deletion detected:" << file;
             logDebug() << "Synced deletion of remote file:" << fullDestPath;
             executeRemoteCommand("/bin/rm -rf " + fullDestPath.toUtf8());
             removePath(file);
             files = removeFromList(files, QStringList(file));
-            logDebug() << "Total files and dirs on watch:" << files.size();
+            logInfo() << "Total files and dirs on watch:" << files.size();
 
         } else {
 
-            logDebug() << endl << "Detected modification of:" << file << "Syncing to:" << hostName;
+            logInfo() << "Detected modification of:" << file << "Syncing to:" << hostName;
             #ifdef GUI_ENABLED
                 emit setWork(WORKING);
             #endif
@@ -503,12 +502,11 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
 
         }
     }
-    logDebug() << "Done. Time elapsed:" << myTimer.elapsed() << "miliseconds";
     logDebug() << "Total files and dirs on watch:" << files.size();
 
     disconnectSSHSession();
 
-    logDebug() << "Disconnected SSH connection (TEMPORARY TO SAVE CPU TIME)";
+    logInfo() << "Disconnected SSH connection (elapsed:" << myTimer.elapsed() << "ms)";
     if (hashFile) {
         #ifdef GUI_ENABLED
             notify("File transfer finished.");
