@@ -16,7 +16,7 @@ fi
 MAKE="make"
 SPEC_TYPE=""
 if [ "$(uname)" = "Darwin" ]; then
-    SPEC_TYPE="-spec macx-llvm" #darwin-g++"
+    SPEC_TYPE="-spec macx-llvm"
 fi
 
 qmake ${SPEC_TYPE} Project.pro
