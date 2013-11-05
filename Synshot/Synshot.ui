@@ -10,20 +10,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>400</height>
+    <width>500</width>
+    <height>280</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>550</width>
-    <height>400</height>
+    <width>500</width>
+    <height>260</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>550</width>
-    <height>400</height>
+    <height>300</height>
    </size>
   </property>
   <property name="focusPolicy">
@@ -38,26 +38,44 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <widget class="QGroupBox" name="group">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>550</width>
-     <height>400</height>
+     <width>500</width>
+     <height>280</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>550</width>
-     <height>400</height>
+     <width>500</width>
+     <height>280</height>
     </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>500</width>
+     <height>280</height>
+    </size>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
    </property>
    <property name="title">
     <string/>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
    <property name="flat">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <property name="leftMargin">
@@ -72,19 +90,22 @@
     <property name="bottomMargin">
      <number>40</number>
     </property>
-    <item row="2" column="0">
-     <widget class="QLabel" name="defaultPortLabel_2">
+    <item row="5" column="0">
+     <widget class="QLabel" name="defaultPortLabel_6">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
       <property name="text">
-       <string>Notification sound</string>
+       <string>File patterns</string>
       </property>
       <property name="scaledContents">
        <bool>false</bool>
       </property>
       <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
       </property>
       <property name="margin">
        <number>2</number>
@@ -112,13 +133,13 @@
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="2" column="0">
      <widget class="QLabel" name="defaultPortLabel_3">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Local screenshot dir</string>
+       <string>Local sync dir</string>
       </property>
       <property name="scaledContents">
        <bool>false</bool>
@@ -131,7 +152,7 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="defaultPortLabel_4">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
@@ -150,75 +171,7 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="defaultPortLabel">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string>Default SSH port</string>
-      </property>
-      <property name="scaledContents">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="margin">
-       <number>2</number>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLineEdit" name="screenshotDir">
-      <property name="font">
-       <font>
-        <family>Monaco</family>
-       </font>
-      </property>
-      <property name="inputMask">
-       <string notr="true"/>
-      </property>
-      <property name="maxLength">
-       <number>512</number>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="notificationSound">
-      <property name="font">
-       <font>
-        <family>Monaco</family>
-       </font>
-      </property>
-      <property name="inputMask">
-       <string notr="true"/>
-      </property>
-      <property name="maxLength">
-       <number>512</number>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLabel" name="defaultPortLabel_5">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="text">
-       <string>Remote URL path</string>
-      </property>
-      <property name="scaledContents">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-      <property name="margin">
-       <number>2</number>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
+    <item row="4" column="1">
      <widget class="QLineEdit" name="urlPrefix">
       <property name="font">
        <font>
@@ -236,7 +189,7 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="3" column="1">
      <widget class="QLineEdit" name="destinationRemoteDir">
       <property name="font">
        <font>
@@ -251,30 +204,14 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
-     <widget class="QLabel" name="defaultPortLabel_6">
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>File patterns</string>
-      </property>
-      <property name="scaledContents">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-      </property>
-      <property name="margin">
-       <number>2</number>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="1">
+    <item row="5" column="1">
      <widget class="QPlainTextEdit" name="allowedFileTypes">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>50</height>
+       </size>
+      </property>
       <property name="font">
        <font>
         <family>Menlo</family>
@@ -300,13 +237,32 @@
       </property>
      </widget>
     </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="defaultPortLabel">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Default SSH port</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="defaultPortLabel_7">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>SSH password</string>
+       <string>Remote URL path</string>
       </property>
       <property name="scaledContents">
        <bool>false</bool>
@@ -340,13 +296,46 @@
       </property>
      </widget>
     </item>
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="screenshotDir">
+      <property name="font">
+       <font>
+        <family>Monaco</family>
+       </font>
+      </property>
+      <property name="inputMask">
+       <string notr="true"/>
+      </property>
+      <property name="maxLength">
+       <number>512</number>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="defaultPortLabel_5">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Remote URL path</string>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
  <tabstops>
   <tabstop>defaultSSHPort</tabstop>
   <tabstop>defaultSSHPassword</tabstop>
-  <tabstop>notificationSound</tabstop>
   <tabstop>screenshotDir</tabstop>
   <tabstop>destinationRemoteDir</tabstop>
   <tabstop>urlPrefix</tabstop>
