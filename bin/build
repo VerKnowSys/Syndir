@@ -13,12 +13,11 @@ if [ "$(uname)" != "Darwin" ]; then
     fi
 fi
 
-MAKE="make"
 SPEC_TYPE=""
 if [ "$(uname)" = "Darwin" ]; then
     SPEC_TYPE="-spec macx-llvm"
 fi
 
 qmake ${SPEC_TYPE} Project.pro
-${MAKE} -j8 CC=clang CXX=clang++
+make -j8
 exit $?

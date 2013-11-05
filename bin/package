@@ -31,10 +31,16 @@ mkdir -p releases
 mv *.zip releases/
 
 if [ "${USER}" = "dmilith" ]; then # XXX: hacky but i'm lazy ;p
-    scp releases/Synshot-${VERSION}.zip dmilith@v:/home/dmilith/Web/Public/Synshot-releases
-    rm -fr /Applications/Synshot.app
+    if [ "${SEND}" = "yes" ]; then
+        scp releases/Synshot-${VERSION}.zip dmilith@v:/home/dmilith/Web/Public/Synshot-releases
+    fi
     killall Synshot
+    rm -fr /Applications/Synshot.app
     mv Synshot.app /Applications/
-    open /Applications/Synshot.app
+    user_id="$(id -u)"
+    if [ -f "/var/log/com.apple.launchd.peruser.${user_id}/Synshot.log" ]; then
+        mv /var/log/com.apple.launchd.peruser.${user_id}/Synshot.log /var/log/com.apple.launchd.peruser.${user_id}/Synshot.log.$(date +%d%m%Y-%M%S)
+    fi
+    /Applications/Synshot.app/Contents/MacOS/Synshot > /var/log/com.apple.launchd.peruser.${user_id}/Synshot.log 2>&1 &
 fi
 printf "Done.\n"
