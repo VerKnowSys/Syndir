@@ -433,6 +433,9 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
                     delete pBuf;
                     return false;
                 }
+            } else {
+                logError() << "Failed allocating buffer for SSH data!";
+                return false;
             }
         }
     }
