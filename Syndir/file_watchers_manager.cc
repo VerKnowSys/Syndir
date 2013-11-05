@@ -353,13 +353,13 @@ bool FileWatchersManager::sendFileToRemote(PTssh* connection, const QString& fil
         QString fileDirName = QFileInfo(file).absolutePath();
         QStringRef preDirs(&fileDirName, baseCWD.size(), (fileDirName.size() - baseCWD.size()));
 
-        executeRemoteCommand("/bin/mkdir -p " + finalPath);
+        executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
         if (not preDirs.isEmpty()) { /* sub dirs in path */
-            auto elems = preDirs.toString().split("/");
+            const auto elems = preDirs.toString().split("/");
             Q_FOREACH(auto elem, elems) {
                 finalPath += "/" + elem;
                 if (not elem.isEmpty())
-                    executeRemoteCommand("/bin/mkdir -p " + finalPath);
+                    executeRemoteCommand("test ! -d " + finalPath + " && /bin/mkdir -p " + finalPath);
             }
         }
 
