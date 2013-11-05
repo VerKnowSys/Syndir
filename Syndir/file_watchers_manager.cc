@@ -103,10 +103,9 @@ void FileWatchersManager::loadSettings() {
 
 
 void FileWatchersManager::callSuccess() {
-    QString notf = "ScreenShot link copied to clipboard."; // as: " + userName + "@" + hostName;
+    QString notf = "File link copied to clipboard.";
     #ifdef GUI_ENABLED
         notify(notf);
-        // emit setWork(OK);
     #endif
 }
 
