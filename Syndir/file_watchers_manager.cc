@@ -487,7 +487,7 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
 
             logDebug() << "Deletion detected:" << file;
             logDebug() << "Synced deletion of remote file:" << fullDestPath;
-            executeRemoteCommand("/bin/rm -f " + fullDestPath.toUtf8());
+            executeRemoteCommand("/bin/rm -rf " + fullDestPath.toUtf8());
             removePath(file);
             files = removeFromList(files, QStringList(file));
             logDebug() << "Total files and dirs on watch:" << files.size();
