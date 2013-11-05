@@ -43,4 +43,6 @@ if [ "${USER}" = "dmilith" ]; then # XXX: hacky but i'm lazy ;p
     fi
     /Applications/Synshot.app/Contents/MacOS/Synshot > /var/log/com.apple.launchd.peruser.${user_id}/Synshot.log 2>&1 &
 fi
-printf "Done.\n"
+
+printf "Cleaning source tree\n"
+bin/clean > /dev/null 2>&1 && printf "Done.\n"
