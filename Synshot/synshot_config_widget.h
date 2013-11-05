@@ -34,7 +34,7 @@ class ConfigWindow: public QDialog {
 
         void updateDefaultSSHPort(const QString& text);
         void updateDefaultSSHPassword(const QString& text);
-        void updateNotificationSound(const QString& text);
+        // void updateNotificationSound(const QString& text);
         void updateScreenshotDir(const QString& text);
         void updateDestinationRemoteDir(const QString& text);
         void updateUrlPrefix(const QString& text);

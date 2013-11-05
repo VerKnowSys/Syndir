@@ -88,8 +88,8 @@ void ConfigWindow::showConfigurePanel() {
     settingsWindow->defaultSSHPassword->setText(settings.value("ssh_password").toString());
     connect(settingsWindow->defaultSSHPassword, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPassword(QString)));
 
-    settingsWindow->notificationSound->setText(settings.value("sound_file").toString());
-    connect(settingsWindow->notificationSound, SIGNAL(textChanged(QString)), this, SLOT(updateNotificationSound(QString)));
+    // settingsWindow->notificationSound->setText(settings.value("sound_file").toString());
+    // connect(settingsWindow->notificationSound, SIGNAL(textChanged(QString)), this, SLOT(updateNotificationSound(QString)));
 
     settingsWindow->screenshotDir->setText(settings.value("source_dir").toString());
     connect(settingsWindow->screenshotDir, SIGNAL(textChanged(QString)), this, SLOT(updateScreenshotDir(QString)));
@@ -104,7 +104,6 @@ void ConfigWindow::showConfigurePanel() {
     connect(settingsWindow->allowedFileTypes, SIGNAL(textChanged()), this, SLOT(updateAllowedFileTypes()));
 
     this->show();
-
 }
 
 
@@ -135,15 +134,15 @@ void ConfigWindow::updateDefaultSSHPort(const QString& text) {
 }
 
 
-void ConfigWindow::updateNotificationSound(const QString& text) {
-    if (QFile::exists(text)) {
-        settingsWindow->notificationSound->setStyleSheet("border: 2px solid green");
-        settings.setValue("sound_file", text);
-        logDebug() << "sound_file changed to:" << text;
-    } else {
-        settingsWindow->notificationSound->setStyleSheet("border: 2px solid red");
-    }
-}
+// void ConfigWindow::updateNotificationSound(const QString& text) {
+//     if (QFile::exists(text)) {
+//         settingsWindow->notificationSound->setStyleSheet("border: 2px solid green");
+//         settings.setValue("sound_file", text);
+//         logDebug() << "sound_file changed to:" << text;
+//     } else {
+//         settingsWindow->notificationSound->setStyleSheet("border: 2px solid red");
+//     }
+// }
 
 
 void ConfigWindow::updateScreenshotDir(const QString& text) {
