@@ -10,3 +10,5 @@ syndir
 *.a
 /Syndir.app/
 /releases/
+
+/Synshot.dmg
