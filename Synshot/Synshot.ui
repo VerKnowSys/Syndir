@@ -262,7 +262,7 @@
        <enum>Qt::LeftToRight</enum>
       </property>
       <property name="text">
-       <string>Remote URL path</string>
+       <string>SSH password</string>
       </property>
       <property name="scaledContents">
        <bool>false</bool>
