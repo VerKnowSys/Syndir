@@ -56,8 +56,8 @@ void FileWatchersManager::loadSettings() {
     if (settings.value("remote_path").isNull())
         settings.setValue("remote_path", REMOTE_PATH);
 
-    if (settings.value("sound_file").isNull())
-        settings.setValue("sound_file", DEFAULT_SOUND_FILE);
+    // if (settings.value("sound_file").isNull())
+    //     settings.setValue("sound_file", DEFAULT_SOUND_FILE);
 
     if (settings.value("ssh_port").isNull())
         settings.setValue("ssh_port", SSH_PORT);

@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.20.7"
+#define APP_VERSION "0.20.8"
 
 
 #define ID_RSA_PPK "/id_rsa.ppk"
@@ -40,13 +40,13 @@
 #define SSH_PORT 22
 #define SSH_PASSWORD "NO-SSH-PASSWORD-SET" /* NOTE: Safe (crypted) password storage isn't supported yet! */
 #define MAX_PORT_VALUE 65535
-#define COPYRIGHT "Copyright © 2o13 VerKnowSys.com - All Rights Reserved."
+#define COPYRIGHT "Copyright © 2o13-2o14 VerKnowSys.com - All Rights Reserved."
 #define DEFAULT_STRING_CODEC "UTF8"
 #define ALLOWED_FILE_TYPES "\\.*$" /* NOTE: switched to wildcard to accept any file type drop */
 // #define ALLOWED_FILE_TYPES "\\.pro$|\\.hpp$|\\.h$|\\.c$|\\.cc$|\\.cpp$|\\.scala$|\\.java$|\\.rb$|Rakefile$|\\.properties$|\\.xml$|\\.html$|\\.js$|\\.coffee$|\\.sh$|\\.def$|\\.md$|\\.haml$|\\.slim$|\\.css$|\\.sass$|\\.scss$|\\.less$|\\.erb$|\\.yml|\\.yaml$$|\\.conf$|\\.json$|\\.jpg$|\\.jpeg$|\\.png$|\\.svg$|\\.gif$|\\.jar$|\\.ini$|\\.patch$|\\.jp2$"
 
-#define DEFAULT_SOUND_FILE "/System/Library/Sounds/Purr.aiff"
-#define DEFAULT_SOURCE_DIR "~/Desktop"
+// #define DEFAULT_SOUND_FILE "/System/Library/Sounds/Purr.aiff"
+#define DEFAULT_SOURCE_DIR "~/Desktop" /* by default screenshots goes right there */
 #define DEFAULT_DESTINATION_DIR "my-server.com:/home/my-user-name/Web/Public"
 #define REMOTE_PATH "http://sync-files.my-server.com/"
 
