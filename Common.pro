@@ -7,10 +7,10 @@
 
 QT -= gui
 
-QMAKE_CXX = clang++
-QMAKE_CC = clang
+QMAKE_CXX = ccache clang++
+QMAKE_CC = ccache clang
 
-QMAKE_CXXFLAGS += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -Os -wunused-variable
+QMAKE_CXXFLAGS += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -Os -w
 
 mac {
 
