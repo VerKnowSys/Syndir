@@ -164,15 +164,36 @@ void FileWatchersManager::connectToRemoteHost() {
             }
             QString buffer = fileA.readAll();
             fileA.close();
-            QStringList lines = buffer.split('\r');
+            QStringList lines = buffer.split('\n');
 
             /* default values based on PPK file format: */
             const QString publicLinesId = "Public-Lines:";
             const QString privateLinesId = "Private-Lines:";
-            const int pubkeyLenghtLine = 3;
-            const int privkeyLengthLine = 10;
+            int pubkeyLenghtLine = 0;
+            int privkeyLengthLine = 0;
             bool okprv = false,
                  okpub = false;
+
+            logDebug() << "Seeking private & public lines from PPK";
+            for (int l = 0; l < lines.length(); l++) {
+                if (lines.at(l).startsWith(publicLinesId)) {
+                    logDebug() << "Public lines:" << QString::number(l);
+                    pubkeyLenghtLine = l;
+                }
+                if (lines.at(l).startsWith(privateLinesId)) {
+                    logDebug() << "Private lines:" << QString::number(l);
+                    privkeyLengthLine = l;
+                }
+            }
+
+            if (pubkeyLenghtLine == 0) {
+                logError() << "Wrong PPK file provided (pubkey part not found)!";
+                return;
+            }
+            if (privkeyLengthLine == 0) {
+                logError() << "Wrong PPK file provided (privkey part not found)!";
+                return;
+            }
 
             int pubLines = lines.at(pubkeyLenghtLine).split(publicLinesId).last().toInt(&okpub, 10);
             if (okpub) {
@@ -186,7 +207,7 @@ void FileWatchersManager::connectToRemoteHost() {
 
                 int privLines = lines.at(privkeyLengthLine).split(privateLinesId).last().toInt(&okprv, 10);
                 if (okprv) {
-                    logDebug() << "Will read" << privLines << "of file" << privateKeyFile;
+                    logDebug() << "Will read" << privLines << "lines of file" << privateKeyFile;
 
                     QString privkey = "";
                     for (int line = privkeyLengthLine + 1; line < privkeyLengthLine + 1 + privLines; line++) {
