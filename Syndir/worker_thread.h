@@ -30,9 +30,9 @@ class WorkerThread: public QThread {
 
 
     private:
-        FileWatchersManager* watcher = NULL;
+        QPointer<FileWatchersManager> watcher;
         #ifdef GUI_ENABLED
-            ConfigWindow *configWindow = NULL;
+            QPointer<ConfigWindow> configWindow;
         #endif
 
         QString source;

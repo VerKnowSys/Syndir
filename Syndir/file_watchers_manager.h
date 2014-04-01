@@ -42,7 +42,7 @@ class FileWatchersManager: public QFileSystemWatcher {
 
 
         #ifdef GUI_ENABLED
-            void setConfigWindow(ConfigWindow *config);
+            void setConfigWindow(QPointer<ConfigWindow> config);
         #endif
 
 
@@ -67,7 +67,7 @@ class FileWatchersManager: public QFileSystemWatcher {
         PTssh *connection = NULL;
 
         #ifdef GUI_ENABLED
-            ConfigWindow *configWindow = NULL;
+            QPointer<ConfigWindow> configWindow;
         #endif
 
 

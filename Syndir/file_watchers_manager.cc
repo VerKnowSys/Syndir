@@ -31,8 +31,8 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
 
 
 #ifdef GUI_ENABLED
-    void FileWatchersManager::setConfigWindow(ConfigWindow *config) {
-        if (config == NULL)
+    void FileWatchersManager::setConfigWindow(QPointer<ConfigWindow> config) {
+        if (not config)
             this->configWindow = new ConfigWindow();
         else
             this->configWindow = config;
