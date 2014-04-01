@@ -41,6 +41,28 @@ ConfigWindow::ConfigWindow() {
     int x = desk->width() / 2 - this->width() / 2;
     this->move(x, 0);
     delete desk;
+
+    /* load data to line edit elements and bind actions to "textChanged()" signal */
+    settingsWindow->defaultSSHPort->setText(settings.value("ssh_port").toString());
+    connect(settingsWindow->defaultSSHPort, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPort(QString)));
+
+    settingsWindow->defaultSSHPassword->setText(settings.value("ssh_password").toString());
+    connect(settingsWindow->defaultSSHPassword, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPassword(QString)));
+
+    // settingsWindow->notificationSound->setText(settings.value("sound_file").toString());
+    // connect(settingsWindow->notificationSound, SIGNAL(textChanged(QString)), this, SLOT(updateNotificationSound(QString)));
+
+    settingsWindow->screenshotDir->setText(settings.value("source_dir").toString());
+    connect(settingsWindow->screenshotDir, SIGNAL(textChanged(QString)), this, SLOT(updateScreenshotDir(QString)));
+
+    settingsWindow->destinationRemoteDir->setText(settings.value("destination_dir").toString());
+    connect(settingsWindow->destinationRemoteDir, SIGNAL(textChanged(QString)), this, SLOT(updateDestinationRemoteDir(QString)));
+
+    settingsWindow->urlPrefix->setText(settings.value("remote_path").toString());
+    connect(settingsWindow->urlPrefix, SIGNAL(textChanged(QString)), this, SLOT(updateUrlPrefix(QString)));
+
+    settingsWindow->allowedFileTypes->setPlainText(settings.value("allowed_file_types").toString());
+    connect(settingsWindow->allowedFileTypes, SIGNAL(textChanged()), this, SLOT(updateAllowedFileTypes()));
 }
 
 
@@ -79,30 +101,7 @@ void ConfigWindow::doingWork(int state) {
 
 
 void ConfigWindow::showConfigurePanel() {
-    logDebug() << "Launching configure";
-
-    /* load data to line edit elements and bind actions to "textChanged()" signal */
-    settingsWindow->defaultSSHPort->setText(settings.value("ssh_port").toString());
-    connect(settingsWindow->defaultSSHPort, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPort(QString)));
-
-    settingsWindow->defaultSSHPassword->setText(settings.value("ssh_password").toString());
-    connect(settingsWindow->defaultSSHPassword, SIGNAL(textChanged(QString)), this, SLOT(updateDefaultSSHPassword(QString)));
-
-    // settingsWindow->notificationSound->setText(settings.value("sound_file").toString());
-    // connect(settingsWindow->notificationSound, SIGNAL(textChanged(QString)), this, SLOT(updateNotificationSound(QString)));
-
-    settingsWindow->screenshotDir->setText(settings.value("source_dir").toString());
-    connect(settingsWindow->screenshotDir, SIGNAL(textChanged(QString)), this, SLOT(updateScreenshotDir(QString)));
-
-    settingsWindow->destinationRemoteDir->setText(settings.value("destination_dir").toString());
-    connect(settingsWindow->destinationRemoteDir, SIGNAL(textChanged(QString)), this, SLOT(updateDestinationRemoteDir(QString)));
-
-    settingsWindow->urlPrefix->setText(settings.value("remote_path").toString());
-    connect(settingsWindow->urlPrefix, SIGNAL(textChanged(QString)), this, SLOT(updateUrlPrefix(QString)));
-
-    settingsWindow->allowedFileTypes->setPlainText(settings.value("allowed_file_types").toString());
-    connect(settingsWindow->allowedFileTypes, SIGNAL(textChanged()), this, SLOT(updateAllowedFileTypes()));
-
+    logDebug() << "Showing configure panel";
     this->show();
 }
 
