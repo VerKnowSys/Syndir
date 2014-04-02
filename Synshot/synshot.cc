@@ -58,6 +58,27 @@
         consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
         consoleAppender->setDetailsLevel(Logger::Trace);
 
+        /* autogen of ppk ssh key */
+        QString sourcePrivateKey = QString(getenv("HOME")) + ID_SSH_DIR + ID_RSA;
+        QString destPrivateKey = QString(getenv("HOME")) + ID_SSH_DIR + ID_RSA_PPK;
+        if (QFile::exists(sourcePrivateKey)) {
+            logInfo() << "RSA SSH key found.";
+            if (not QFile::exists(destPrivateKey)) {
+                logInfo() << "PPK key not found. Autogenerating from available RSA key";
+                QString puttyGen = QString("/Applications/Synshot.app/Contents/MacOS/") + PUTTY_GEN;
+                if (not QFile::exists(puttyGen))
+                    puttyGen = PUTTY_GEN; /* if not found in app dir, use puttygen from PATH */
+                QStringList processArguments;
+                processArguments << sourcePrivateKey << "-o" << destPrivateKey;
+                QProcess *process = new QProcess();
+                process->start(puttyGen, processArguments);
+                process->waitForFinished();
+                process->terminate();
+                process->deleteLater();
+            } else
+                logInfo() << "PPK SSH key found.";
+        }
+
         QStringList remotes;
 
         /* init instance of config window for GUI */
