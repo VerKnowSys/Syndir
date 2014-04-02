@@ -47,7 +47,6 @@ server {
 
 
 ## Preffered/Optional requirements.:
-* [Sofin 0.51.x](http://verknowsys.github.com/sofin/)
 * Qt4 GUI libraries to build Synshot (for GUI to file sync utility)
 * [Growl](http://growl.info) - When available, will be used for notifications in GUI app.
 
@@ -57,7 +56,7 @@ server {
 
 
 ## Packaging:
-`bin/package`
+`bin/release`
 
 
 ## Syndir usage examples:
