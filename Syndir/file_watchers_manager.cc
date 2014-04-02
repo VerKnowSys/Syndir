@@ -15,7 +15,7 @@ FileWatchersManager::FileWatchersManager(const QString& sourceDir, const QString
     this->fullDestinationSSHPath = fullDestinationSSHPath; /* f.e: someuser@remotehost:/remote/path */
 
     loadSettings();
-    QSettings settings;
+    // QSettings settings;
 
     // signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE error */
 
