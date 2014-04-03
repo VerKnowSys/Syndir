@@ -15,7 +15,7 @@ void usage() {
 }
 
 
-static void loadDefaultSettings() {
+void loadDefaultSettings() {
     QSettings settings;
 
     if (settings.value("source_dir").isNull())

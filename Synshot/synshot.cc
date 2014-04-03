@@ -16,7 +16,7 @@
 
 #ifdef GUI_ENABLED
 
-    static void loadDefaultSettings() {
+    void loadDefaultSettings() {
         QSettings settings;
 
         if (settings.value("source_dir").isNull())
