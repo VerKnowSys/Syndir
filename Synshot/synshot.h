@@ -9,4 +9,7 @@
 #define __SYNSHOT_H__
 
 
+#define DEFAULT_SYNSHOT_LOG_FILE "/.synshot.log"
+
+
 #endif

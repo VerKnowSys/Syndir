@@ -11,6 +11,7 @@
 #include "../Syndir/syndir.h"
 #include "../Syndir/worker_thread.h"
 #include "synshot_config_widget.h"
+#include "synshot.h"
 
 
 #ifdef GUI_ENABLED
@@ -52,11 +53,55 @@
         QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
         QStringList args = app.arguments();
 
+        QRegExp rxEnableForeground("-f"); /* run in foreground */
+        QRegExp rxEnableDebug("-d");
+        QRegExp rxEnableTrace("-t");
+
+        bool debug = true, trace = false, background = true;
+        for (int i = 1; i < args.size(); ++i) {
+            if (rxEnableDebug.indexIn(args.at(i)) != -1 ) {
+                debug = true;
+            }
+            if (rxEnableForeground.indexIn(args.at(i)) != -1 ) {
+                background = false;
+            }
+            if (rxEnableTrace.indexIn(args.at(i)) != -1 ) {
+                debug = true;
+                trace = true;
+            }
+        }
+
         /* Logger setup */
-        ConsoleAppender *consoleAppender = new ConsoleAppender();
-        Logger::registerAppender(consoleAppender);
-        consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
-        consoleAppender->setDetailsLevel(Logger::Trace);
+        if (not background) {
+            ConsoleAppender *consoleAppender = new ConsoleAppender();
+            Logger::registerAppender(consoleAppender);
+            consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
+            if (trace && debug)
+                consoleAppender->setDetailsLevel(Logger::Trace);
+            else if (debug && !trace)
+                consoleAppender->setDetailsLevel(Logger::Debug);
+            else {
+                consoleAppender->setDetailsLevel(Logger::Info);
+                consoleAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] %m\n");
+            }
+
+        } else {
+            FileAppender *fileAppender;
+            fileAppender = new FileAppender(QString(getenv("HOME")) + DEFAULT_SYNSHOT_LOG_FILE);
+
+            Logger::registerAppender(fileAppender);
+            fileAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] <%c:(%F:%i)> %m\n");
+            if (trace && debug)
+                fileAppender->setDetailsLevel(Logger::Trace);
+            else if (debug && !trace)
+                fileAppender->setDetailsLevel(Logger::Debug);
+            else {
+                fileAppender->setDetailsLevel(Logger::Info);
+                fileAppender->setFormat("%t{dd-HH:mm:ss} [%-7l] %m\n");
+            }
+        }
+
+        logInfo() << "Launching Synshot v" + QString(APP_VERSION);
 
         /* autogen of ppk ssh key */
         QString sourcePrivateKey = QString(getenv("HOME")) + ID_SSH_DIR + ID_RSA;

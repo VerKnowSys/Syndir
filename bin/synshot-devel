@@ -4,6 +4,6 @@ bin/build
 if [ "$1" = "lldb" ]; then
     lldb Synshot.app/Contents/MacOS/Synshot
 else
-    Synshot.app/Contents/MacOS/Synshot
+    Synshot.app/Contents/MacOS/Synshot $@
 fi
 exit $?
