@@ -117,7 +117,7 @@
                 processArguments << sourcePrivateKey << "-o" << destPrivateKey;
                 QProcess *process = new QProcess();
                 process->start(puttyGen, processArguments);
-                process->waitForFinished();
+                process->waitForReadyRead(5000); /* XXX: hardcoded 5s */
                 process->terminate();
                 process->deleteLater();
             } else

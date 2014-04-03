@@ -169,13 +169,20 @@ void FileWatchersManager::connectToRemoteHost() {
             /* default values based on PPK file format: */
             const QString publicLinesId = "Public-Lines:";
             const QString privateLinesId = "Private-Lines:";
-            int pubkeyLenghtLine = 0;
-            int privkeyLengthLine = 0;
+            const QString encryptionId = "Encryption:";
+            int pubkeyLenghtLine = 0,
+                privkeyLengthLine = 0,
+                encryptionModeLine = 0;
             bool okprv = false,
-                 okpub = false;
+                 okpub = false,
+                 encrypted = false;
 
             logDebug() << "Seeking private & public lines from PPK";
             for (int l = 0; l < lines.length(); l++) {
+                if (lines.at(l).startsWith(encryptionId)) {
+                    logDebug() << "Encryption mode specified at line:" << QString::number(l);
+                    encryptionModeLine = l;
+                }
                 if (lines.at(l).startsWith(publicLinesId)) {
                     logDebug() << "Public lines:" << QString::number(l);
                     pubkeyLenghtLine = l;
@@ -185,6 +192,12 @@ void FileWatchersManager::connectToRemoteHost() {
                     privkeyLengthLine = l;
                 }
             }
+
+            /* check encryption mode */
+            QString encryptionMode = lines.at(encryptionModeLine).split(encryptionId).last().trimmed();
+            logDebug() << "Encryption mode:" << encryptionMode;
+            if (encryptionMode != "none") /* encryption on key */
+                encrypted = true;
 
             if (pubkeyLenghtLine == 0) {
                 logError() << "Wrong PPK file provided (pubkey part not found)!";
@@ -227,12 +240,27 @@ void FileWatchersManager::connectToRemoteHost() {
                         g_RsaPrivateKey[buff] = privkey.at(buff).toAscii();
                     }
 
-                    result = connection->authByPublicKey(
-                        g_RsaPublicKey,
-                        g_RsaPublicKeySize,
-                        g_RsaPrivateKey,
-                        g_RsaPrivateKeySize
-                    );
+                    if (encrypted) { /* if key is encrypted with a pass phrase, use "ssh key" to decrypt it */
+                        logWarn() << "Encrypted SSH keys aren't supported. Skipping";
+                        //
+                        // XXX: in theory, this function should just work. but it segfaults instead,
+                        // because it's not yet implemented in PTSsh :(
+                        //
+                        // result = connection->authByPublicKey(
+                        //     g_RsaPublicKey,
+                        //     g_RsaPublicKeySize,
+                        //     g_RsaPrivateKey,
+                        //     g_RsaPrivateKeySize,
+                        //     "my-key-passphrase"
+                        // );
+                    } else {
+                        result = connection->authByPublicKey(
+                            g_RsaPublicKey,
+                            g_RsaPublicKeySize,
+                            g_RsaPrivateKey,
+                            g_RsaPrivateKeySize
+                        );
+                    }
                 }
             }
 
