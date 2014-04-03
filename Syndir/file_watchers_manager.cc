@@ -241,13 +241,7 @@ void FileWatchersManager::connectToRemoteHost() {
                     }
 
                     if (encrypted) { /* if key is encrypted with a pass phrase, use "ssh key" to decrypt it */
-                        result = connection->authByPublicKey(
-                            g_RsaPublicKey,
-                            g_RsaPublicKeySize,
-                            g_RsaPrivateKey,
-                            g_RsaPrivateKeySize,
-                            sshPass.toUtf8()
-                        );
+                        logWarn() << "Encrypted SSH keys aren't supported. Skipping";
                     } else {
                         result = connection->authByPublicKey(
                             g_RsaPublicKey,
