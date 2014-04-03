@@ -50,6 +50,7 @@
         QCoreApplication::setApplicationName("Synshot");
         loadDefaultSettings();
         QSettings settings;
+        settings.setValue("lastRun", QDateTime::currentDateTime());
         QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
         QStringList args = app.arguments();
 

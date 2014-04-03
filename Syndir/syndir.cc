@@ -39,6 +39,8 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationDomain("verknowsys.com");
     QCoreApplication::setApplicationName("Syndir");
     loadDefaultSettings();
+    QSettings settings;
+    settings.setValue("lastRun", QDateTime::currentDateTime());
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
     QStringList args = app.arguments();
 
