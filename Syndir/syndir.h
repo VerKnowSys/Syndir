@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.22.1"
+#define APP_VERSION "0.22.2"
 
 #define PUTTY_GEN "puttygen"
 #define ID_SSH_DIR "/.ssh/"
