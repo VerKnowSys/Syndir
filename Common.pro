@@ -10,6 +10,9 @@ QT -= gui
 QMAKE_CXX = ccache clang++
 QMAKE_CC = ccache clang
 
+OBJECTS_DIR = ../.obj
+MOC_DIR = ../.moc
+
 QMAKE_CXXFLAGS += -fcolor-diagnostics -Qunused-arguments -Wself-assign -fPIC -fPIE -Os -w
 
 mac {

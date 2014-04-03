@@ -95,7 +95,8 @@ void FileWatchersManager::loadSettings() {
     if (this->hostName.isEmpty() or this->userName.isEmpty()) {
         logDebug() << "Invalid (empty) host or user name.";
         #ifndef GUI_ENABLED
-            usage();
+            logDebug() << "Usage:" << endl
+             << "syndir ~/Projects/MyProjectDir dmilith@myhost.com:/remote/destination/of/MyProjectDir [ more.host.com:/also/here/MyProjectDir.copy ]";
         #endif
         exit(1); // XXX: FIXME: shouldn't just silent fail, but retry
     }

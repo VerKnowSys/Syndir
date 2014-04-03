@@ -22,7 +22,7 @@ class WorkerThread: public QThread {
 
     public:
         #ifdef GUI_ENABLED
-            WorkerThread(ConfigWindow *config, const QString& sourceDir, const QString& fullDestinationSSHPath);
+            WorkerThread(QPointer<ConfigWindow> config, const QString& sourceDir, const QString& fullDestinationSSHPath);
         #else
             WorkerThread(const QString& sourceDir, const QString& fullDestinationSSHPath);
         #endif

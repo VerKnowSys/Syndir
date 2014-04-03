@@ -9,7 +9,7 @@
 
 
 #ifdef GUI_ENABLED
-    WorkerThread::WorkerThread(ConfigWindow *config, const QString& sourceDir, const QString& fullDestinationSSHPath) {
+    WorkerThread::WorkerThread(QPointer<ConfigWindow> config, const QString& sourceDir, const QString& fullDestinationSSHPath) {
         this->source = sourceDir;
         this->destination = fullDestinationSSHPath;
         this->configWindow = config;

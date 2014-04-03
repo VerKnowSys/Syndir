@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.22.2"
+#define APP_VERSION "0.22.3"
 
 #define PUTTY_GEN "puttygen"
 #define ID_SSH_DIR "/.ssh/"
@@ -69,9 +69,6 @@
 #define logError LOG_ERROR
 #define logFatal LOG_FATAL
 
-
-
-void usage();
 
 
 #endif

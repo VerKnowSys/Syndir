@@ -7,24 +7,24 @@
 
 include(../Common.pro)
 
-
 TEMPLATE = app
 DEFINES += GUI_ENABLED
 QT += gui
 ICON = images/Synshot.icns
 
-HEADERS += ../Syndir/syndir.h \
-           ../Syndir/worker_thread.h \
-           synshot.h \
-           notifications.h \
-           synshot_config_widget.h \
-           ../Syndir/file_watchers_manager.h
+HEADERS += \
+          ../Syndir/worker_thread.h \
+          ../Syndir/file_watchers_manager.h \
+          notifications.h \
+          synshot_config_widget.h \
+          synshot.h
 
-SOURCES += ../Syndir/file_watchers_manager.cc \
-           synshot.cc \
-           notifications.cc \
-           ../Syndir/worker_thread.cc \
-           synshot_config_widget.cc
+SOURCES += \
+          ../Syndir/worker_thread.cc \
+          ../Syndir/file_watchers_manager.cc \
+          notifications.cc \
+          synshot_config_widget.cc \
+          synshot.cc
 
 RESOURCES = Synshot.qrc
 FORMS = Synshot.ui
