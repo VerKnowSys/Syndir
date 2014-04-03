@@ -242,6 +242,16 @@ void FileWatchersManager::connectToRemoteHost() {
 
                     if (encrypted) { /* if key is encrypted with a pass phrase, use "ssh key" to decrypt it */
                         logWarn() << "Encrypted SSH keys aren't supported. Skipping";
+                        //
+                        // XXX: in theory, this function should just work. but it segfaults instead :(
+                        //
+                        // result = connection->authByPublicKey(
+                        //     g_RsaPublicKey,
+                        //     g_RsaPublicKeySize,
+                        //     g_RsaPrivateKey,
+                        //     g_RsaPrivateKeySize,
+                        //     "my-key-passphrase"
+                        // );
                     } else {
                         result = connection->authByPublicKey(
                             g_RsaPublicKey,
