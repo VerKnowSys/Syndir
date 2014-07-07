@@ -12,3 +12,5 @@ syndir
 /releases/
 
 /Synshot.dmg
+
+/.qmake.stash

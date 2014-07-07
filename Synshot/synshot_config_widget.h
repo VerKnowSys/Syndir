@@ -8,7 +8,10 @@
 #ifndef __SYNSHOT_CONF_WIDGET_H__
 #define __SYNSHOT_CONF_WIDGET_H__
 
-#include <QtGui/QtGui>
+#include <QtGui>
+#include <QSystemTrayIcon>
+#include <QDesktopWidget>
+#include <QMenu>
 
 /* auto generated: */
 #include "ui_Synshot.h"
@@ -20,7 +23,7 @@
 using namespace Ui;
 
 
-class ConfigWindow: public QDialog {
+class ConfigWindow: public QWidget {
     Q_OBJECT
 
     public:

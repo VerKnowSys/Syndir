@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     loadDefaultSettings();
     QSettings settings;
     settings.setValue("lastRun", QDateTime::currentDateTime());
-    QTextCodec::setCodecForCStrings(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName(DEFAULT_STRING_CODEC));
     QStringList args = app.arguments();
 
     QStringList remotes;

@@ -232,13 +232,13 @@ void FileWatchersManager::connectToRemoteHost() {
                     int g_RsaPublicKeySize = pubkey.length();
                     unsigned char g_RsaPublicKey[g_RsaPublicKeySize];
                     for (int buff = 0; buff < pubkey.length(); buff++) {
-                        g_RsaPublicKey[buff] = pubkey.at(buff).toAscii();
+                        g_RsaPublicKey[buff] = pubkey.at(buff).toLatin1();
                     }
 
                     int g_RsaPrivateKeySize = privkey.length();
                     unsigned char g_RsaPrivateKey[g_RsaPrivateKeySize];
                     for (int buff = 0; buff < privkey.length(); buff++) {
-                        g_RsaPrivateKey[buff] = privkey.at(buff).toAscii();
+                        g_RsaPrivateKey[buff] = privkey.at(buff).toLatin1();
                     }
 
                     if (encrypted) { /* if key is encrypted with a pass phrase, use "ssh key" to decrypt it */

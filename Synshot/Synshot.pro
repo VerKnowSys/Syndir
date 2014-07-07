@@ -9,7 +9,7 @@ include(../Common.pro)
 
 TEMPLATE = app
 DEFINES += GUI_ENABLED
-QT += gui
+QT += gui widgets
 ICON = images/Synshot.icns
 
 HEADERS += \
@@ -32,9 +32,5 @@ TARGET = ../Synshot
 
 LIBS += -lcrypto -lz ../libPTssh.a ../liblogger.a
 
-mac {
-
-  CONFIG += app_bundle
-  QMAKE_INFO_PLIST = Synshot.plist
-
-}
+CONFIG += app_bundle
+QMAKE_INFO_PLIST = Synshot.plist
