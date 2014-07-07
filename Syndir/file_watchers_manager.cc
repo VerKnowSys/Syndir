@@ -299,7 +299,7 @@ void FileWatchersManager::connectToRemoteHost() {
 
 /* by tallica & dmilith */
 void FileWatchersManager::scanDir(QDir dir) {
-    logDebug() << "Scanning:" << dir.absolutePath();
+    // logDebug() << "Scanning:" << dir.absolutePath();
 
     this->oldFiles = this->files;
     // this->files = QStringList();
@@ -319,7 +319,7 @@ void FileWatchersManager::scanDir(QDir dir) {
             files << nextOne;
         } else {
             QRegExp matcher(settings.value("allowed_file_types", ALLOWED_FILE_TYPES).toString());
-            if (nextOne.contains(matcher)) {
+            if (matcher.isValid() and nextOne.contains(matcher)) {
                 // logDebug() << "Found match:" << nextOne;
                 files << nextOne;
             } else {
@@ -330,8 +330,8 @@ void FileWatchersManager::scanDir(QDir dir) {
     files.removeDuplicates();
 
     addPaths(files);
-    logDebug() << "Total files and dirs on watch:" << files.size();
-    logDebug() << "Ready.";
+    // logDebug() << "Total files and dirs on watch:" << QString::number(files.size());
+    // logDebug() << "Ready.";
 }
 
 
