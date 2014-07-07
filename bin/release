@@ -15,11 +15,11 @@ cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
 
 printf "Hacking bundle to reduce bloat\n"
 rm -rf Syndir.app
-mv Synshot.app/Contents/PlugIns/imageformats/libqtiff.dylib ./
+mv Synshot.app/Contents/PlugIns/imageformats/*.dylib ./
 cp `which puttygen` Synshot.app/Contents/MacOS/puttygen
 rm -rf Synshot.app/Contents/PlugIns
 mkdir -p Synshot.app/Contents/PlugIns/imageformats
-mv libqtiff.dylib Synshot.app/Contents/PlugIns/imageformats/
+mv *.dylib Synshot.app/Contents/PlugIns/imageformats/
 rm -rf Synshot.app/Contents/Resources/empty.lproj
 
 for i in $(find Synshot.app/Contents/MacOS -type f); do
