@@ -18,14 +18,10 @@ if [ "QT4" != "$1" ]; then
     export PATH=${HOME}/Qt/5.3/clang_64/bin:$PATH
 fi
 
-SPEC_TYPE=""
-if [ "$(uname)" = "Darwin" ]; then
-    SPEC_TYPE="-spec macx-g++"
-fi
-
 printf "Updating UI defs\n"
 uic Synshot/Synshot.ui -o Synshot/ui_Synshot.h
 
+SPEC_TYPE=""
 qmake ${SPEC_TYPE} Project.pro
 make -j8
 exit $?

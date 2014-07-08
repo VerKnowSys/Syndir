@@ -43,11 +43,11 @@ server {
 
 
 ## Requirements:
-* [Qt4 4.8.x](http://qt-project.org/downloads) (only QtCore part of framework for Syndir, QtGui for Synshot)
+* [Qt 5.x](http://qt-project.org/downloads) (only QtCore part of framework for Syndir, QtGui for Synshot)
 
 
 ## Preffered/Optional requirements.:
-* Qt4 GUI libraries to build Synshot (for GUI to file sync utility)
+* Qt5 GUI libraries to build Synshot (for GUI to file sync utility)
 * [Growl](http://growl.info) - When available, will be used for notifications in GUI app.
 
 
@@ -89,4 +89,4 @@ Will launch Syndir in watch mode, automatically uploading each modified file fro
 ## Used 3rd party software and licenses info:
 * PTssh implementation by Paul Thomas (BSD licensed)
 * CuteLogger MT logger implementation by Boris Moiseev (LGPL licensed)
-* QT4 4.8.x implementation (LGPL licensed)
+* QT4 5.x implementation (LGPL licensed)

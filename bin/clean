@@ -2,4 +2,5 @@
 
 make clean
 make distclean
+rm -fr *.xcodeproj
 rm -f *.a

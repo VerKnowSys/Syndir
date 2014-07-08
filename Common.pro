@@ -7,8 +7,8 @@
 
 QT -= gui
 
-QMAKE_CXX = clang++
-QMAKE_CC = clang
+QMAKE_CXX = ccache clang++
+QMAKE_CC = ccache clang
 
 OBJECTS_DIR = ../.obj
 MOC_DIR = ../.moc

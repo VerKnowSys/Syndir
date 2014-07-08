@@ -8,19 +8,19 @@ if [ ! -x "/usr/bin/sofin" ]; then
 fi
 
 printf "Creating software bundle\n"
-macdeployqt Syndir.app -dmg
+# macdeployqt Syndir.app -dmg
 macdeployqt Synshot.app -dmg
 printf "Doing merge into Synshot\n"
 cp Syndir.app/Contents/MacOS/Syndir Synshot.app/Contents/MacOS/
 
 printf "Hacking bundle to reduce bloat\n"
-rm -rf Syndir.app
-mv Synshot.app/Contents/PlugIns/imageformats/*.dylib ./
+# rm -rf Syndir.app
+# mv Synshot.app/Contents/PlugIns/imageformats/*.dylib ./
 cp `which puttygen` Synshot.app/Contents/MacOS/puttygen
-rm -rf Synshot.app/Contents/PlugIns
-mkdir -p Synshot.app/Contents/PlugIns/imageformats
-mv *.dylib Synshot.app/Contents/PlugIns/imageformats/
-rm -rf Synshot.app/Contents/Resources/empty.lproj
+# rm -rf Synshot.app/Contents/PlugIns
+# mkdir -p Synshot.app/Contents/PlugIns/imageformats
+# mv *.dylib Synshot.app/Contents/PlugIns/imageformats/
+# rm -rf Synshot.app/Contents/Resources/empty.lproj
 
 for i in $(find Synshot.app/Contents/MacOS -type f); do
     strip $i
@@ -41,10 +41,10 @@ if [ "${USER}" = "dmilith" ]; then # XXX: hacky but i'm lazy ;p
     user_id="$(id -u)"
     log_path="/var/log/com.apple.launchd.peruser.${user_id}"
     if [ -f "${log_path}/Synshot.log" ]; then
-        mv ${log_path}/Synshot.log ${log_path}/Synshot.log.$(date +%d%m%Y-%M%S)
+        mv ${log_path}/Synshot.log "${log_path}/Synshot.log.$(date +%d%m%Y-%M%S)"
     fi
-    /Applications/Synshot.app/Contents/MacOS/Synshot > ${log_path}/Synshot.log 2>&1 &
+    /Applications/Synshot.app/Contents/MacOS/Synshot > "${log_path}/Synshot.log" 2>&1 &
 fi
 
 printf "Cleaning source tree\n"
-bin/clean > /dev/null 2>&1 && printf "Done.\n"
+bin/clean && printf "Done.\n"

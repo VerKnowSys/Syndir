@@ -1,8 +1,6 @@
 *.o
 Makefile
 moc_*.cpp
-syndir
-/synshot
 /Synshot.app/
 /Synshot/ui_Synshot.h
 /Synshot/qrc_Synshot.cpp
@@ -10,7 +8,6 @@ syndir
 *.a
 /Syndir.app/
 /releases/
-
-/Synshot.dmg
-
 /.qmake.stash
+*.dmg
+*.xcodeproj
