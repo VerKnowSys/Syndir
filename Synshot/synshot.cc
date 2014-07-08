@@ -58,7 +58,7 @@
         QRegExp rxEnableDebug("-d");
         QRegExp rxEnableTrace("-t");
 
-        bool debug = true, trace = false, background = true;
+        bool debug = false, trace = false, background = true;
         for (int i = 1; i < args.size(); ++i) {
             if (rxEnableDebug.indexIn(args.at(i)) != -1 ) {
                 debug = true;
