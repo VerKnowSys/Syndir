@@ -6,18 +6,14 @@ if [ ! -x "/usr/bin/sofin" ]; then
 fi
 
 if [ "$(uname)" != "Darwin" ]; then
-    if [ ! -d "/Software/Qt/include" ]; then
-        if [ ! -d "${HOME}/Apps/Qt" ]; then
-            sofin install qt
+    if [ ! -d "/Software/Qt53/include" ]; then
+        if [ ! -d "${HOME}/Apps/Qt53" ]; then
+            sofin install qt53
         fi
     fi
 fi
 
-if [ "QT4" != "$1" ]; then
-    # default installation path for Qt5
-    export PATH=${HOME}/Qt/5.3/clang_64/bin:$PATH
-fi
-
+# export PATH=${HOME}/Apps/Qt53/exports:$PATH
 printf "Updating UI defs\n"
 uic Synshot/Synshot.ui -o Synshot/ui_Synshot.h
 
