@@ -13,7 +13,6 @@ if [ "$(uname)" != "Darwin" ]; then
     fi
 fi
 
-# export PATH=${HOME}/Apps/Qt53/exports:$PATH
 printf "Updating UI defs\n"
 uic Synshot/Synshot.ui -o Synshot/ui_Synshot.h
 

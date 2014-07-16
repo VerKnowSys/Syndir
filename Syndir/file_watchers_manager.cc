@@ -522,13 +522,14 @@ void FileWatchersManager::copyFilesToRemoteHost(const QStringList& fileList, boo
             auto resultSHA1 = hash->result().toHex();
             delete hash;
 
-            auto renamedFile = dir + "/" + resultSHA1 + "." + extension;
+            auto extensionToken = extension.isEmpty() ? "" : "." + extension;
+            auto renamedFile = dir + "/" + resultSHA1 + extensionToken;
             auto clipboard = QApplication::clipboard();
             QSettings settings;
-            clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + "." + extension);
+            clipboard->setText(settings.value("remote_path", REMOTE_PATH).toString() + resultSHA1 + extensionToken);
 
             if (hashFile) { /* if using sha1 replacement in name */
-                fullDestPath = remotePath + "/" + resultSHA1 + "." + extension;
+                fullDestPath = remotePath + "/" + resultSHA1 + extensionToken;
             }
         #endif
 
