@@ -6,9 +6,9 @@ if [ ! -x "/usr/bin/sofin" ]; then
 fi
 
 if [ "$(uname)" != "Darwin" ]; then
-    if [ ! -d "/Software/Qt53/include" ]; then
-        if [ ! -d "${HOME}/Apps/Qt53" ]; then
-            sofin install qt53
+    if [ ! -d "/Software/Qt55/include" ]; then
+        if [ ! -d "${HOME}/Apps/Qt55" ]; then
+            sofin install qt55
         fi
     fi
 fi

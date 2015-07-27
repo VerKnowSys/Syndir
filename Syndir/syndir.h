@@ -30,7 +30,7 @@
 #include "../PTssh/PTSftp.h"
 
 
-#define APP_VERSION "0.24.1"
+#define APP_VERSION "0.26.0"
 
 #define PUTTY_GEN "puttygen"
 #define ID_SSH_DIR "/.ssh/"
@@ -42,7 +42,7 @@
 #define SSH_PORT 22
 #define SSH_PASSWORD "NO-SSH-PASSWORD-SET" /* NOTE: Safe (crypted) password storage isn't supported yet! */
 #define MAX_PORT_VALUE 65535
-#define COPYRIGHT "2013-2014 verknowsys.com"
+#define COPYRIGHT "2013-2015 verknowsys.com"
 #define DEFAULT_STRING_CODEC "UTF8"
 #define ALLOWED_FILE_TYPES "\\.*$" /* NOTE: switched to wildcard to accept any file type drop */
 // #define ALLOWED_FILE_TYPES "\\.pro$|\\.hpp$|\\.h$|\\.c$|\\.cc$|\\.cpp$|\\.scala$|\\.java$|\\.rb$|Rakefile$|\\.properties$|\\.xml$|\\.html$|\\.js$|\\.coffee$|\\.sh$|\\.def$|\\.md$|\\.haml$|\\.slim$|\\.css$|\\.sass$|\\.scss$|\\.less$|\\.erb$|\\.yml|\\.yaml$$|\\.conf$|\\.json$|\\.jpg$|\\.jpeg$|\\.png$|\\.svg$|\\.gif$|\\.jar$|\\.ini$|\\.patch$|\\.jp2$"
